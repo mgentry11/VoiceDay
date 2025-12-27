@@ -421,56 +421,90 @@ class NotificationService: ObservableObject {
     }
 
     private func setupNotificationCategories() async {
-        // Task reminder actions
+        // SIMPLIFIED ACTIONS (ADHD-friendly: fewer choices = less paralysis)
+
+        // Done - marks task complete
         let doneAction = UNNotificationAction(
             identifier: "DONE_ACTION",
             title: "Done ✓",
             options: [.foreground]
         )
 
+        // Smart snooze - uses context-aware timing
+        let smartSnoozeAction = UNNotificationAction(
+            identifier: "SMART_SNOOZE_ACTION",
+            title: "Later",
+            options: []
+        )
+
+        // Legacy snooze actions (for backward compatibility)
         let snooze5Action = UNNotificationAction(
             identifier: "SNOOZE_5_ACTION",
-            title: "Remind in 5 min",
+            title: "5 min",
             options: []
         )
 
         let snooze15Action = UNNotificationAction(
             identifier: "SNOOZE_15_ACTION",
-            title: "Remind in 15 min",
+            title: "15 min",
             options: []
         )
 
         let snooze30Action = UNNotificationAction(
             identifier: "SNOOZE_30_ACTION",
-            title: "Remind in 30 min",
+            title: "30 min",
             options: []
         )
 
-        // Task reminder category
+        // Task reminder category - SIMPLIFIED to just 2 options
         let taskCategory = UNNotificationCategory(
             identifier: "TASK_REMINDER",
-            actions: [doneAction, snooze5Action, snooze15Action, snooze30Action],
+            actions: [doneAction, smartSnoozeAction],
             intentIdentifiers: [],
             options: []
         )
 
-        // Event reminder category
+        // Event reminder category - SIMPLIFIED
         let eventCategory = UNNotificationCategory(
             identifier: "EVENT_REMINDER",
-            actions: [doneAction, snooze5Action, snooze15Action],
+            actions: [doneAction, smartSnoozeAction],
             intentIdentifiers: [],
             options: []
         )
 
-        // Nag category (for repeat reminders)
+        // Nag category - SIMPLIFIED
         let nagCategory = UNNotificationCategory(
             identifier: "NAG_REMINDER",
+            actions: [doneAction, smartSnoozeAction],
+            intentIdentifiers: [],
+            options: []
+        )
+
+        // Legacy category with all snooze options (for settings power users)
+        let detailedCategory = UNNotificationCategory(
+            identifier: "TASK_REMINDER_DETAILED",
             actions: [doneAction, snooze5Action, snooze15Action, snooze30Action],
             intentIdentifiers: [],
             options: []
         )
 
-        center.setNotificationCategories([taskCategory, eventCategory, nagCategory])
+        center.setNotificationCategories([taskCategory, eventCategory, nagCategory, detailedCategory])
+    }
+
+    /// Calculate smart snooze duration based on time of day
+    func smartSnoozeDuration() -> TimeInterval {
+        let hour = Calendar.current.component(.hour, from: Date())
+
+        switch hour {
+        case 6..<12:   // Morning - 30 min snooze
+            return 30 * 60
+        case 12..<17:  // Afternoon - 15 min snooze
+            return 15 * 60
+        case 17..<21:  // Evening - 1 hour snooze
+            return 60 * 60
+        default:       // Night - 2 hour snooze
+            return 120 * 60
+        }
     }
 
     // MARK: - Schedule Task Reminders

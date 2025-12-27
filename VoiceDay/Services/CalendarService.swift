@@ -178,6 +178,74 @@ class CalendarService: ObservableObject {
         try eventStore.remove(reminder, commit: true)
     }
 
+    // MARK: - Push Task to Later/Tomorrow
+
+    /// Push a task to tomorrow morning (9 AM)
+    func pushToTomorrow(_ reminder: EKReminder) async throws {
+        let calendar = Calendar.current
+        var tomorrow = calendar.date(byAdding: .day, value: 1, to: Date())!
+
+        // Set to 9 AM tomorrow
+        var components = calendar.dateComponents([.year, .month, .day], from: tomorrow)
+        components.hour = 9
+        components.minute = 0
+
+        tomorrow = calendar.date(from: components) ?? tomorrow
+
+        reminder.dueDateComponents = calendar.dateComponents(
+            [.year, .month, .day, .hour, .minute],
+            from: tomorrow
+        )
+
+        // Update alarm
+        reminder.alarms?.forEach { reminder.removeAlarm($0) }
+        let alarm = EKAlarm(absoluteDate: tomorrow)
+        reminder.addAlarm(alarm)
+
+        try eventStore.save(reminder, commit: true)
+        print("📅 Pushed '\(reminder.title ?? "task")' to tomorrow")
+    }
+
+    /// Push a task to tomorrow at a specific time
+    func pushToTomorrowAtTime(_ reminder: EKReminder, time: Date) async throws {
+        let calendar = Calendar.current
+
+        reminder.dueDateComponents = calendar.dateComponents(
+            [.year, .month, .day, .hour, .minute],
+            from: time
+        )
+
+        // Update alarm
+        reminder.alarms?.forEach { reminder.removeAlarm($0) }
+        let alarm = EKAlarm(absoluteDate: time)
+        reminder.addAlarm(alarm)
+
+        try eventStore.save(reminder, commit: true)
+
+        let formatter = DateFormatter()
+        formatter.dateFormat = "h:mm a"
+        print("📅 Pushed '\(reminder.title ?? "task")' to tomorrow at \(formatter.string(from: time))")
+    }
+
+    /// Push a task to later today (X hours from now)
+    func pushToLater(_ reminder: EKReminder, hours: Int = 3) async throws {
+        let calendar = Calendar.current
+        let laterDate = calendar.date(byAdding: .hour, value: hours, to: Date())!
+
+        reminder.dueDateComponents = calendar.dateComponents(
+            [.year, .month, .day, .hour, .minute],
+            from: laterDate
+        )
+
+        // Update alarm
+        reminder.alarms?.forEach { reminder.removeAlarm($0) }
+        let alarm = EKAlarm(absoluteDate: laterDate)
+        reminder.addAlarm(alarm)
+
+        try eventStore.save(reminder, commit: true)
+        print("⏰ Pushed '\(reminder.title ?? "task")' to \(hours) hours later")
+    }
+
     func deleteEvent(_ event: EKEvent) throws {
         try eventStore.remove(event, span: .thisEvent)
     }

@@ -3,31 +3,31 @@ import SwiftUI
 struct ContentView: View {
     @EnvironmentObject var appState: AppState
     @ObservedObject private var themeColors = ThemeColors.shared
-    @State private var selectedTab = 0
 
     var body: some View {
-        TabView(selection: $selectedTab) {
+        TabView(selection: $appState.selectedTab) {
+            // Focus tab - ADHD-friendly simplified view (primary entry point)
+            FocusHomeView()
+                .tabItem {
+                    Label("Focus", systemImage: "scope")
+                }
+                .tag(0)
+
             RecordingView()
                 .tabItem {
                     Label("Record", systemImage: "mic.fill")
                 }
-                .tag(0)
+                .tag(1)
 
             TasksListView()
                 .tabItem {
                     Label("Tasks", systemImage: "checklist")
                 }
-                .tag(1)
+                .tag(2)
 
             GoalsView()
                 .tabItem {
                     Label("Goals", systemImage: "target")
-                }
-                .tag(2)
-
-            CalendarListView()
-                .tabItem {
-                    Label("Calendar", systemImage: "calendar")
                 }
                 .tag(3)
 
@@ -41,7 +41,7 @@ struct ContentView: View {
         .id(themeColors.currentTheme.rawValue) // Force rebuild when theme changes
         .onAppear {
             if !appState.hasValidClaudeKey {
-                selectedTab = 4  // Settings tab
+                appState.selectedTab = 4  // Settings tab
             }
         }
     }

@@ -249,3 +249,150 @@ struct ConversationMessage: Identifiable, Codable {
         case id, role, content, timestamp, isNag
     }
 }
+
+// MARK: - Architect Models
+
+struct ProductBlueprint: Identifiable, Codable {
+    let id: UUID
+    var title: String
+    var description: String
+    var targetAudience: String
+    var coreValueProposition: String
+    var mvpFeatures: [String]
+    var revenueModel: String
+    var technicalStack: [String]
+    var roadmap: [String]
+    var confidenceScore: Double // 0.0 to 1.0 based on info gathered
+    var createdAt: Date
+    
+    init(id: UUID = UUID(), title: String = "", description: String = "", targetAudience: String = "", coreValueProposition: String = "", mvpFeatures: [String] = [], revenueModel: String = "", technicalStack: [String] = [], roadmap: [String] = [], confidenceScore: Double = 0.0, createdAt: Date = Date()) {
+        self.id = id
+        self.title = title
+        self.description = description
+        self.targetAudience = targetAudience
+        self.coreValueProposition = coreValueProposition
+        self.mvpFeatures = mvpFeatures
+        self.revenueModel = revenueModel
+        self.technicalStack = technicalStack
+        self.roadmap = roadmap
+        self.confidenceScore = confidenceScore
+        self.createdAt = createdAt
+    }
+}
+
+struct ArchitectDiscoveryResponse: Decodable {
+    let blueprint: ProductBlueprintDTO?
+    let analysis: String?
+    let clarifyingQuestion: String?
+    let infoCompleteness: Double
+    let isReadyToFinalize: Bool
+    
+    struct ProductBlueprintDTO: Decodable {
+        let title: String?
+        let description: String?
+        let targetAudience: String?
+        let coreValueProposition: String?
+        let mvpFeatures: [String]?
+        let revenueModel: String?
+        let technicalStack: [String]?
+        let roadmap: [String]?
+    }
+}
+
+// MARK: - Goal Models
+
+enum GoalStatus: String, Codable, CaseIterable {
+    case active, paused, completed, abandoned
+    var displayName: String { rawValue.capitalized }
+    var icon: String {
+        switch self {
+        case .active: return "target"
+        case .paused: return "pause.circle"
+        case .completed: return "checkmark.circle.fill"
+        case .abandoned: return "xmark.circle"
+        }
+    }
+}
+
+struct Milestone: Identifiable, Codable {
+    let id: UUID
+    var title: String
+    var description: String?
+    var estimatedDays: Int?
+    var isCompleted: Bool
+    var completedAt: Date?
+    var suggestedTasks: [String]
+    init(id: UUID = UUID(), title: String, description: String? = nil, estimatedDays: Int? = nil, isCompleted: Bool = false, completedAt: Date? = nil, suggestedTasks: [String] = []) {
+        self.id = id; self.title = title; self.description = description; self.estimatedDays = estimatedDays; self.isCompleted = isCompleted; self.completedAt = completedAt; self.suggestedTasks = suggestedTasks
+    }
+}
+
+struct Goal: Identifiable, Codable {
+    let id: UUID
+    var title: String
+    var description: String?
+    var targetDate: Date?
+    var status: GoalStatus
+    var milestones: [Milestone]
+    var currentMilestoneIndex: Int
+    var dailyTimeMinutes: Int?
+    var preferredDays: [Int]?
+    var linkedTaskIds: [String]
+    var completedTaskCount: Int
+    var createdAt: Date
+    var lastProgressUpdate: Date
+    var lastWorkSession: Date?
+
+    var progressPercentage: Double {
+        if milestones.isEmpty {
+            guard linkedTaskIds.count > 0 else { return 0 }
+            return Double(completedTaskCount) / Double(linkedTaskIds.count) * 100
+        }
+        let completed = milestones.filter { $0.isCompleted }.count
+        return Double(completed) / Double(milestones.count) * 100
+    }
+    var daysSinceLastProgress: Int { Calendar.current.dateComponents([.day], from: lastProgressUpdate, to: Date()).day ?? 0 }
+    var currentMilestone: Milestone? { (currentMilestoneIndex >= 0 && currentMilestoneIndex < milestones.count) ? milestones[currentMilestoneIndex] : nil }
+    var completedMilestonesCount: Int { milestones.filter { $0.isCompleted }.count }
+    var neglectLevel: Int {
+        switch daysSinceLastProgress {
+        case 0...1: return 0
+        case 2...3: return 1
+        case 4...6: return 2
+        case 7...13: return 3
+        case 14...29: return 4
+        default: return 5
+        }
+    }
+    var scheduleDescription: String {
+        var parts: [String] = []
+        if let mins = dailyTimeMinutes { parts.append(mins >= 60 ? "\(mins/60)h \(mins%60)m/day" : "\(mins) min/day") }
+        return parts.joined()
+    }
+
+    init(id: UUID = UUID(), title: String, description: String? = nil, targetDate: Date? = nil, status: GoalStatus = .active, milestones: [Milestone] = [], currentMilestoneIndex: Int = 0, dailyTimeMinutes: Int? = nil, preferredDays: [Int]? = nil, linkedTaskIds: [String] = [], completedTaskCount: Int = 0, createdAt: Date = Date(), lastProgressUpdate: Date = Date(), lastWorkSession: Date? = nil) {
+        self.id = id; self.title = title; self.description = description; self.targetDate = targetDate; self.status = status; self.milestones = milestones; self.currentMilestoneIndex = currentMilestoneIndex; self.dailyTimeMinutes = dailyTimeMinutes; self.preferredDays = preferredDays; self.linkedTaskIds = linkedTaskIds; self.completedTaskCount = completedTaskCount; self.createdAt = createdAt; self.lastProgressUpdate = lastProgressUpdate; self.lastWorkSession = lastWorkSession
+    }
+
+    mutating func completeMilestone(at index: Int) {
+        guard index >= 0 && index < milestones.count else { return }
+        milestones[index].isCompleted = true
+        milestones[index].completedAt = Date()
+        lastProgressUpdate = Date()
+        if let next = milestones.firstIndex(where: { !$0.isCompleted }) { currentMilestoneIndex = next }
+        else { status = .completed }
+    }
+    mutating func recordProgress() { lastProgressUpdate = Date() }
+    mutating func recordWorkSession() { lastWorkSession = Date(); lastProgressUpdate = Date() }
+    mutating func linkTask(taskId: String) { if !linkedTaskIds.contains(taskId) { linkedTaskIds.append(taskId) } }
+    mutating func recordTaskCompletion() { completedTaskCount += 1; lastProgressUpdate = Date() }
+}
+
+struct GoalDTO: Decodable {
+    let title: String; let description: String?; let targetDate: String?; let milestones: [MilestoneDTO]?; let dailyTimeMinutes: Int?; let preferredDays: [Int]?
+    struct MilestoneDTO: Decodable { let title: String; let description: String?; let estimatedDays: Int?; let tasks: [String]? }
+}
+struct GoalOperationDTO: Decodable {
+    let action: String; let goalId: UUID?; let goalTitle: String?; let taskTitle: String?; let progressNote: String?; let milestoneIndex: Int?
+}
+struct HelpRequestDTO: Decodable { let topic: String?; let isFirstTime: Bool? }

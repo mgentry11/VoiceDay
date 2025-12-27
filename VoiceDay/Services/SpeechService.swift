@@ -4,6 +4,8 @@ import AVFoundation
 
 @MainActor
 class SpeechService: NSObject, ObservableObject {
+    static let shared = SpeechService()
+
     @Published var isListening = false
     @Published var isSpeaking = false
     @Published var transcribedText = ""
@@ -15,10 +17,23 @@ class SpeechService: NSObject, ObservableObject {
     private var recognitionTask: SFSpeechRecognitionTask?
     private let audioEngine = AVAudioEngine()
     private let synthesizer = AVSpeechSynthesizer()
+    private let elevenLabsService = ElevenLabsService()
+
+    // Speech queue to prevent overlapping speech
+    private var speechQueue: [String] = []
+    private var isProcessingQueue = false
 
     override init() {
         super.init()
         synthesizer.delegate = self
+    }
+
+    // Check if ElevenLabs is configured
+    private var hasElevenLabsVoice: Bool {
+        let apiKey = KeychainService.load(key: "elevenlabs_api_key") ?? ""
+        let selectedVoiceId = UserDefaults.standard.string(forKey: "selected_voice_id") ?? ""
+        let customVoiceId = VoiceCloningService.shared.customVoiceId
+        return !apiKey.isEmpty && (customVoiceId != nil || !selectedVoiceId.isEmpty)
     }
 
     func requestAuthorization() async -> Bool {
@@ -91,24 +106,77 @@ class SpeechService: NSObject, ObservableObject {
         isListening = false
     }
 
+    /// Speak text and wait for completion (async)
     func speak(_ text: String) async {
         guard !text.isEmpty else { return }
 
         stopListening()
+        await speakImmediate(text)
+    }
 
+    /// Queue speech - doesn't block, speaks in order when available
+    /// Use this from views to avoid blocking UI
+    func queueSpeech(_ text: String) {
+        guard !text.isEmpty else { return }
+
+        speechQueue.append(text)
+        processQueueIfNeeded()
+    }
+
+    private func processQueueIfNeeded() {
+        guard !isProcessingQueue, !speechQueue.isEmpty else { return }
+
+        isProcessingQueue = true
+        stopListening()
+
+        Task {
+            while !speechQueue.isEmpty {
+                let text = speechQueue.removeFirst()
+                await speakImmediate(text)
+            }
+            isProcessingQueue = false
+        }
+    }
+
+    /// Speak immediately (internal use)
+    private func speakImmediate(_ text: String) async {
+        isSpeaking = true
+
+        // Try ElevenLabs first if configured
+        if hasElevenLabsVoice {
+            let apiKey = KeychainService.load(key: "elevenlabs_api_key") ?? ""
+            let selectedVoiceId = UserDefaults.standard.string(forKey: "selected_voice_id") ?? ""
+
+            do {
+                try await elevenLabsService.speakWithBestVoice(text, apiKey: apiKey, selectedVoiceId: selectedVoiceId)
+                isSpeaking = false
+                return
+            } catch {
+                // Fall through to system voice on error
+                print("ElevenLabs speech failed, falling back to system voice: \(error)")
+            }
+        }
+
+        // Fallback to system voice
         let utterance = AVSpeechUtterance(string: text)
-        utterance.voice = AVSpeechSynthesisVoice(language: "en-US")
-        utterance.rate = AVSpeechUtteranceDefaultSpeechRate
+        utterance.voice = AVSpeechSynthesisVoice(language: "en-GB")  // British for The Gadfly
+        utterance.rate = 0.5  // Slightly slower for ADHD clarity
         utterance.pitchMultiplier = 1.0
         utterance.volume = 1.0
-
-        isSpeaking = true
 
         await withCheckedContinuation { continuation in
             self.speakingContinuation = continuation
             synthesizer.speak(utterance)
         }
 
+        isSpeaking = false
+    }
+
+    /// Stop all speech and clear queue
+    func stopSpeaking() {
+        speechQueue.removeAll()
+        synthesizer.stopSpeaking(at: .immediate)
+        isProcessingQueue = false
         isSpeaking = false
     }
 

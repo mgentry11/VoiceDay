@@ -119,38 +119,62 @@ struct RecordingView: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text("How")
                     .font(.system(size: 32, weight: .light))
-                    .foregroundStyle(themeColors.subtext) +
+                    .foregroundStyle(Color.themeSubtext) +
                 Text(" Can I Help")
                     .font(.system(size: 32, weight: .semibold))
                     .foregroundStyle(
                         LinearGradient(
-                            colors: [themeColors.accentDark, themeColors.accent, themeColors.accentLight],
+                            colors: [Color.themeAccent, Color.themeAccent.opacity(0.8)],
                             startPoint: .leading,
                             endPoint: .trailing
                         )
                     )
                 Text("You Today?")
                     .font(.system(size: 32, weight: .semibold))
-                    .foregroundStyle(themeColors.text)
+                    .foregroundStyle(Color.themeText)
             }
 
             Spacer()
 
-            // Status indicator with all 3 colors
-            Circle()
-                .fill(
-                    currentPhase == .listening ?
-                        LinearGradient(colors: [themeColors.accentDark, themeColors.accent], startPoint: .top, endPoint: .bottom) :
-                        LinearGradient(colors: [themeColors.secondary, themeColors.secondary], startPoint: .top, endPoint: .bottom)
-                )
-                .frame(width: 12, height: 12)
-                .overlay(
+            VStack(alignment: .trailing, spacing: 8) {
+                // Architect Mode Shortcut
+                Button {
+                    appState.selectedTab = 1
+                } label: {
+                    HStack(spacing: 6) {
+                        Image(systemName: "square.stack.3d.up.fill")
+                        Text("Architect Mode")
+                            .font(.system(size: 12, weight: .bold))
+                    }
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
+                    .background(Color.themeAccent.opacity(0.1))
+                    .foregroundStyle(Color.themeAccent)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(Color.themeAccent.opacity(0.3), lineWidth: 1)
+                    )
+                }
+                .cornerRadius(8)
+
+                // Status indicator
+                HStack(spacing: 6) {
+                    Text(currentPhase == .listening ? "Listening" : "Idle")
+                        .font(.system(size: 10, weight: .medium))
+                        .foregroundStyle(Color.themeSubtext)
+                    
                     Circle()
-                        .stroke(themeColors.accentLight.opacity(0.5), lineWidth: 2)
-                        .scaleEffect(currentPhase == .listening ? 1.5 : 1)
-                        .opacity(currentPhase == .listening ? 0 : 1)
-                        .animation(.easeOut(duration: 1).repeatForever(autoreverses: false), value: currentPhase)
-                )
+                        .fill(currentPhase == .listening ? Color.themeAccent : Color.gray.opacity(0.3))
+                        .frame(width: 8, height: 8)
+                        .overlay(
+                            Circle()
+                                .stroke(Color.themeAccent.opacity(0.3), lineWidth: 2)
+                                .scaleEffect(currentPhase == .listening ? 1.5 : 1)
+                                .opacity(currentPhase == .listening ? 0 : 1)
+                                .animation(.easeOut(duration: 1).repeatForever(autoreverses: false), value: currentPhase)
+                        )
+                }
+            }
         }
         .padding(.horizontal, 20)
     }
@@ -177,6 +201,35 @@ struct RecordingView: View {
                 .font(.system(size: 14))
                 .foregroundStyle(Color.themeSubtext.opacity(0.7))
                 .multilineTextAlignment(.center)
+            
+            Divider()
+                .background(Color.themeAccent.opacity(0.2))
+                .padding(.vertical, 8)
+            
+            VStack(spacing: 12) {
+                Text("Want to build something new?")
+                    .font(.system(size: 14, weight: .bold))
+                    .foregroundStyle(Color.themeAccent)
+                
+                Button {
+                    appState.selectedTab = 1
+                } label: {
+                    HStack {
+                        Image(systemName: "square.stack.3d.up.fill")
+                        Text("Enter Architect Mode")
+                            .fontWeight(.bold)
+                    }
+                    .padding()
+                    .frame(maxWidth: .infinity)
+                    .background(Color.themeAccent)
+                    .foregroundStyle(.black)
+                    .cornerRadius(12)
+                }
+                
+                Text("Perfect for product brainstorming and roadmapping.")
+                    .font(.system(size: 11))
+                    .foregroundStyle(Color.themeSubtext)
+            }
         }
         .padding(24)
         .frame(maxWidth: .infinity)
@@ -425,6 +478,21 @@ struct RecordingView: View {
                         .font(.system(size: 18))
                         .foregroundStyle(isShowingTextInput ? Color.themeAccent : .gray)
                 }
+
+                // Architect mode quick link
+                Button {
+                    appState.selectedTab = 1
+                } label: {
+                    VStack(spacing: 2) {
+                        Image(systemName: "square.stack.3d.up.fill")
+                            .font(.system(size: 18))
+                            .foregroundStyle(Color.themeAccent)
+                        Text("Architect")
+                            .font(.system(size: 8, weight: .bold))
+                            .foregroundStyle(Color.themeAccent)
+                    }
+                }
+                .padding(.leading, 8)
 
                 Spacer()
 
@@ -1142,4 +1210,188 @@ struct AudioWaveformView: View {
 #Preview {
     RecordingView()
         .environmentObject(AppState())
+}
+
+// MARK: - ArchitectView Consolidated
+
+struct ArchitectView: View {
+    @EnvironmentObject var appState: AppState
+    @StateObject private var architectService = ArchitectService.shared
+    @StateObject private var speechService = SpeechService()
+    
+    @State private var transcription = ""
+    @State private var isListening = false
+    @State private var showingBlueprint = false
+    
+    var body: some View {
+        ZStack {
+            Color.themeBackground.ignoresSafeArea()
+            
+            VStack(spacing: 0) {
+                headerView
+                
+                ScrollViewReader { proxy in
+                    ScrollView {
+                        VStack(spacing: 20) {
+                            if architectService.discoveryMessages.isEmpty {
+                                emptyStateCard
+                            } else {
+                                ForEach(architectService.discoveryMessages) { message in
+                                    MessageCard(message: message)
+                                        .id(message.id)
+                                }
+                            }
+                            
+                            if architectService.isProcessing {
+                                processingCard
+                            }
+                        }
+                        .padding()
+                    }
+                    .onChange(of: architectService.discoveryMessages.count) { _, _ in
+                        if let lastId = architectService.discoveryMessages.last?.id {
+                            withAnimation { proxy.scrollTo(lastId, anchor: .bottom) }
+                        }
+                    }
+                }
+                
+                blueprintPreviewCard
+                
+                bottomControlBar
+            }
+        }
+        .sheet(isPresented: $showingBlueprint) {
+            BlueprintDetailView(blueprint: architectService.currentBlueprint)
+        }
+    }
+    
+    private var headerView: some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 4) {
+                Text("The").font(.system(size: 24, weight: .light)).foregroundStyle(Color.themeSubtext) +
+                Text(" Architect").font(.system(size: 24, weight: .bold)).foregroundStyle(Color.themeAccent)
+                Text("Design your next masterpiece.").font(.caption).foregroundStyle(Color.themeSubtext)
+            }
+            Spacer()
+            ZStack {
+                Circle().stroke(Color.themeSecondary, lineWidth: 4).frame(width: 44, height: 44)
+                Circle().trim(from: 0, to: architectService.infoCompleteness).stroke(Color.themeAccent, style: StrokeStyle(lineWidth: 4, lineCap: .round)).frame(width: 44, height: 44).rotationEffect(.degrees(-90))
+                Text("\(Int(architectService.infoCompleteness * 100))%").font(.system(size: 10, weight: .bold)).foregroundStyle(Color.themeAccent)
+            }
+        }.padding(.horizontal).padding(.vertical, 10).background(Color.themeBackground)
+    }
+    
+    private var emptyStateCard: some View {
+        VStack(spacing: 20) {
+            Image(systemName: "lightbulb.and.sparkles").font(.system(size: 50)).foregroundStyle(Color.themeAccent)
+            Text("Start Ranting").font(.title3.bold()).foregroundStyle(Color.themeText)
+            Text("Speak your stream of consciousness about a product idea. I'll organize the chaos into a structured blueprint.").font(.subheadline).foregroundStyle(Color.themeSubtext).multilineTextAlignment(.center).padding(.horizontal)
+        }.padding(30).frame(maxWidth: .infinity).background(Color.themeSecondary).cornerRadius(20).padding(.top, 40)
+    }
+    
+    private var processingCard: some View {
+        HStack(spacing: 12) {
+            ProgressView().tint(Color.themeAccent)
+            Text("The Architect is thinking...").font(.caption).foregroundStyle(Color.themeSubtext)
+        }.padding().frame(maxWidth: .infinity, alignment: .leading).background(Color.themeSecondary.opacity(0.5)).cornerRadius(12)
+    }
+    
+    private var blueprintPreviewCard: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text("Current Blueprint").font(.caption.bold()).foregroundStyle(Color.themeAccent)
+                Spacer()
+                if !architectService.currentBlueprint.title.isEmpty { Text(architectService.currentBlueprint.title).font(.caption).foregroundStyle(Color.themeText) }
+            }
+            if architectService.currentBlueprint.title.isEmpty { Text("Capture more details to see the plan...").font(.system(size: 12)).foregroundStyle(Color.themeSubtext) }
+            else { Text(architectService.currentBlueprint.description).font(.system(size: 12)).foregroundStyle(Color.themeSubtext).lineLimit(2) }
+            Button { showingBlueprint = true } label: {
+                Text("View Full Plan").font(.caption.bold()).foregroundStyle(.black).frame(maxWidth: .infinity).padding(.vertical, 8).background(architectService.currentBlueprint.title.isEmpty ? Color.gray : Color.themeAccent).cornerRadius(8)
+            }.disabled(architectService.currentBlueprint.title.isEmpty)
+        }.padding().background(Color.themeSecondary).cornerRadius(16).padding()
+    }
+    
+    private var bottomControlBar: some View {
+        VStack(spacing: 12) {
+            if isListening { Text(speechService.transcribedText).font(.caption).foregroundStyle(Color.themeSubtext).padding(.horizontal).lineLimit(2) }
+            HStack(spacing: 20) {
+                Button { architectService.resetSession() } label: { Image(systemName: "arrow.counterclockwise").font(.title3).foregroundStyle(Color.themeSubtext) }
+                Spacer()
+                Button { handleRecordTap() } label: {
+                    ZStack {
+                        Circle().fill(isListening ? Color.red : Color.themeAccent).frame(width: 70, height: 70).shadow(color: (isListening ? Color.red : Color.themeAccent).opacity(0.3), radius: 10)
+                        Image(systemName: isListening ? "stop.fill" : "mic.fill").font(.title).foregroundStyle(isListening ? .white : .black)
+                    }
+                }
+                Spacer()
+                Button { } label: { Image(systemName: "keyboard").font(.title3).foregroundStyle(Color.themeSubtext) }
+            }.padding(.horizontal, 40).padding(.bottom, 20)
+        }.background(Color.themeBackground)
+    }
+    
+    private func handleRecordTap() {
+        if isListening {
+            isListening = false
+            speechService.stopListening()
+            let text = speechService.transcribedText
+            if !text.isEmpty { Task { try? await architectService.processDiscoveryInput(text, apiKey: appState.claudeKey) } }
+        } else {
+            do { try speechService.startListening(); isListening = true }
+            catch { print("Failed to start listening: \(error)") }
+        }
+    }
+}
+
+struct BlueprintDetailView: View {
+    let blueprint: ProductBlueprint
+    @Environment(\.dismiss) var dismiss
+    var body: some View {
+        NavigationStack {
+            ZStack {
+                Color.themeBackground.ignoresSafeArea()
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 24) {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Project Identity").font(.caption.bold()).foregroundStyle(Color.themeAccent)
+                            Text(blueprint.title.isEmpty ? "Unnamed Masterpiece" : blueprint.title).font(.largeTitle.bold()).foregroundStyle(Color.themeText)
+                            Text(blueprint.description).font(.body).foregroundStyle(Color.themeSubtext)
+                        }
+                        blueprintSection(title: "Target Audience", content: blueprint.targetAudience, icon: "person.2.fill")
+                        blueprintSection(title: "Value Proposition", content: blueprint.coreValueProposition, icon: "star.fill")
+                        VStack(alignment: .leading, spacing: 12) {
+                            Label("MVP Features", systemImage: "list.bullet.star").font(.headline).foregroundStyle(Color.themeAccent)
+                            ForEach(blueprint.mvpFeatures, id: \.self) { feature in
+                                HStack(alignment: .top) { Image(systemName: "checkmark.circle.fill").foregroundStyle(Color.themeAccent).font(.caption).padding(.top, 4); Text(feature).foregroundStyle(Color.themeText) }
+                            }
+                        }.padding().frame(maxWidth: .infinity, alignment: .leading).background(Color.themeSecondary).cornerRadius(12)
+                        blueprintSection(title: "Revenue Model", content: blueprint.revenueModel, icon: "dollarsign.circle.fill")
+                        VStack(alignment: .leading, spacing: 12) {
+                            Label("Technical Stack", systemImage: "cpu").font(.headline).foregroundStyle(Color.themeAccent)
+                            Text(blueprint.technicalStack.joined(separator: ", ")).foregroundStyle(Color.themeText)
+                        }.padding().frame(maxWidth: .infinity, alignment: .leading).background(Color.themeSecondary).cornerRadius(12)
+                        VStack(alignment: .leading, spacing: 12) {
+                            Label("Roadmap", systemImage: "map.fill").font(.headline).foregroundStyle(Color.themeAccent)
+                            ForEach(Array(blueprint.roadmap.enumerated()), id: \.offset) { index, step in
+                                HStack(spacing: 12) {
+                                    Text("\(index + 1)").font(.caption.bold()).foregroundStyle(.black).frame(width: 20, height: 20).background(Color.themeAccent).clipShape(Circle())
+                                    Text(step).foregroundStyle(Color.themeText)
+                                }
+                            }
+                        }.padding().frame(maxWidth: .infinity, alignment: .leading).background(Color.themeSecondary).cornerRadius(12)
+                    }.padding()
+                }
+            }
+            .navigationTitle("Product Blueprint").navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) { Button("Done") { dismiss() }.foregroundStyle(Color.themeAccent) }
+                ToolbarItem(placement: .topBarLeading) { Button { } label: { Image(systemName: "square.and.arrow.up").foregroundStyle(Color.themeAccent) } }
+            }
+        }
+    }
+    private func blueprintSection(title: String, content: String, icon: String) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Label(title, systemImage: icon).font(.headline).foregroundStyle(Color.themeAccent)
+            Text(content.isEmpty ? "Still defining..." : content).foregroundStyle(content.isEmpty ? Color.themeSubtext : Color.themeText)
+        }.padding().frame(maxWidth: .infinity, alignment: .leading).background(Color.themeSecondary).cornerRadius(12)
+    }
 }

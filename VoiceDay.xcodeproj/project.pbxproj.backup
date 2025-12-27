@@ -1,0 +1,543 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		05EFDE3CDDB4085A5998AAB5 /* AccountabilityTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D553E2AFE192A235E70AB3 /* AccountabilityTracker.swift */; };
+		0ABDEB363414C2CF4DDFE26C /* NagContactsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F98A31C2ED45B2BFFD266626 /* NagContactsService.swift */; };
+		0DAEB3143CB8D1F91EF1364D /* PersonalityService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0F902F13EB08AA09CF886B3 /* PersonalityService.swift */; };
+		3C317897C2612E692B5F71DE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71A79D170A84850C13DB42CB /* AppDelegate.swift */; };
+		416E4D41EF5A4779E2EE0A78 /* ConnectionsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A2134D18210FCE429777B0D /* ConnectionsListView.swift */; };
+		5C63459BED5CF2CBE32C8164 /* GoalsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34295899772FAC838C2F76AA /* GoalsView.swift */; };
+		731DE00E876033367834BF1B /* GoalDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A245D9ADE9C23A6F1B2A90F /* GoalDetailView.swift */; };
+		7489FA82887B22B904B4F137 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92DFF40840AA345A928F2CE0 /* NotificationService.swift */; };
+		A10000000000000000000001 /* VoiceDayApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000011 /* VoiceDayApp.swift */; };
+		A10000000000000000000002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000012 /* ContentView.swift */; };
+		A10000000000000000000003 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000013 /* Assets.xcassets */; };
+		A10000000000000000000004 /* ParsedItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000014 /* ParsedItem.swift */; };
+		A10000000000000000000005 /* KeychainService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000015 /* KeychainService.swift */; };
+		A10000000000000000000006 /* SpeechService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000016 /* SpeechService.swift */; };
+		A10000000000000000000007 /* ElevenLabsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000017 /* ElevenLabsService.swift */; };
+		A10000000000000000000008 /* OpenAIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000018 /* OpenAIService.swift */; };
+		A10000000000000000000009 /* CalendarService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000019 /* CalendarService.swift */; };
+		A1000000000000000000000A /* RecordingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000000000000000000001A /* RecordingView.swift */; };
+		A1000000000000000000000B /* TasksListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000000000000000000001B /* TasksListView.swift */; };
+		A1000000000000000000000C /* CalendarListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000000000000000000001C /* CalendarListView.swift */; };
+		A1000000000000000000000D /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000000000000000000001D /* SettingsView.swift */; };
+		C3AFBC5131B5933BB047EE63 /* SecureVaultService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10922479F09E9FF9A06A864 /* SecureVaultService.swift */; };
+		D9C82A81D1F924CF16195813 /* GoalsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8442A4EAFF69E2E051D27CB7 /* GoalsService.swift */; };
+		E2F75D580ADB072E9EF44D22 /* BackgroundAudioManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5873CC7C151DBE1AA81FD9A9 /* BackgroundAudioManager.swift */; };
+		F2B32B44258BDF822C3F43C2 /* GoalsSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACAACDC89F8E89F746053732 /* GoalsSystem.swift */; };
+		FF1FEC7987DA0DFF7FF8D2E0 /* VoiceDayAPIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAC058A774BF29F265D90A5E /* VoiceDayAPIService.swift */; };
+		2D0A288025E54F399692ED6E /* CelebrationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70051B27E77149839E770ECA /* CelebrationService.swift */; };
+		84EA11ECF4364E4F808ABB37 /* MomentumTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BF88B6CCD964C8AAE5E8C5B /* MomentumTracker.swift */; };
+		AB4C59892237441C9BD67574 /* EnergyService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFD918135880410D8499F3E8 /* EnergyService.swift */; };
+		B3A342C1CE3B45DA8220873D /* DurationEstimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46A8E645D94C41C9BA9574C3 /* DurationEstimator.swift */; };
+		2D6A6AAFADD942158F082449 /* NotificationIntelligence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F981A803A534576A7CD8B41 /* NotificationIntelligence.swift */; };
+		EA4A5525F9A7459C9DA01D2D /* MedicationWindowService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B226EC150E741B6BF3F9F12 /* MedicationWindowService.swift */; };
+		672BD1283162434EB9AFC701 /* BodyDoublingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA7E19462BAE4602B31A28B3 /* BodyDoublingService.swift */; };
+		77551ADBA98A479986D78763 /* SmartScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D02C3BACF2E489CA1980380 /* SmartScheduler.swift */; };
+		415FE712A7954ADE888808F1 /* FocusHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBB467C10E2E4C07A967D6E4 /* FocusHomeView.swift */; };
+		5BA0BB1DE1A8413F83667956 /* EnergyCheckInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0DAB193AAD64352AD02BFDE /* EnergyCheckInView.swift */; };
+		A6EF62B0871441AF8A00D7EB /* PresetModeSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6806722D89BA4BDA8290177A /* PresetModeSelector.swift */; };
+		C57697D6D17640F89D87DD73 /* MedicationWindowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 390846FC58CA4361A2220297 /* MedicationWindowView.swift */; };
+		A812B1522E574C0AA0F037CA /* BodyDoublingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD552BEED6BC43C28FA75971 /* BodyDoublingView.swift */; };
+		B9C70DC9CE654AABAE2931B8 /* SmartSchedulerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47D75E6B489D4D83BE47339D /* SmartSchedulerView.swift */; };
+		68811C167BD84D3E9669DAC9 /* PresetModes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70D3DE26AF364F01B3D48AB7 /* PresetModes.swift */; };
+		18A2B8FCC54549A88ED898B5 /* ConfettiView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA97D68E1B414EB986574CF9 /* ConfettiView.swift */; };
+		114FC3F8F70D48E1ABB84B69 /* MomentumView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68D7CFCC18BE4A25B7F8CC72 /* MomentumView.swift */; };
+		F4095EC80BC14C7CBD67D290 /* TimeRingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AE07F44E64A4FBC85F0A430 /* TimeRingView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		2A2134D18210FCE429777B0D /* ConnectionsListView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ConnectionsListView.swift; path = ConnectionsListView.swift; sourceTree = "<group>"; };
+		34295899772FAC838C2F76AA /* GoalsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GoalsView.swift; sourceTree = "<group>"; };
+		5873CC7C151DBE1AA81FD9A9 /* BackgroundAudioManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BackgroundAudioManager.swift; sourceTree = "<group>"; };
+		6A245D9ADE9C23A6F1B2A90F /* GoalDetailView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GoalDetailView.swift; sourceTree = "<group>"; };
+		71A79D170A84850C13DB42CB /* AppDelegate.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		8442A4EAFF69E2E051D27CB7 /* GoalsService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GoalsService.swift; sourceTree = "<group>"; };
+		87D553E2AFE192A235E70AB3 /* AccountabilityTracker.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountabilityTracker.swift; sourceTree = "<group>"; };
+		92DFF40840AA345A928F2CE0 /* NotificationService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
+		A10000000000000000000010 /* VoiceDay.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VoiceDay.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A10000000000000000000011 /* VoiceDayApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceDayApp.swift; sourceTree = "<group>"; };
+		A10000000000000000000012 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		A10000000000000000000013 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		A10000000000000000000014 /* ParsedItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParsedItem.swift; sourceTree = "<group>"; };
+		A10000000000000000000015 /* KeychainService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainService.swift; sourceTree = "<group>"; };
+		A10000000000000000000016 /* SpeechService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechService.swift; sourceTree = "<group>"; };
+		A10000000000000000000017 /* ElevenLabsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ElevenLabsService.swift; sourceTree = "<group>"; };
+		A10000000000000000000018 /* OpenAIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenAIService.swift; sourceTree = "<group>"; };
+		A10000000000000000000019 /* CalendarService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarService.swift; sourceTree = "<group>"; };
+		A1000000000000000000001A /* RecordingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingView.swift; sourceTree = "<group>"; };
+		A1000000000000000000001B /* TasksListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TasksListView.swift; sourceTree = "<group>"; };
+		A1000000000000000000001C /* CalendarListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarListView.swift; sourceTree = "<group>"; };
+		A1000000000000000000001D /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		A1000000000000000000001E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A10922479F09E9FF9A06A864 /* SecureVaultService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SecureVaultService.swift; path = SecureVaultService.swift; sourceTree = "<group>"; };
+		ACAACDC89F8E89F746053732 /* GoalsSystem.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GoalsSystem.swift; sourceTree = "<group>"; };
+		D0F902F13EB08AA09CF886B3 /* PersonalityService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PersonalityService.swift; path = PersonalityService.swift; sourceTree = "<group>"; };
+		F98A31C2ED45B2BFFD266626 /* NagContactsService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = NagContactsService.swift; path = NagContactsService.swift; sourceTree = "<group>"; };
+		FAC058A774BF29F265D90A5E /* VoiceDayAPIService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = VoiceDayAPIService.swift; path = VoiceDayAPIService.swift; sourceTree = "<group>"; };
+		70051B27E77149839E770ECA /* CelebrationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CelebrationService.swift; sourceTree = "<group>"; };
+		3BF88B6CCD964C8AAE5E8C5B /* MomentumTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MomentumTracker.swift; sourceTree = "<group>"; };
+		CFD918135880410D8499F3E8 /* EnergyService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnergyService.swift; sourceTree = "<group>"; };
+		46A8E645D94C41C9BA9574C3 /* DurationEstimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DurationEstimator.swift; sourceTree = "<group>"; };
+		3F981A803A534576A7CD8B41 /* NotificationIntelligence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationIntelligence.swift; sourceTree = "<group>"; };
+		9B226EC150E741B6BF3F9F12 /* MedicationWindowService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MedicationWindowService.swift; sourceTree = "<group>"; };
+		DA7E19462BAE4602B31A28B3 /* BodyDoublingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BodyDoublingService.swift; sourceTree = "<group>"; };
+		7D02C3BACF2E489CA1980380 /* SmartScheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartScheduler.swift; sourceTree = "<group>"; };
+		EBB467C10E2E4C07A967D6E4 /* FocusHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusHomeView.swift; sourceTree = "<group>"; };
+		F0DAB193AAD64352AD02BFDE /* EnergyCheckInView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnergyCheckInView.swift; sourceTree = "<group>"; };
+		6806722D89BA4BDA8290177A /* PresetModeSelector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresetModeSelector.swift; sourceTree = "<group>"; };
+		390846FC58CA4361A2220297 /* MedicationWindowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MedicationWindowView.swift; sourceTree = "<group>"; };
+		FD552BEED6BC43C28FA75971 /* BodyDoublingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BodyDoublingView.swift; sourceTree = "<group>"; };
+		47D75E6B489D4D83BE47339D /* SmartSchedulerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartSchedulerView.swift; sourceTree = "<group>"; };
+		70D3DE26AF364F01B3D48AB7 /* PresetModes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresetModes.swift; sourceTree = "<group>"; };
+		DA97D68E1B414EB986574CF9 /* ConfettiView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfettiView.swift; sourceTree = "<group>"; };
+		68D7CFCC18BE4A25B7F8CC72 /* MomentumView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MomentumView.swift; sourceTree = "<group>"; };
+		5AE07F44E64A4FBC85F0A430 /* TimeRingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeRingView.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		A10000000000000000000020 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		A10000000000000000000030 = {
+			isa = PBXGroup;
+			children = (
+				A10000000000000000000031 /* VoiceDay */,
+				A10000000000000000000032 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		A10000000000000000000031 /* VoiceDay */ = {
+			isa = PBXGroup;
+			children = (
+				A10000000000000000000011 /* VoiceDayApp.swift */,
+				A10000000000000000000012 /* ContentView.swift */,
+				A10000000000000000000033 /* Models */,
+				A10000000000000000000034 /* Views */,
+				A10000000000000000000035 /* Services */,
+				A10000000000000000000036 /* Utilities */,
+				A10000000000000000000013 /* Assets.xcassets */,
+				A1000000000000000000001E /* Info.plist */,
+				71A79D170A84850C13DB42CB /* AppDelegate.swift */,
+			);
+			path = VoiceDay;
+			sourceTree = "<group>";
+		};
+		A10000000000000000000032 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A10000000000000000000010 /* VoiceDay.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		A10000000000000000000033 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				A10000000000000000000014 /* ParsedItem.swift */,
+				ACAACDC89F8E89F746053732 /* GoalsSystem.swift */,
+				70D3DE26AF364F01B3D48AB7 /* PresetModes.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		A10000000000000000000034 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				A1000000000000000000001A /* RecordingView.swift */,
+				A1000000000000000000001B /* TasksListView.swift */,
+				A1000000000000000000001C /* CalendarListView.swift */,
+				A1000000000000000000001D /* SettingsView.swift */,
+				2A2134D18210FCE429777B0D /* ConnectionsListView.swift */,
+				34295899772FAC838C2F76AA /* GoalsView.swift */,
+				6A245D9ADE9C23A6F1B2A90F /* GoalDetailView.swift */,
+				EBB467C10E2E4C07A967D6E4 /* FocusHomeView.swift */,
+				F0DAB193AAD64352AD02BFDE /* EnergyCheckInView.swift */,
+				6806722D89BA4BDA8290177A /* PresetModeSelector.swift */,
+				390846FC58CA4361A2220297 /* MedicationWindowView.swift */,
+				FD552BEED6BC43C28FA75971 /* BodyDoublingView.swift */,
+				47D75E6B489D4D83BE47339D /* SmartSchedulerView.swift */,
+				C40DD5B004FA438D84428965 /* Components */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		A10000000000000000000035 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				A10000000000000000000016 /* SpeechService.swift */,
+				A10000000000000000000017 /* ElevenLabsService.swift */,
+				A10000000000000000000018 /* OpenAIService.swift */,
+				A10000000000000000000019 /* CalendarService.swift */,
+				92DFF40840AA345A928F2CE0 /* NotificationService.swift */,
+				5873CC7C151DBE1AA81FD9A9 /* BackgroundAudioManager.swift */,
+				A10922479F09E9FF9A06A864 /* SecureVaultService.swift */,
+				F98A31C2ED45B2BFFD266626 /* NagContactsService.swift */,
+				D0F902F13EB08AA09CF886B3 /* PersonalityService.swift */,
+				FAC058A774BF29F265D90A5E /* VoiceDayAPIService.swift */,
+				8442A4EAFF69E2E051D27CB7 /* GoalsService.swift */,
+				87D553E2AFE192A235E70AB3 /* AccountabilityTracker.swift */,
+				70051B27E77149839E770ECA /* CelebrationService.swift */,
+				3BF88B6CCD964C8AAE5E8C5B /* MomentumTracker.swift */,
+				CFD918135880410D8499F3E8 /* EnergyService.swift */,
+				46A8E645D94C41C9BA9574C3 /* DurationEstimator.swift */,
+				3F981A803A534576A7CD8B41 /* NotificationIntelligence.swift */,
+				9B226EC150E741B6BF3F9F12 /* MedicationWindowService.swift */,
+				DA7E19462BAE4602B31A28B3 /* BodyDoublingService.swift */,
+				7D02C3BACF2E489CA1980380 /* SmartScheduler.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		A10000000000000000000036 /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				A10000000000000000000015 /* KeychainService.swift */,
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
+		C40DD5B004FA438D84428965 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				DA97D68E1B414EB986574CF9 /* ConfettiView.swift */,
+				68D7CFCC18BE4A25B7F8CC72 /* MomentumView.swift */,
+				5AE07F44E64A4FBC85F0A430 /* TimeRingView.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		A10000000000000000000040 /* VoiceDay */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A10000000000000000000060 /* Build configuration list for PBXNativeTarget "VoiceDay" */;
+			buildPhases = (
+				A10000000000000000000041 /* Sources */,
+				A10000000000000000000020 /* Frameworks */,
+				A10000000000000000000042 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = VoiceDay;
+			productName = VoiceDay;
+			productReference = A10000000000000000000010 /* VoiceDay.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A10000000000000000000050 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					A10000000000000000000040 = {
+						CreatedOnToolsVersion = 15.0;
+					};
+				};
+			};
+			buildConfigurationList = A10000000000000000000051 /* Build configuration list for PBXProject "VoiceDay" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = A10000000000000000000030;
+			productRefGroup = A10000000000000000000032 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				A10000000000000000000040 /* VoiceDay */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		A10000000000000000000042 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A10000000000000000000003 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		A10000000000000000000041 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A10000000000000000000001 /* VoiceDayApp.swift in Sources */,
+				A10000000000000000000002 /* ContentView.swift in Sources */,
+				A10000000000000000000004 /* ParsedItem.swift in Sources */,
+				A10000000000000000000005 /* KeychainService.swift in Sources */,
+				A10000000000000000000006 /* SpeechService.swift in Sources */,
+				A10000000000000000000007 /* ElevenLabsService.swift in Sources */,
+				A10000000000000000000008 /* OpenAIService.swift in Sources */,
+				A10000000000000000000009 /* CalendarService.swift in Sources */,
+				A1000000000000000000000A /* RecordingView.swift in Sources */,
+				A1000000000000000000000B /* TasksListView.swift in Sources */,
+				A1000000000000000000000C /* CalendarListView.swift in Sources */,
+				A1000000000000000000000D /* SettingsView.swift in Sources */,
+				3C317897C2612E692B5F71DE /* AppDelegate.swift in Sources */,
+				7489FA82887B22B904B4F137 /* NotificationService.swift in Sources */,
+				E2F75D580ADB072E9EF44D22 /* BackgroundAudioManager.swift in Sources */,
+				C3AFBC5131B5933BB047EE63 /* SecureVaultService.swift in Sources */,
+				0ABDEB363414C2CF4DDFE26C /* NagContactsService.swift in Sources */,
+				0DAEB3143CB8D1F91EF1364D /* PersonalityService.swift in Sources */,
+				FF1FEC7987DA0DFF7FF8D2E0 /* VoiceDayAPIService.swift in Sources */,
+				416E4D41EF5A4779E2EE0A78 /* ConnectionsListView.swift in Sources */,
+				F2B32B44258BDF822C3F43C2 /* GoalsSystem.swift in Sources */,
+				D9C82A81D1F924CF16195813 /* GoalsService.swift in Sources */,
+				05EFDE3CDDB4085A5998AAB5 /* AccountabilityTracker.swift in Sources */,
+				5C63459BED5CF2CBE32C8164 /* GoalsView.swift in Sources */,
+				731DE00E876033367834BF1B /* GoalDetailView.swift in Sources */,
+				2D0A288025E54F399692ED6E /* CelebrationService.swift in Sources */,
+				84EA11ECF4364E4F808ABB37 /* MomentumTracker.swift in Sources */,
+				AB4C59892237441C9BD67574 /* EnergyService.swift in Sources */,
+				B3A342C1CE3B45DA8220873D /* DurationEstimator.swift in Sources */,
+				2D6A6AAFADD942158F082449 /* NotificationIntelligence.swift in Sources */,
+				EA4A5525F9A7459C9DA01D2D /* MedicationWindowService.swift in Sources */,
+				672BD1283162434EB9AFC701 /* BodyDoublingService.swift in Sources */,
+				77551ADBA98A479986D78763 /* SmartScheduler.swift in Sources */,
+				415FE712A7954ADE888808F1 /* FocusHomeView.swift in Sources */,
+				5BA0BB1DE1A8413F83667956 /* EnergyCheckInView.swift in Sources */,
+				A6EF62B0871441AF8A00D7EB /* PresetModeSelector.swift in Sources */,
+				C57697D6D17640F89D87DD73 /* MedicationWindowView.swift in Sources */,
+				A812B1522E574C0AA0F037CA /* BodyDoublingView.swift in Sources */,
+				B9C70DC9CE654AABAE2931B8 /* SmartSchedulerView.swift in Sources */,
+				68811C167BD84D3E9669DAC9 /* PresetModes.swift in Sources */,
+				18A2B8FCC54549A88ED898B5 /* ConfettiView.swift in Sources */,
+				114FC3F8F70D48E1ABB84B69 /* MomentumView.swift in Sources */,
+				F4095EC80BC14C7CBD67D290 /* TimeRingView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		A10000000000000000000052 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		A10000000000000000000053 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		A10000000000000000000061 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = P96DZPGQGW;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = VoiceDay/Info.plist;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.voiceday.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		A10000000000000000000062 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = P96DZPGQGW;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = VoiceDay/Info.plist;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.voiceday.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		A10000000000000000000051 /* Build configuration list for PBXProject "VoiceDay" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A10000000000000000000052 /* Debug */,
+				A10000000000000000000053 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A10000000000000000000060 /* Build configuration list for PBXNativeTarget "VoiceDay" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A10000000000000000000061 /* Debug */,
+				A10000000000000000000062 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = A10000000000000000000050 /* Project object */;
+}

@@ -1,5 +1,6 @@
 import Foundation
 import WatchConnectivity
+import WatchKit
 
 struct WatchTask: Identifiable, Codable {
     let id: UUID

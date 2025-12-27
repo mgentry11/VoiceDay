@@ -525,3 +525,57 @@ struct AccountabilityStatsView: View {
     GoalsView()
         .environmentObject(AppState())
 }
+
+// MARK: - GoalDetailView Consolidated
+
+struct GoalDetailView: View {
+    let goal: Goal
+    @StateObject private var goalsService = GoalsService.shared
+    @Environment(\.dismiss) private var dismiss
+    private var currentGoal: Goal { goalsService.getGoal(byId: goal.id) ?? goal }
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(spacing: 24) {
+                    VStack(spacing: 16) {
+                        ZStack {
+                            Circle().stroke(Color.themeSecondary, lineWidth: 12).frame(width: 120, height: 120)
+                            Circle().trim(from: 0, to: currentGoal.progressPercentage / 100).stroke(Color.themeAccent, style: StrokeStyle(lineWidth: 12, lineCap: .round)).frame(width: 120, height: 120).rotationEffect(.degrees(-90))
+                            Text("\(Int(currentGoal.progressPercentage))%").font(.title).bold()
+                        }
+                        if let desc = currentGoal.description { Text(desc).font(.subheadline).foregroundStyle(.secondary) }
+                    }.padding().background(Color.themeSecondary.opacity(0.3)).cornerRadius(16)
+                    VStack(alignment: .leading, spacing: 12) {
+                        Label("Milestones", systemImage: "flag.checkered").font(.headline)
+                        ForEach(Array(currentGoal.milestones.enumerated()), id: \.element.id) { index, milestone in
+                            MilestoneRow(milestone: milestone, index: index, isCurrent: index == currentGoal.currentMilestoneIndex) {
+                                _ = goalsService.completeMilestone(goalId: currentGoal.id, milestoneIndex: index)
+                            }
+                        }
+                    }.padding().background(Color.themeSecondary.opacity(0.3)).cornerRadius(16)
+                }.padding()
+            }
+            .background(Color.themeBackground).navigationTitle(currentGoal.title).navigationBarTitleDisplayMode(.inline)
+            .toolbar { ToolbarItem(placement: .topBarTrailing) { Button("Done") { dismiss() } } }
+        }
+    }
+}
+
+struct MilestoneRow: View {
+    let milestone: Milestone; let index: Int; let isCurrent: Bool; let onComplete: () -> Void
+    var body: some View {
+        HStack(spacing: 12) {
+            ZStack {
+                Circle().stroke(milestone.isCompleted ? .green : (isCurrent ? .blue : .secondary), lineWidth: 2).frame(width: 32, height: 32)
+                if milestone.isCompleted { Image(systemName: "checkmark").font(.caption).bold().foregroundStyle(.green) }
+                else { Text("\(index + 1)").font(.caption).bold() }
+            }
+            VStack(alignment: .leading, spacing: 4) {
+                Text(milestone.title).font(.subheadline).strikethrough(milestone.isCompleted)
+                if let days = milestone.estimatedDays { Text("\(days) days").font(.caption2).foregroundStyle(.secondary) }
+            }
+            Spacer()
+            if isCurrent && !milestone.isCompleted { Button("Complete") { onComplete() }.font(.caption).buttonStyle(.borderedProminent).tint(.green) }
+        }.padding(.vertical, 8)
+    }
+}

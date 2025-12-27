@@ -6,7 +6,6 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
 
     static var shared: AppDelegate?
     private var elevenLabsService: ElevenLabsService?
-    private var speechSynthesizer = AVSpeechSynthesizer()
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
         AppDelegate.shared = self
@@ -49,8 +48,8 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
         // Auto-schedule next nag (unless it's a one-time event)
         autoScheduleNextNag(from: userInfo, identifier: notification.request.identifier)
 
-        // Also show the banner
-        completionHandler([.banner, .sound])
+        // Show banner only - no sound since we're speaking it
+        completionHandler([.banner])
     }
 
     // Auto-schedule next nag to keep nagging until user marks as done
@@ -124,11 +123,8 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
     }
 
     private func speakWithSystemVoice(_ message: String) {
-        let utterance = AVSpeechUtterance(string: message)
-        utterance.voice = AVSpeechSynthesisVoice(language: "en-GB")
-        utterance.rate = 0.5
-        utterance.pitchMultiplier = 1.0
-        speechSynthesizer.speak(utterance)
+        // Use the shared SpeechService queue to prevent overlapping speech
+        SpeechService.shared.queueSpeech(message)
     }
 
     // Handle notification actions

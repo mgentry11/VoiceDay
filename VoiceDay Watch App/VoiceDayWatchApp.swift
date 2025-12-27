@@ -40,7 +40,8 @@ class WatchAppDelegate: NSObject, WKApplicationDelegate, UNUserNotificationCente
         // Also show banner and play haptic
         WKInterfaceDevice.current().play(.notification)
 
-        completionHandler([.banner, .sound])
+        // Show banner only - no sound since we're speaking it
+        completionHandler([.banner])
     }
 
     // Handle notification actions

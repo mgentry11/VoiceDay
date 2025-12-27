@@ -14,21 +14,33 @@ struct SettingsView: View {
     @State private var isGenerating = false
     @State private var showThemeSaved = false
     @State private var savedThemeName = ""
+    @State private var showMorningChecklistSettings = false
 
     var body: some View {
         NavigationStack {
             ZStack {
                 Form {
+                    // Version Selector Section
+                    versionSection
+
+                    PresetModeSettingsSection()
+                    EnergySettingsSection()
                     appearanceSection
                     profileSection
                     personalitySection
                     openAISection
                     elevenLabsSection
                     reminderSection
+                    morningChecklistSection
+                    celebrationSection
+                    selfCareSection
+                    endOfDayCheckSection
+                    rewardBreaksSection
                     breakModeSection
                     messageGenerationSection
                     connectionsSection
                     aboutSection
+                    legalSection
                 }
                 .scrollContentBackground(.hidden)
                 .background(Color.themeBackground)
@@ -154,37 +166,66 @@ struct SettingsView: View {
         }
     }
 
+    @State private var showMorePersonalities = false
+
     private var personalitySection: some View {
         Section {
-            ForEach(BotPersonality.allCases) { personality in
-                Button {
-                    appState.selectedPersonality = personality
-                } label: {
-                    HStack {
-                        Text(personality.emoji)
-                            .font(.title2)
+            // Core personalities - always visible
+            ForEach(BotPersonality.corePersonalities) { personality in
+                PersonalityButton(
+                    personality: personality,
+                    isSelected: appState.selectedPersonality == personality
+                ) {
+                    withAnimation(.spring(response: 0.3)) {
+                        appState.selectedPersonality = personality
+                    }
+                    let generator = UIImpactFeedbackGenerator(style: .light)
+                    generator.impactOccurred()
+                }
+            }
 
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(personality.displayName)
-                                .foregroundStyle(.primary)
-                            Text(personality.description)
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
+            // More options toggle
+            Button {
+                withAnimation(.spring(response: 0.3)) {
+                    showMorePersonalities.toggle()
+                }
+            } label: {
+                HStack {
+                    Image(systemName: showMorePersonalities ? "chevron.up.circle.fill" : "chevron.down.circle")
+                        .foregroundStyle(Color.themeAccent)
+                    Text(showMorePersonalities ? "Show fewer" : "More options")
+                        .font(.subheadline)
+                        .foregroundStyle(Color.themeAccent)
+                    Spacer()
+                    Text("\(BotPersonality.morePersonalities.count) more")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+
+            // More personalities - expandable
+            if showMorePersonalities {
+                ForEach(BotPersonality.morePersonalities) { personality in
+                    PersonalityButton(
+                        personality: personality,
+                        isSelected: appState.selectedPersonality == personality
+                    ) {
+                        withAnimation(.spring(response: 0.3)) {
+                            appState.selectedPersonality = personality
                         }
-
-                        Spacer()
-
-                        if appState.selectedPersonality == personality {
-                            Image(systemName: "checkmark")
-                                .foregroundStyle(.green)
-                        }
+                        let generator = UIImpactFeedbackGenerator(style: .light)
+                        generator.impactOccurred()
                     }
                 }
             }
         } header: {
-            Text("Assistant Personality")
+            HStack {
+                Image(systemName: "theatermasks.fill")
+                    .foregroundStyle(themeColors.accent)
+                Text("How should I talk to you?")
+            }
         } footer: {
-            Text("Choose how your assistant talks to you. Different personalities work better for different people.")
+            Text("Change anytime! Tap to switch instantly. No commitment, no judgment.")
         }
     }
 
@@ -261,26 +302,40 @@ struct SettingsView: View {
                     }
                 }
 
-                // Custom voice recording
+                // Custom voice recording - encouraged!
                 NavigationLink {
                     VoiceRecordingView()
                 } label: {
                     HStack {
                         Image(systemName: "waveform.circle.fill")
                             .foregroundStyle(.orange)
-                        VStack(alignment: .leading) {
-                            Text("Record Your Voice")
+                            .font(.title2)
+                        VStack(alignment: .leading, spacing: 4) {
+                            HStack {
+                                Text("Record Your Voice")
+                                    .fontWeight(.semibold)
+                                Text("✨ Recommended")
+                                    .font(.caption2)
+                                    .fontWeight(.bold)
+                                    .foregroundStyle(.white)
+                                    .padding(.horizontal, 6)
+                                    .padding(.vertical, 2)
+                                    .background(Color.themeAccent.opacity(0.8))
+                                    .cornerRadius(4)
+                            }
                             if let voiceName = VoiceCloningService.shared.customVoiceName {
                                 Text("Active: \(voiceName)")
                                     .font(.caption)
                                     .foregroundStyle(.green)
                             } else {
-                                Text("Clone your voice for reminders")
+                                Text("Your brain responds 40% better to your own voice!")
                                     .font(.caption)
-                                    .foregroundStyle(.secondary)
+                                    .foregroundStyle(Color.themeAccent)
                             }
                         }
                         Spacer()
+                        Image(systemName: "chevron.right")
+                            .foregroundStyle(.secondary)
                     }
                 }
             }
@@ -296,9 +351,18 @@ struct SettingsView: View {
                 }
             }
         } header: {
-            Text("ElevenLabs Voice")
+            HStack {
+                Image(systemName: "waveform")
+                    .foregroundStyle(themeColors.accent)
+                Text("Voice & Reminders")
+            }
         } footer: {
-            Text("Optional. Enables premium AI voice responses.")
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Why use your own voice?")
+                    .font(.caption.bold())
+                Text("Research shows we pay 40% more attention to our own voice (the \"cocktail party effect\"). Your brain instantly recognizes self-referential cues like your name and voice, cutting through distraction. For ADHD brains, this makes reminders significantly more effective.")
+                    .font(.caption)
+            }
         }
     }
 
@@ -394,6 +458,294 @@ struct SettingsView: View {
             Text("The Gadfly's Nagging")
         } footer: {
             Text("Keep Screen On prevents auto-lock so VoiceDay stays active and can speak reminders. Focus Sessions also keep the screen on automatically.")
+        }
+    }
+
+    private var morningChecklistSection: some View {
+        Section {
+            Button {
+                showMorningChecklistSettings = true
+            } label: {
+                HStack {
+                    Image(systemName: "sunrise.fill")
+                        .foregroundStyle(.orange)
+                    Text("Morning Checklist")
+                        .foregroundStyle(themeColors.text)
+                    Spacer()
+                    Text("\(MorningChecklistService.shared.selfChecks.count) items")
+                        .foregroundStyle(.secondary)
+                    Image(systemName: "chevron.right")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+        } header: {
+            Text("Daily Routines")
+        } footer: {
+            Text("Create personal morning checks like 'Take medication' or 'Check calendar'. The bot will walk you through them each morning.")
+        }
+        .sheet(isPresented: $showMorningChecklistSettings) {
+            ManageSelfChecksView()
+        }
+    }
+
+    private var celebrationSection: some View {
+        Section {
+            Toggle("Celebration Haptics", isOn: Binding(
+                get: { CelebrationService.shared.celebrationHapticsEnabled },
+                set: { CelebrationService.shared.celebrationHapticsEnabled = $0 }
+            ))
+
+            Toggle("Celebration Sounds", isOn: Binding(
+                get: { CelebrationService.shared.celebrationSoundsEnabled },
+                set: { CelebrationService.shared.celebrationSoundsEnabled = $0 }
+            ))
+
+            Toggle("Confetti Animations", isOn: Binding(
+                get: { CelebrationService.shared.celebrationAnimationsEnabled },
+                set: { CelebrationService.shared.celebrationAnimationsEnabled = $0 }
+            ))
+
+            // Momentum display
+            MomentumCard()
+                .listRowInsets(EdgeInsets())
+                .listRowBackground(Color.clear)
+
+        } header: {
+            Text("Celebrations & Momentum")
+        } footer: {
+            Text("Get rewarded for completing tasks! Haptics, sounds, and confetti celebrate your progress. Momentum builds over time and decays slowly - no punishing streak resets.")
+        }
+    }
+
+    // MARK: - Self-Care Section
+    @ObservedObject private var selfCareService = SelfCareService.shared
+
+    private var selfCareSection: some View {
+        Section {
+            Toggle("Enable Self-Care Reminders", isOn: $selfCareService.isEnabled)
+
+            if selfCareService.isEnabled {
+                // Care Level Picker
+                Picker("Reminder Intensity", selection: $selfCareService.careLevel) {
+                    ForEach(SelfCareService.CareLevel.allCases) { level in
+                        Text(level.rawValue).tag(level)
+                    }
+                }
+
+                // Age Mode
+                Picker("I am a...", selection: $selfCareService.ageMode) {
+                    ForEach(SelfCareService.AgeMode.allCases) { mode in
+                        Text(mode.rawValue).tag(mode)
+                    }
+                }
+
+                // Hydration
+                NavigationLink {
+                    SelfCareDetailView(
+                        title: "Hydration",
+                        icon: "drop.fill",
+                        iconColor: .blue,
+                        isEnabled: $selfCareService.waterSettings.isEnabled,
+                        intervalMinutes: $selfCareService.waterSettings.intervalMinutes,
+                        intervalOptions: [30, 45, 60, 90]
+                    )
+                } label: {
+                    HStack {
+                        Image(systemName: "drop.fill")
+                            .foregroundStyle(.blue)
+                        Text("Hydration")
+                        Spacer()
+                        if selfCareService.waterSettings.isEnabled {
+                            Text("Every \(selfCareService.waterSettings.intervalMinutes)m")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        } else {
+                            Text("Off")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+
+                // Stretch/Movement
+                NavigationLink {
+                    SelfCareDetailView(
+                        title: "Movement & Stretching",
+                        icon: "figure.walk",
+                        iconColor: .green,
+                        isEnabled: $selfCareService.stretchSettings.isEnabled,
+                        intervalMinutes: $selfCareService.stretchSettings.intervalMinutes,
+                        intervalOptions: [20, 30, 45, 60]
+                    )
+                } label: {
+                    HStack {
+                        Image(systemName: "figure.walk")
+                            .foregroundStyle(.green)
+                        Text("Movement")
+                        Spacer()
+                        if selfCareService.stretchSettings.isEnabled {
+                            Text("Every \(selfCareService.stretchSettings.intervalMinutes)m")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        } else {
+                            Text("Off")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+
+                // Eye Rest
+                NavigationLink {
+                    SelfCareDetailView(
+                        title: "Eye Rest (20-20-20)",
+                        icon: "eye.fill",
+                        iconColor: .purple,
+                        isEnabled: $selfCareService.eyeSettings.isEnabled,
+                        intervalMinutes: $selfCareService.eyeSettings.intervalMinutes,
+                        intervalOptions: [20, 30, 45]
+                    )
+                } label: {
+                    HStack {
+                        Image(systemName: "eye.fill")
+                            .foregroundStyle(.purple)
+                        Text("Eye Rest")
+                        Spacer()
+                        if selfCareService.eyeSettings.isEnabled {
+                            Text("Every \(selfCareService.eyeSettings.intervalMinutes)m")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        } else {
+                            Text("Off")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+
+                // Hyperfocus Breaks
+                NavigationLink {
+                    HyperfocusBreakSettingsView()
+                } label: {
+                    HStack {
+                        Image(systemName: "arrow.2.circlepath")
+                            .foregroundStyle(.orange)
+                        Text("Hyperfocus Breaks")
+                        Spacer()
+                        if selfCareService.hyperfocusSettings.isEnabled {
+                            Text("Every \(selfCareService.hyperfocusSettings.intervalMinutes)m")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        } else {
+                            Text("Off")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+
+                // Meals
+                NavigationLink {
+                    MealSettingsView()
+                } label: {
+                    HStack {
+                        Image(systemName: "fork.knife")
+                            .foregroundStyle(.red)
+                        Text("Meal Reminders")
+                        Spacer()
+                        if selfCareService.mealSettings.isEnabled {
+                            Text("\(selfCareService.mealSettings.mealCount) meals")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        } else {
+                            Text("Off")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+            }
+        } header: {
+            HStack {
+                Image(systemName: "heart.fill")
+                    .foregroundStyle(.pink)
+                Text("Self-Care Mode")
+            }
+        } footer: {
+            Text("Like a caring parent reminding you to take care of yourself. Get nudges for water, food, breaks, and more.")
+        }
+    }
+
+    // MARK: - End-of-Day Check Section
+    @ObservedObject private var selfCheckService = SelfCheckService.shared
+
+    private var endOfDayCheckSection: some View {
+        Section {
+            Toggle("Enable End-of-Day Check", isOn: $selfCheckService.isEnabled)
+
+            if selfCheckService.isEnabled {
+                NavigationLink {
+                    SelfCheckSettingsView()
+                } label: {
+                    HStack {
+                        Image(systemName: "checklist.checked")
+                            .foregroundStyle(.green)
+                        Text("Configure Items")
+                        Spacer()
+                        Text("\(selfCheckService.enabledItems.count) items")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+
+                Toggle("Scheduled Reminder", isOn: $selfCheckService.useScheduledReminder)
+
+                if selfCheckService.useScheduledReminder {
+                    DatePicker(
+                        "Reminder Time",
+                        selection: Binding(
+                            get: { selfCheckService.scheduledTime ?? Date() },
+                            set: { selfCheckService.scheduledTime = $0 }
+                        ),
+                        displayedComponents: .hourAndMinute
+                    )
+                }
+            }
+        } header: {
+            HStack {
+                Image(systemName: "moon.stars.fill")
+                    .foregroundStyle(.indigo)
+                Text("End-of-Day Check")
+            }
+        } footer: {
+            Text("When all tasks are done, run through a quick checklist to make sure you know where important items are (keys, wallet, phone, etc.).")
+        }
+    }
+
+    // MARK: - Reward Breaks Section
+    private var rewardBreaksSection: some View {
+        Section {
+            Toggle("Enable Reward Breaks", isOn: $appState.rewardBreaksEnabled)
+
+            if appState.rewardBreaksEnabled {
+                Picker("Break Duration", selection: $appState.rewardBreakDuration) {
+                    Text("5 minutes").tag(5)
+                    Text("10 minutes").tag(10)
+                    Text("15 minutes").tag(15)
+                    Text("20 minutes").tag(20)
+                }
+
+                Toggle("Auto-suggest after tasks", isOn: $appState.autoSuggestBreaks)
+            }
+        } header: {
+            HStack {
+                Image(systemName: "gift.fill")
+                    .foregroundStyle(themeColors.accent)
+                Text("Reward Breaks")
+            }
+        } footer: {
+            Text("Take a 15-minute break after completing tasks. Perfect for studying! Your brain needs rest to consolidate learning.")
         }
     }
 
@@ -602,6 +954,85 @@ struct SettingsView: View {
         }
     }
 
+    // MARK: - Version Section
+    private var versionSection: some View {
+        Section {
+            VStack(alignment: .leading, spacing: 12) {
+                Text("Choose the experience that fits you best")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+
+                HStack(spacing: 12) {
+                    VersionButton(
+                        icon: "rainbow",
+                        title: "Kids",
+                        subtitle: "Simple & fun",
+                        isSelected: appState.appVersion == .kids
+                    ) {
+                        appState.appVersion = .kids
+                    }
+
+                    VersionButton(
+                        icon: "bolt.fill",
+                        title: "Teens",
+                        subtitle: "School & life",
+                        isSelected: appState.appVersion == .teens
+                    ) {
+                        appState.appVersion = .teens
+                    }
+
+                    VersionButton(
+                        icon: "scope",
+                        title: "Adults",
+                        subtitle: "Full features",
+                        isSelected: appState.appVersion == .adults
+                    ) {
+                        appState.appVersion = .adults
+                    }
+                }
+
+                // Feature toggles for adults
+                if appState.appVersion == .adults {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("What do you want help with?")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .padding(.top, 8)
+
+                        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 8) {
+                            FeatureToggle(icon: "briefcase.fill", label: "Work", isOn: $appState.featureWork)
+                            FeatureToggle(icon: "book.fill", label: "School", isOn: $appState.featureSchool)
+                            FeatureToggle(icon: "figure.run", label: "Health", isOn: $appState.featureHealth)
+                            FeatureToggle(icon: "house.fill", label: "Home", isOn: $appState.featureHome)
+                            FeatureToggle(icon: "paintbrush.fill", label: "Creative", isOn: $appState.featureCreative)
+                            FeatureToggle(icon: "person.2.fill", label: "Social", isOn: $appState.featureSocial)
+                        }
+                    }
+                }
+            }
+            .padding(.vertical, 4)
+        } header: {
+            HStack {
+                Image(systemName: "target")
+                    .foregroundStyle(themeColors.accent)
+                Text("My Version")
+            }
+        } footer: {
+            Text(versionFooterText)
+        }
+    }
+
+    private var versionFooterText: String {
+        switch appState.appVersion {
+        case .kids:
+            return "Bigger buttons, simpler interface, more celebrations!"
+        case .teens:
+            return "Balanced features for school, homework, and life."
+        case .adults:
+            return "Full feature set with customizable focus areas."
+        }
+    }
+
     private var aboutSection: some View {
         Section {
             NavigationLink {
@@ -640,6 +1071,50 @@ struct SettingsView: View {
             }
         } header: {
             Text("About")
+        }
+    }
+
+    // MARK: - Legal Section
+    private var legalSection: some View {
+        Section {
+            Link(destination: URL(string: "https://bigoil.net/gadfly-privacy.html")!) {
+                HStack {
+                    Image(systemName: "hand.raised.fill")
+                        .foregroundStyle(.blue)
+                    Text("Privacy Policy")
+                    Spacer()
+                    Image(systemName: "arrow.up.right")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+
+            NavigationLink {
+                HealthDisclaimerView()
+            } label: {
+                HStack {
+                    Image(systemName: "heart.text.square.fill")
+                        .foregroundStyle(.red)
+                    Text("Health Disclaimer")
+                }
+            }
+
+            Button(role: .destructive) {
+                // TODO: Implement account deletion
+            } label: {
+                HStack {
+                    Image(systemName: "trash")
+                    Text("Delete Account")
+                }
+            }
+        } header: {
+            HStack {
+                Image(systemName: "doc.text")
+                    .foregroundStyle(themeColors.accent)
+                Text("Legal & Privacy")
+            }
+        } footer: {
+            Text("Your data is stored securely. You can delete your account and all associated data at any time.")
         }
     }
 
@@ -1633,6 +2108,431 @@ struct BreakButton: View {
                 .padding(.vertical, 10)
                 .background(Color.orange)
                 .cornerRadius(8)
+        }
+    }
+}
+
+// MARK: - Version Button
+
+struct VersionButton: View {
+    let icon: String
+    let title: String
+    let subtitle: String
+    let isSelected: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            VStack(spacing: 6) {
+                Image(systemName: icon)
+                    .font(.title2)
+                    .foregroundStyle(isSelected ? Color.themeAccent : .secondary)
+
+                Text(title)
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(isSelected ? .primary : .secondary)
+
+                Text(subtitle)
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 12)
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(isSelected ? Color.themeAccent.opacity(0.15) : Color.themeSecondary)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(isSelected ? Color.themeAccent : Color.clear, lineWidth: 2)
+            )
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+// MARK: - Feature Toggle
+
+struct FeatureToggle: View {
+    let icon: String
+    let label: String
+    @Binding var isOn: Bool
+
+    var body: some View {
+        Button {
+            isOn.toggle()
+        } label: {
+            HStack(spacing: 6) {
+                Image(systemName: icon)
+                    .font(.caption)
+                    .foregroundStyle(isOn ? Color.themeAccent : .secondary)
+
+                Text(label)
+                    .font(.caption)
+                    .foregroundStyle(isOn ? .primary : .secondary)
+            }
+            .padding(.horizontal, 10)
+            .padding(.vertical, 6)
+            .background(
+                Capsule()
+                    .fill(isOn ? Color.themeAccent.opacity(0.15) : Color.themeSecondary)
+            )
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+// MARK: - Health Disclaimer View
+
+struct HealthDisclaimerView: View {
+    @ObservedObject private var themeColors = ThemeColors.shared
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 24) {
+                // Header
+                VStack(spacing: 12) {
+                    Image(systemName: "heart.text.square.fill")
+                        .font(.system(size: 60))
+                        .foregroundStyle(.red)
+
+                    Text("Health Disclaimer")
+                        .font(.title.bold())
+                        .foregroundStyle(themeColors.text)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.top, 20)
+
+                // Main Disclaimer
+                VStack(alignment: .leading, spacing: 16) {
+                    Text("Important Information")
+                        .font(.headline)
+                        .foregroundStyle(themeColors.accent)
+
+                    Text("""
+                    Gadfly is a productivity application designed to support individuals with attention differences. It is not intended to diagnose, treat, cure, or prevent ADHD or any medical condition.
+
+                    This app is not a substitute for professional medical advice, diagnosis, or treatment. Always seek the advice of your physician or other qualified health provider with any questions you may have regarding a medical condition.
+
+                    If you have concerns about ADHD or any medical condition, please consult a qualified healthcare provider.
+                    """)
+                    .foregroundStyle(themeColors.subtext)
+                }
+                .padding()
+                .background(
+                    RoundedRectangle(cornerRadius: 16)
+                        .fill(Color.themeSecondary)
+                )
+
+                // What Gadfly Does
+                VStack(alignment: .leading, spacing: 16) {
+                    Text("What Gadfly Does")
+                        .font(.headline)
+                        .foregroundStyle(themeColors.accent)
+
+                    VStack(alignment: .leading, spacing: 12) {
+                        DisclaimerBullet(icon: "checkmark.circle.fill", color: .green, text: "Helps you focus on one task at a time")
+                        DisclaimerBullet(icon: "checkmark.circle.fill", color: .green, text: "Provides gentle reminders and encouragement")
+                        DisclaimerBullet(icon: "checkmark.circle.fill", color: .green, text: "Tracks momentum without punishing missed days")
+                        DisclaimerBullet(icon: "checkmark.circle.fill", color: .green, text: "Adapts to your energy levels")
+                        DisclaimerBullet(icon: "checkmark.circle.fill", color: .green, text: "Offers self-care reminders")
+                    }
+                }
+                .padding()
+                .background(
+                    RoundedRectangle(cornerRadius: 16)
+                        .fill(Color.themeSecondary)
+                )
+
+                // What Gadfly Doesn't Do
+                VStack(alignment: .leading, spacing: 16) {
+                    Text("What Gadfly Does NOT Do")
+                        .font(.headline)
+                        .foregroundStyle(themeColors.accent)
+
+                    VStack(alignment: .leading, spacing: 12) {
+                        DisclaimerBullet(icon: "xmark.circle.fill", color: .red, text: "Diagnose ADHD or any condition")
+                        DisclaimerBullet(icon: "xmark.circle.fill", color: .red, text: "Provide medical treatment")
+                        DisclaimerBullet(icon: "xmark.circle.fill", color: .red, text: "Replace therapy or medication")
+                        DisclaimerBullet(icon: "xmark.circle.fill", color: .red, text: "Offer medical advice")
+                    }
+                }
+                .padding()
+                .background(
+                    RoundedRectangle(cornerRadius: 16)
+                        .fill(Color.themeSecondary)
+                )
+
+                // Resources
+                VStack(alignment: .leading, spacing: 16) {
+                    Text("ADHD Resources")
+                        .font(.headline)
+                        .foregroundStyle(themeColors.accent)
+
+                    Text("If you or someone you know needs help with ADHD:")
+                        .foregroundStyle(themeColors.subtext)
+
+                    Link(destination: URL(string: "https://chadd.org")!) {
+                        ResourceLink(title: "CHADD", subtitle: "Children and Adults with ADHD")
+                    }
+
+                    Link(destination: URL(string: "https://www.additudemag.com")!) {
+                        ResourceLink(title: "ADDitude Magazine", subtitle: "ADHD Information & Support")
+                    }
+
+                    Link(destination: URL(string: "https://add.org")!) {
+                        ResourceLink(title: "ADDA", subtitle: "Attention Deficit Disorder Association")
+                    }
+                }
+                .padding()
+                .background(
+                    RoundedRectangle(cornerRadius: 16)
+                        .fill(Color.themeSecondary)
+                )
+
+                Spacer(minLength: 40)
+            }
+            .padding()
+        }
+        .background(Color.themeBackground)
+        .navigationTitle("Health Disclaimer")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+struct DisclaimerBullet: View {
+    let icon: String
+    let color: Color
+    let text: String
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 12) {
+            Image(systemName: icon)
+                .foregroundStyle(color)
+            Text(text)
+                .foregroundStyle(Color.themeSubtext)
+        }
+    }
+}
+
+struct ResourceLink: View {
+    let title: String
+    let subtitle: String
+
+    var body: some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(.subheadline.bold())
+                    .foregroundStyle(Color.themeAccent)
+                Text(subtitle)
+                    .font(.caption)
+                    .foregroundStyle(Color.themeSubtext)
+            }
+            Spacer()
+            Image(systemName: "arrow.up.right")
+                .font(.caption)
+                .foregroundStyle(Color.themeSubtext)
+        }
+        .padding(.vertical, 8)
+    }
+}
+
+// MARK: - Self-Care Detail Views
+
+struct SelfCareDetailView: View {
+    let title: String
+    let icon: String
+    let iconColor: Color
+    @Binding var isEnabled: Bool
+    @Binding var intervalMinutes: Int
+    let intervalOptions: [Int]
+
+    var body: some View {
+        Form {
+            Section {
+                Toggle("Enable \(title) Reminders", isOn: $isEnabled)
+            }
+
+            if isEnabled {
+                Section {
+                    Picker("Remind every", selection: $intervalMinutes) {
+                        ForEach(intervalOptions, id: \.self) { minutes in
+                            Text("\(minutes) minutes").tag(minutes)
+                        }
+                    }
+                    .pickerStyle(.inline)
+                } header: {
+                    Text("Frequency")
+                }
+            }
+        }
+        .scrollContentBackground(.hidden)
+        .background(Color.themeBackground)
+        .navigationTitle(title)
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+struct HyperfocusBreakSettingsView: View {
+    @ObservedObject private var selfCareService = SelfCareService.shared
+
+    var body: some View {
+        Form {
+            Section {
+                Toggle("Enable Hyperfocus Check-ins", isOn: $selfCareService.hyperfocusSettings.isEnabled)
+            }
+
+            if selfCareService.hyperfocusSettings.isEnabled {
+                Section {
+                    Picker("Check-in every", selection: $selfCareService.hyperfocusSettings.intervalMinutes) {
+                        Text("60 minutes").tag(60)
+                        Text("90 minutes").tag(90)
+                        Text("120 minutes").tag(120)
+                    }
+                    .pickerStyle(.inline)
+                } header: {
+                    Text("Frequency")
+                } footer: {
+                    Text("When hyperfocusing, it's easy to lose track of time. These gentle check-ins help you stay on the right task.")
+                }
+
+                Section {
+                    Toggle("Protect Productive Flow", isOn: $selfCareService.hyperfocusSettings.protectProductiveFlow)
+                } header: {
+                    Text("Advanced")
+                } footer: {
+                    Text("When enabled, the check-in will ask if you want to continue before interrupting. Great for adults who are productively hyperfocusing.")
+                }
+            }
+        }
+        .scrollContentBackground(.hidden)
+        .background(Color.themeBackground)
+        .navigationTitle("Hyperfocus Breaks")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+struct MealSettingsView: View {
+    @ObservedObject private var selfCareService = SelfCareService.shared
+
+    var body: some View {
+        Form {
+            Section {
+                Toggle("Enable Meal Reminders", isOn: $selfCareService.mealSettings.isEnabled)
+            }
+
+            if selfCareService.mealSettings.isEnabled {
+                Section {
+                    Stepper("Meals per day: \(selfCareService.mealSettings.mealCount)", value: $selfCareService.mealSettings.mealCount, in: 2...5)
+                } header: {
+                    Text("How Many Meals")
+                }
+
+                Section {
+                    MealTimeRow(label: "Breakfast", time: $selfCareService.mealSettings.breakfastTime)
+
+                    MealTimeRow(label: "Lunch", time: $selfCareService.mealSettings.lunchTime)
+
+                    MealTimeRow(label: "Dinner", time: $selfCareService.mealSettings.dinnerTime)
+
+                    if selfCareService.mealSettings.mealCount >= 4 {
+                        MealTimeRow(
+                            label: "Snack 1",
+                            time: Binding(
+                                get: { selfCareService.mealSettings.snackTime1 ?? "10:30" },
+                                set: { selfCareService.mealSettings.snackTime1 = $0 }
+                            )
+                        )
+                    }
+
+                    if selfCareService.mealSettings.mealCount >= 5 {
+                        MealTimeRow(
+                            label: "Snack 2",
+                            time: Binding(
+                                get: { selfCareService.mealSettings.snackTime2 ?? "15:30" },
+                                set: { selfCareService.mealSettings.snackTime2 = $0 }
+                            )
+                        )
+                    }
+                } header: {
+                    Text("Meal Times")
+                } footer: {
+                    Text("Set when you typically eat. You'll get a reminder at these times.")
+                }
+            }
+        }
+        .scrollContentBackground(.hidden)
+        .background(Color.themeBackground)
+        .navigationTitle("Meal Reminders")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+struct MealTimeRow: View {
+    let label: String
+    @Binding var time: String
+    @State private var selectedDate = Date()
+
+    var body: some View {
+        HStack {
+            Text(label)
+            Spacer()
+            DatePicker(
+                "",
+                selection: Binding(
+                    get: {
+                        let formatter = DateFormatter()
+                        formatter.dateFormat = "HH:mm"
+                        return formatter.date(from: time) ?? Date()
+                    },
+                    set: { newDate in
+                        let formatter = DateFormatter()
+                        formatter.dateFormat = "HH:mm"
+                        time = formatter.string(from: newDate)
+                    }
+                ),
+                displayedComponents: .hourAndMinute
+            )
+            .labelsHidden()
+        }
+    }
+}
+
+// MARK: - Personality Button
+
+struct PersonalityButton: View {
+    let personality: BotPersonality
+    let isSelected: Bool
+    let onTap: () -> Void
+
+    var body: some View {
+        Button(action: onTap) {
+            HStack(spacing: 12) {
+                Text(personality.emoji)
+                    .font(.title)
+                    .frame(width: 44)
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(personality.displayName)
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                        .foregroundStyle(.primary)
+                    Text(personality.selectionTagline)
+                        .font(.caption)
+                        .foregroundStyle(isSelected ? Color.themeAccent : .secondary)
+                }
+
+                Spacer()
+
+                if isSelected {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundStyle(Color.themeAccent)
+                        .font(.title3)
+                }
+            }
+            .padding(.vertical, 4)
         }
     }
 }

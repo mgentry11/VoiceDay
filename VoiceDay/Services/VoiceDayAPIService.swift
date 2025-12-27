@@ -665,3 +665,207 @@ extension NotificationService {
         return baseMessage
     }
 }
+
+// MARK: - Architect Service
+
+@MainActor
+class ArchitectService: ObservableObject {
+    static let shared = ArchitectService()
+    
+    @Published var isProcessing = false
+    @Published var currentBlueprint = ProductBlueprint()
+    @Published var discoveryMessages: [ConversationMessage] = []
+    @Published var infoCompleteness: Double = 0.0
+    @Published var isReadyToFinalize: Bool = false
+    
+    private var conversationHistory: [[String: String]] = []
+    
+    private let systemPrompt = """
+    You are 'The Architect', a world-class product strategist and systems thinker with the dry, sardonic wit of an Oxford-educated polymath (The Gadfly persona). 
+    
+    YOUR GOAL:
+    Help the user define a product from their stream-of-consciousness thoughts. You must extract structured information while providing high-level strategic advice.
+    
+    THE PROCESS:
+    1. LISTEN: Analyze their rant/thoughts.
+    2. EXTRACT: Update the 'Product Blueprint' with what you've learned.
+    3. GAP ANALYSIS: Identify what is missing (Target Audience, Revenue Model, Tech Stack, etc.).
+    4. QUESTION: Ask exactly ONE sharp, insightful question to fill a specific gap. 
+    
+    BLUEPRINT FIELDS:
+    - title: Catchy but descriptive name.
+    - description: 1-2 sentence summary.
+    - targetAudience: Who specifically is this for?
+    - coreValueProposition: Why would they care?
+    - mvpFeatures: List of 3-5 essential features.
+    - revenueModel: How does it make money or sustain itself?
+    - technicalStack: Recommended tools/platforms.
+    - roadmap: 3 high-level phases (Alpha, Beta, v1).
+    
+    TONE:
+     Disappointed but brilliant. Use the Gadfly's vocabulary (pedestrian, entropy, Aristotelian). Be encouraging about the product idea but slightly dismissive of the user's current level of organization.
+    
+    RESPONSE FORMAT:
+    You MUST respond with a JSON object:
+    {
+        "blueprint": {
+            "title": "...",
+            "description": "...",
+            "targetAudience": "...",
+            "coreValueProposition": "...",
+            "mvpFeatures": ["..."],
+            "revenueModel": "...",
+            "technicalStack": ["..."],
+            "roadmap": ["..."]
+        },
+        "analysis": "A quick, witty Gadfly-style analysis of their current progress.",
+        "clarifyingQuestion": "Exactly one insightful question.",
+        "infoCompleteness": 0.0 to 1.0,
+        "isReadyToFinalize": true/false (true if you have enough to build a solid 1.0 plan)
+    }
+    """
+    
+    func resetSession() {
+        currentBlueprint = ProductBlueprint()
+        discoveryMessages = []
+        conversationHistory = []
+        infoCompleteness = 0.0
+        isReadyToFinalize = false
+    }
+    
+    func processDiscoveryInput(_ input: String, apiKey: String) async throws {
+        isProcessing = true
+        defer { isProcessing = false }
+        
+        discoveryMessages.append(ConversationMessage(role: .user, content: input, timestamp: Date()))
+        conversationHistory.append(["role": "user", "content": input])
+        
+        let requestBody: [String: Any] = [
+            "model": "claude-3-5-sonnet-20241022",
+            "max_tokens": 4096,
+            "system": systemPrompt,
+            "messages": conversationHistory
+        ]
+        
+        var request = URLRequest(url: URL(string: "https://api.anthropic.com/v1/messages")!)
+        request.httpMethod = "POST"
+        request.setValue(apiKey, forHTTPHeaderField: "x-api-key")
+        request.setValue("2023-06-01", forHTTPHeaderField: "anthropic-version")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            let errorText = String(data: data, encoding: .utf8) ?? "Unknown error"
+            throw AIServiceError.invalidResponse(message: "Architect API Error: \(errorText)")
+        }
+        
+        let decoder = JSONDecoder()
+        let claudeResponse = try decoder.decode(ClaudeResponse.self, from: data)
+        guard let content = claudeResponse.content.first?.text else { throw AIServiceError.noContent }
+        
+        let jsonText = extractJSON(from: content)
+        guard let jsonData = jsonText.data(using: .utf8) else { throw AIServiceError.parsingFailed(message: "Invalid JSON from Architect") }
+        
+        let discoveryResult = try decoder.decode(ArchitectDiscoveryResponse.self, from: jsonData)
+        
+        updateBlueprint(from: discoveryResult.blueprint)
+        self.infoCompleteness = discoveryResult.infoCompleteness
+        self.isReadyToFinalize = discoveryResult.isReadyToFinalize
+        
+        if let analysis = discoveryResult.analysis, let question = discoveryResult.clarifyingQuestion {
+            let combinedResponse = analysis + "\n\n" + question
+            discoveryMessages.append(ConversationMessage(role: .assistant, content: combinedResponse, timestamp: Date()))
+            conversationHistory.append(["role": "assistant", "content": content])
+        }
+    }
+    
+    private func updateBlueprint(from dto: ArchitectDiscoveryResponse.ProductBlueprintDTO?) {
+        guard let dto = dto else { return }
+        if let val = dto.title { currentBlueprint.title = val }
+        if let val = dto.description { currentBlueprint.description = val }
+        if let val = dto.targetAudience { currentBlueprint.targetAudience = val }
+        if let val = dto.coreValueProposition { currentBlueprint.coreValueProposition = val }
+        if let val = dto.mvpFeatures { currentBlueprint.mvpFeatures = val }
+        if let val = dto.revenueModel { currentBlueprint.revenueModel = val }
+        if let val = dto.technicalStack { currentBlueprint.technicalStack = val }
+        if let val = dto.roadmap { currentBlueprint.roadmap = val }
+        currentBlueprint.confidenceScore = infoCompleteness
+    }
+    
+    private func extractJSON(from text: String) -> String {
+        if let startIndex = text.firstIndex(of: "{"),
+           let endIndex = text.lastIndex(of: "}") {
+            return String(text[startIndex...endIndex])
+        }
+        return text
+    }
+}
+
+// MARK: - Goals Service
+
+@MainActor
+class GoalsService: ObservableObject {
+    static let shared = GoalsService()
+    @Published var goals: [Goal] = []
+    private let storageKey = "user_goals"
+    var activeGoals: [Goal] { goals.filter { $0.status == .active } }
+    var pausedGoals: [Goal] { goals.filter { $0.status == .paused } }
+    var completedGoals: [Goal] { goals.filter { $0.status == .completed } }
+    var mostNeglectedGoal: Goal? { activeGoals.max { $0.daysSinceLastProgress < $1.daysSinceLastProgress } }
+    var goalsNeedingAttention: [Goal] { activeGoals.filter { $0.daysSinceLastProgress >= 3 } }
+    init() { loadGoals() }
+    func addGoal(_ goal: Goal) { goals.append(goal); saveGoals() }
+    func updateGoal(_ goal: Goal) { if let idx = goals.firstIndex(where: { $0.id == goal.id }) { goals[idx] = goal; saveGoals() } }
+    func deleteGoal(id: UUID) { goals.removeAll { $0.id == id }; saveGoals() }
+    func getGoal(byId id: UUID) -> Goal? { goals.first { $0.id == id } }
+    func pauseGoal(id: UUID) { if let idx = goals.firstIndex(where: { $0.id == id }) { goals[idx].status = .paused; saveGoals() } }
+    func resumeGoal(id: UUID) { if let idx = goals.firstIndex(where: { $0.id == id }) { goals[idx].status = .active; goals[idx].lastProgressUpdate = Date(); saveGoals() } }
+    func completeMilestone(goalId: UUID, milestoneIndex: Int) -> (goal: Goal, completedMilestone: Milestone, nextMilestone: Milestone?)? {
+        guard let idx = goals.firstIndex(where: { $0.id == goalId }) else { return nil }
+        let completed = goals[idx].milestones[milestoneIndex]
+        goals[idx].completeMilestone(at: milestoneIndex); saveGoals()
+        return (goals[idx], completed, goals[idx].currentMilestone)
+    }
+        func recordProgress(goalId: UUID) { if let idx = goals.firstIndex(where: { $0.id == goalId }) { goals[idx].recordProgress(); saveGoals() } }
+        func getNeglectMessage(for goal: Goal) -> String { "Keep working on \(goal.title)." }
+        func getMilestoneCompletionMessage(milestone: Milestone, nextMilestone: Milestone?) -> String {
+            if let next = nextMilestone { return "Completed \(milestone.title). Next is \(next.title)." }
+            return "Goal complete!"
+        }
+        private func saveGoals() {
+     if let data = try? JSONEncoder().encode(goals) { UserDefaults.standard.set(data, forKey: storageKey) } }
+    private func loadGoals() { if let data = UserDefaults.standard.data(forKey: storageKey), let saved = try? JSONDecoder().decode([Goal].self, from: data) { goals = saved } }
+}
+
+// MARK: - Accountability Tracker
+
+@MainActor
+class AccountabilityTracker: ObservableObject {
+    static let shared = AccountabilityTracker()
+    @Published var currentEscalationLevel: Int = 0
+    @Published var todayStats = DailyStats.empty()
+    @Published var weeklyStats: [DailyStats] = []
+    @Published var shortReturnPattern: Bool = false
+    
+    struct DailyStats: Codable {
+        var date: Date; var timeInApp: TimeInterval; var tasksCompleted: Int; var goalsProgressed: Int; var doomscrollWarnings: Int
+        static func empty() -> DailyStats { DailyStats(date: Date(), timeInApp: 0, tasksCompleted: 0, goalsProgressed: 0, doomscrollWarnings: 0) }
+    }
+    
+    init() { }
+    func recordAppReturn() { }
+    func recordTimeAway(_ duration: TimeInterval) { }
+    func getWeeklySummary() -> String { "Weekly summary placeholder." }
+    func getDoomscrollMessage() -> String { "Stop scrolling." }
+    func getTimeAwayMessage(minutes: Int) -> String { "You've been away." }
+}
+
+private struct ClaudeResponse: Codable {
+    let content: [ContentBlock]
+    struct ContentBlock: Codable {
+        let type: String
+        let text: String?
+    }
+}

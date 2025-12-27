@@ -39,6 +39,32 @@ enum AppTheme: String, CaseIterable, Identifiable {
     }
 }
 
+// MARK: - App Version (Kids/Teens/Adults)
+
+enum AppVersion: String, CaseIterable, Identifiable {
+    case kids = "kids"
+    case teens = "teens"
+    case adults = "adults"
+
+    var id: String { rawValue }
+
+    var displayName: String {
+        switch self {
+        case .kids: return "Kids"
+        case .teens: return "Teens"
+        case .adults: return "Adults"
+        }
+    }
+
+    var description: String {
+        switch self {
+        case .kids: return "Simple & fun"
+        case .teens: return "School & life"
+        case .adults: return "Full features"
+        }
+    }
+}
+
 // MARK: - Color Themes
 
 enum ColorTheme: String, CaseIterable, Identifiable {
@@ -412,6 +438,8 @@ enum ColorTheme: String, CaseIterable, Identifiable {
 
 @MainActor
 class AppState: ObservableObject {
+    @Published var selectedTab: Int = 0
+    
     @Published var selectedTheme: AppTheme {
         didSet {
             UserDefaults.standard.set(selectedTheme.rawValue, forKey: "selected_theme")
@@ -522,6 +550,48 @@ class AppState: ObservableObject {
         didSet {
             UserDefaults.standard.set(selectedPersonality.rawValue, forKey: "selected_personality")
         }
+    }
+
+    // MARK: - App Version (Kids/Teens/Adults)
+
+    @Published var appVersion: AppVersion {
+        didSet {
+            UserDefaults.standard.set(appVersion.rawValue, forKey: "app_version")
+        }
+    }
+
+    // Feature toggles for adults mode
+    @Published var featureWork: Bool {
+        didSet { UserDefaults.standard.set(featureWork, forKey: "feature_work") }
+    }
+    @Published var featureSchool: Bool {
+        didSet { UserDefaults.standard.set(featureSchool, forKey: "feature_school") }
+    }
+    @Published var featureHealth: Bool {
+        didSet { UserDefaults.standard.set(featureHealth, forKey: "feature_health") }
+    }
+    @Published var featureHome: Bool {
+        didSet { UserDefaults.standard.set(featureHome, forKey: "feature_home") }
+    }
+    @Published var featureCreative: Bool {
+        didSet { UserDefaults.standard.set(featureCreative, forKey: "feature_creative") }
+    }
+    @Published var featureSocial: Bool {
+        didSet { UserDefaults.standard.set(featureSocial, forKey: "feature_social") }
+    }
+
+    // MARK: - Reward Breaks
+
+    @Published var rewardBreaksEnabled: Bool {
+        didSet { UserDefaults.standard.set(rewardBreaksEnabled, forKey: "reward_breaks_enabled") }
+    }
+
+    @Published var rewardBreakDuration: Int { // in minutes
+        didSet { UserDefaults.standard.set(rewardBreakDuration, forKey: "reward_break_duration") }
+    }
+
+    @Published var autoSuggestBreaks: Bool {
+        didSet { UserDefaults.standard.set(autoSuggestBreaks, forKey: "auto_suggest_breaks") }
     }
 
     // MARK: - User Profile
@@ -656,6 +726,23 @@ class AppState: ObservableObject {
         // Personality
         let savedPersonality = UserDefaults.standard.string(forKey: "selected_personality") ?? ""
         self.selectedPersonality = BotPersonality(rawValue: savedPersonality) ?? .pemberton
+
+        // App Version
+        let savedVersion = UserDefaults.standard.string(forKey: "app_version") ?? ""
+        self.appVersion = AppVersion(rawValue: savedVersion) ?? .adults
+
+        // Feature toggles (default most on for adults)
+        self.featureWork = UserDefaults.standard.object(forKey: "feature_work") as? Bool ?? true
+        self.featureSchool = UserDefaults.standard.object(forKey: "feature_school") as? Bool ?? true
+        self.featureHealth = UserDefaults.standard.object(forKey: "feature_health") as? Bool ?? true
+        self.featureHome = UserDefaults.standard.object(forKey: "feature_home") as? Bool ?? true
+        self.featureCreative = UserDefaults.standard.object(forKey: "feature_creative") as? Bool ?? false
+        self.featureSocial = UserDefaults.standard.object(forKey: "feature_social") as? Bool ?? false
+
+        // Reward breaks
+        self.rewardBreaksEnabled = UserDefaults.standard.object(forKey: "reward_breaks_enabled") as? Bool ?? false
+        self.rewardBreakDuration = UserDefaults.standard.object(forKey: "reward_break_duration") as? Int ?? 15
+        self.autoSuggestBreaks = UserDefaults.standard.object(forKey: "auto_suggest_breaks") as? Bool ?? true
 
         // User profile
         self.userName = UserDefaults.standard.string(forKey: "user_name") ?? ""
