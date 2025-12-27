@@ -21,6 +21,8 @@ NEW_FILES = [
     ("CheckoutChecklistService.swift", "Services"),
     ("CheckoutChecklistView.swift", "Views"),
     ("LocationsManagerView.swift", "Views"),
+    # Voice cloning (standalone - was duplicated in ElevenLabsService.swift)
+    ("VoiceCloningService.swift", "Services"),
 ]
 
 def generate_uuid():

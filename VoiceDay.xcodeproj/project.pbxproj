@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2CD31655697A4E60A90EEF5D /* VoiceCloningService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC71E090FAF9442589D5EBD5 /* VoiceCloningService.swift */; };
 		2989136E1FCE4D9380B752AA /* LocationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C2E6BD70E0A4C2980DD4875 /* LocationService.swift */; };
 		5E49729C44524CC39396A81F /* CheckoutChecklistService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70A18A9C2DE041D4BC914056 /* CheckoutChecklistService.swift */; };
 		15F9C9FD9B724B73835D85BC /* CheckoutChecklistView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC378AE2B15A475FB3557891 /* CheckoutChecklistView.swift */; };
@@ -115,6 +116,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		BC71E090FAF9442589D5EBD5 /* VoiceCloningService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceCloningService.swift; sourceTree = "<group>"; };
 		7C2E6BD70E0A4C2980DD4875 /* LocationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationService.swift; sourceTree = "<group>"; };
 		70A18A9C2DE041D4BC914056 /* CheckoutChecklistService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckoutChecklistService.swift; sourceTree = "<group>"; };
 		EC378AE2B15A475FB3557891 /* CheckoutChecklistView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckoutChecklistView.swift; sourceTree = "<group>"; };
@@ -334,6 +336,7 @@
 		A10000000000000000000035 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				BC71E090FAF9442589D5EBD5 /* VoiceCloningService.swift */,
 				70A18A9C2DE041D4BC914056 /* CheckoutChecklistService.swift */,
 				7C2E6BD70E0A4C2980DD4875 /* LocationService.swift */,
 				9F32C9B18F944CDD93F66D82 /* TaskCoach.swift */,
@@ -496,6 +499,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2CD31655697A4E60A90EEF5D /* VoiceCloningService.swift in Sources */,
 				2989136E1FCE4D9380B752AA /* LocationService.swift in Sources */,
 				5E49729C44524CC39396A81F /* CheckoutChecklistService.swift in Sources */,
 				15F9C9FD9B724B73835D85BC /* CheckoutChecklistView.swift in Sources */,

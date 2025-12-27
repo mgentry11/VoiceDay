@@ -308,6 +308,19 @@ class VoiceCloningService: NSObject, ObservableObject {
     private func loadSavedVoice() {
         customVoiceId = UserDefaults.standard.string(forKey: "custom_voice_id")
         customVoiceName = UserDefaults.standard.string(forKey: "custom_voice_name")
+
+        // Debug logging at startup
+        if let id = customVoiceId {
+            print("⚠️ STARTUP: Loaded custom voice ID: \(id)")
+            print("⚠️ STARTUP: Custom voice name: \(customVoiceName ?? "nil")")
+        } else {
+            print("✅ STARTUP: No custom voice loaded")
+        }
+
+        let selectedId = UserDefaults.standard.string(forKey: "selected_voice_id") ?? ""
+        let selectedName = UserDefaults.standard.string(forKey: "selected_voice_name") ?? ""
+        print("✅ STARTUP: Selected voice ID: \(selectedId.isEmpty ? "none" : selectedId)")
+        print("✅ STARTUP: Selected voice name: \(selectedName.isEmpty ? "none" : selectedName)")
     }
 }
 
