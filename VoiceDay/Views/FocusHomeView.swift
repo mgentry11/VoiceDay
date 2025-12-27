@@ -53,11 +53,7 @@ struct FocusHomeView: View {
     }
 
     var body: some View {
-        ZStack {
-            // Background
-            themeColors.background.ignoresSafeArea()
-
-            VStack(spacing: 16) {
+        VStack(spacing: 16) {
                 // Top bar with energy and mode
                 HStack {
                     EnergyBadge()
@@ -94,7 +90,6 @@ struct FocusHomeView: View {
                     )
                 }
                 .padding(.horizontal)
-                .padding(.top, 8)
 
                 // Momentum meter
                 MomentumMeterView()
@@ -170,9 +165,10 @@ struct FocusHomeView: View {
                 }
                 .buttonStyle(.plain)
                 .padding(.bottom, 8)
-            }
-            .padding(.bottom, 60)  // Extra padding for tab bar
-
+        }
+        .padding(.bottom, 60)  // Extra padding for tab bar
+        .background(themeColors.background.ignoresSafeArea())
+        .overlay(alignment: .center) {
             // Celebration overlay
             CelebrationOverlay()
         }

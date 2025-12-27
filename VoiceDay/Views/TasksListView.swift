@@ -22,12 +22,55 @@ struct TasksListView: View {
     @State private var showingTomorrowTimePicker = false
     @State private var reminderToPush: EKReminder?
 
+    @State private var showingWeeklyView = false
+
+    // MARK: - Grouped Tasks by Date
+
     private var incompleteReminders: [EKReminder] {
         reminders.filter { !$0.isCompleted }
     }
 
     private var completedReminders: [EKReminder] {
         reminders.filter { $0.isCompleted }
+    }
+
+    /// Tasks due today (or overdue)
+    private var todaysTasks: [EKReminder] {
+        let calendar = Calendar.current
+        return incompleteReminders.filter { reminder in
+            guard let dueDate = reminder.dueDateComponents?.date else { return true } // No date = show in today
+            return calendar.isDateInToday(dueDate) || dueDate < Date()
+        }
+    }
+
+    /// Tasks due tomorrow
+    private var tomorrowsTasks: [EKReminder] {
+        let calendar = Calendar.current
+        return incompleteReminders.filter { reminder in
+            guard let dueDate = reminder.dueDateComponents?.date else { return false }
+            return calendar.isDateInTomorrow(dueDate)
+        }
+    }
+
+    /// Tasks due this week (after tomorrow, within 7 days)
+    private var thisWeeksTasks: [EKReminder] {
+        let calendar = Calendar.current
+        let twoDaysFromNow = calendar.date(byAdding: .day, value: 2, to: calendar.startOfDay(for: Date()))!
+        let weekFromNow = calendar.date(byAdding: .day, value: 7, to: calendar.startOfDay(for: Date()))!
+        return incompleteReminders.filter { reminder in
+            guard let dueDate = reminder.dueDateComponents?.date else { return false }
+            return dueDate >= twoDaysFromNow && dueDate < weekFromNow
+        }.sorted { ($0.dueDateComponents?.date ?? .distantFuture) < ($1.dueDateComponents?.date ?? .distantFuture) }
+    }
+
+    /// Tasks due later (beyond this week)
+    private var laterTasks: [EKReminder] {
+        let calendar = Calendar.current
+        let weekFromNow = calendar.date(byAdding: .day, value: 7, to: calendar.startOfDay(for: Date()))!
+        return incompleteReminders.filter { reminder in
+            guard let dueDate = reminder.dueDateComponents?.date else { return false }
+            return dueDate >= weekFromNow
+        }.sorted { ($0.dueDateComponents?.date ?? .distantFuture) < ($1.dueDateComponents?.date ?? .distantFuture) }
     }
 
     var body: some View {
@@ -49,10 +92,20 @@ struct TasksListView: View {
                         MomentumBadge()
                     }
                     ToolbarItem(placement: .topBarTrailing) {
-                        Button {
-                            Task { await loadReminders() }
-                        } label: {
-                            Image(systemName: "arrow.clockwise")
+                        HStack(spacing: 12) {
+                            // Weekly view button
+                            Button {
+                                showingWeeklyView = true
+                            } label: {
+                                Image(systemName: "calendar.badge.clock")
+                            }
+
+                            // Refresh button
+                            Button {
+                                Task { await loadReminders() }
+                            } label: {
+                                Image(systemName: "arrow.clockwise")
+                            }
                         }
                     }
                 }
@@ -162,36 +215,87 @@ struct TasksListView: View {
 
     private var remindersList: some View {
         List {
-            // Incomplete tasks section
-            if !incompleteReminders.isEmpty {
+            // Today's tasks
+            if !todaysTasks.isEmpty {
                 Section {
-                    ForEach(incompleteReminders, id: \.calendarItemIdentifier) { reminder in
-                        ReminderRow(
-                            reminder: reminder,
-                            onToggleComplete: {
-                                Task { await toggleComplete(reminder) }
-                            },
-                            onTapRow: {
-                                selectedReminder = reminder
-                                showingDetail = true
-                            },
-                            onStartFocus: {
-                                focusTaskTitle = reminder.title ?? "This task"
-                                showingFocusSetup = true
-                            },
-                            onPushTomorrow: {
-                                reminderToPush = reminder
-                                showingTomorrowTimePicker = true
-                            }
-                        )
-                        .listRowBackground(themeColors.secondary)
+                    ForEach(todaysTasks, id: \.calendarItemIdentifier) { reminder in
+                        reminderRowView(for: reminder)
+                            .listRowBackground(themeColors.secondary)
                     }
                     .onDelete { indexSet in
-                        Task { await deleteReminders(at: indexSet, from: incompleteReminders) }
+                        Task { await deleteReminders(at: indexSet, from: todaysTasks) }
                     }
                 } header: {
-                    Text("To Do (\(incompleteReminders.count))")
-                        .foregroundStyle(themeColors.subtext)
+                    HStack {
+                        Image(systemName: "sun.max.fill")
+                            .foregroundStyle(.orange)
+                        Text("Today (\(todaysTasks.count))")
+                    }
+                    .foregroundStyle(themeColors.text)
+                    .font(.headline)
+                }
+            }
+
+            // Tomorrow's tasks
+            if !tomorrowsTasks.isEmpty {
+                Section {
+                    ForEach(tomorrowsTasks, id: \.calendarItemIdentifier) { reminder in
+                        reminderRowView(for: reminder)
+                            .listRowBackground(themeColors.secondary.opacity(0.8))
+                    }
+                    .onDelete { indexSet in
+                        Task { await deleteReminders(at: indexSet, from: tomorrowsTasks) }
+                    }
+                } header: {
+                    HStack {
+                        Image(systemName: "sunrise.fill")
+                            .foregroundStyle(.yellow)
+                        Text("Tomorrow (\(tomorrowsTasks.count))")
+                    }
+                    .foregroundStyle(themeColors.text)
+                    .font(.headline)
+                }
+            }
+
+            // This week's tasks
+            if !thisWeeksTasks.isEmpty {
+                Section {
+                    ForEach(thisWeeksTasks, id: \.calendarItemIdentifier) { reminder in
+                        reminderRowView(for: reminder)
+                            .listRowBackground(themeColors.secondary.opacity(0.6))
+                    }
+                    .onDelete { indexSet in
+                        Task { await deleteReminders(at: indexSet, from: thisWeeksTasks) }
+                    }
+                } header: {
+                    HStack {
+                        Image(systemName: "calendar")
+                            .foregroundStyle(.blue)
+                        Text("This Week (\(thisWeeksTasks.count))")
+                    }
+                    .foregroundStyle(themeColors.text)
+                    .font(.headline)
+                }
+            }
+
+            // Later tasks
+            if !laterTasks.isEmpty {
+                Section {
+                    ForEach(laterTasks, id: \.calendarItemIdentifier) { reminder in
+                        reminderRowView(for: reminder)
+                            .listRowBackground(themeColors.secondary.opacity(0.4))
+                    }
+                    .onDelete { indexSet in
+                        Task { await deleteReminders(at: indexSet, from: laterTasks) }
+                    }
+                } header: {
+                    HStack {
+                        Image(systemName: "calendar.badge.plus")
+                            .foregroundStyle(.purple)
+                        Text("Later (\(laterTasks.count))")
+                    }
+                    .foregroundStyle(themeColors.text)
+                    .font(.headline)
                 }
             }
 
@@ -209,14 +313,18 @@ struct TasksListView: View {
                                 showingDetail = true
                             }
                         )
-                        .listRowBackground(themeColors.secondary.opacity(0.5))
+                        .listRowBackground(themeColors.secondary.opacity(0.3))
                     }
                     .onDelete { indexSet in
                         Task { await deleteReminders(at: indexSet, from: completedReminders) }
                     }
                 } header: {
-                    Text("Completed (\(completedReminders.count))")
-                        .foregroundStyle(themeColors.subtext)
+                    HStack {
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundStyle(.green)
+                        Text("Completed (\(completedReminders.count))")
+                    }
+                    .foregroundStyle(themeColors.subtext)
                 }
             }
         }
@@ -226,6 +334,32 @@ struct TasksListView: View {
             await loadReminders()
         }
         .id(themeColors.currentTheme.rawValue)
+        .sheet(isPresented: $showingWeeklyView) {
+            WeeklyTasksView(reminders: incompleteReminders)
+        }
+    }
+
+    // Helper to create reminder row with all handlers
+    @ViewBuilder
+    private func reminderRowView(for reminder: EKReminder) -> some View {
+        ReminderRow(
+            reminder: reminder,
+            onToggleComplete: {
+                Task { await toggleComplete(reminder) }
+            },
+            onTapRow: {
+                selectedReminder = reminder
+                showingDetail = true
+            },
+            onStartFocus: {
+                focusTaskTitle = reminder.title ?? "This task"
+                showingFocusSetup = true
+            },
+            onPushTomorrow: {
+                reminderToPush = reminder
+                showingTomorrowTimePicker = true
+            }
+        )
     }
 
     private func loadReminders() async {
@@ -349,7 +483,7 @@ struct TasksListView: View {
     private func pushTaskToTomorrowWithTime(_ reminder: EKReminder, time: Date) async {
         do {
             pushedTaskTitle = reminder.title ?? "Task"
-            try await calendarService.pushToTomorrowAtTime(reminder, time: time)
+            try await calendarService.pushToDate(reminder, date: time)
 
             // Haptic feedback
             let generator = UINotificationFeedbackGenerator()
@@ -361,12 +495,213 @@ struct TasksListView: View {
             // Reload list
             await loadReminders()
         } catch {
-            print("Error pushing to tomorrow: \(error)")
+            print("Error pushing task: \(error)")
         }
     }
 }
 
-// MARK: - Push To Tomorrow Sheet
+// MARK: - Weekly Tasks View
+
+struct WeeklyTasksView: View {
+    let reminders: [EKReminder]
+    @Environment(\.dismiss) private var dismiss
+    @ObservedObject private var themeColors = ThemeColors.shared
+
+    private var calendar: Calendar { Calendar.current }
+
+    // Days of the week starting from today
+    private var weekDays: [Date] {
+        (0..<7).compactMap { offset in
+            calendar.date(byAdding: .day, value: offset, to: calendar.startOfDay(for: Date()))
+        }
+    }
+
+    // Tasks grouped by day
+    private func tasks(for day: Date) -> [EKReminder] {
+        let dayStart = calendar.startOfDay(for: day)
+        let dayEnd = calendar.date(byAdding: .day, value: 1, to: dayStart)!
+
+        return reminders.filter { reminder in
+            guard let dueDate = reminder.dueDateComponents?.date else { return false }
+            return dueDate >= dayStart && dueDate < dayEnd
+        }.sorted { ($0.dueDateComponents?.date ?? .distantFuture) < ($1.dueDateComponents?.date ?? .distantFuture) }
+    }
+
+    private func dayName(for date: Date) -> String {
+        if calendar.isDateInToday(date) { return "Today" }
+        if calendar.isDateInTomorrow(date) { return "Tomorrow" }
+        let formatter = DateFormatter()
+        formatter.dateFormat = "EEEE"
+        return formatter.string(from: date)
+    }
+
+    private func dateString(for date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMM d"
+        return formatter.string(from: date)
+    }
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                LazyVStack(spacing: 16) {
+                    ForEach(weekDays, id: \.self) { day in
+                        let dayTasks = tasks(for: day)
+
+                        VStack(alignment: .leading, spacing: 8) {
+                            // Day header
+                            HStack {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(dayName(for: day))
+                                        .font(.headline)
+                                        .foregroundStyle(calendar.isDateInToday(day) ? Color.themeAccent : themeColors.text)
+
+                                    Text(dateString(for: day))
+                                        .font(.caption)
+                                        .foregroundStyle(themeColors.subtext)
+                                }
+
+                                Spacer()
+
+                                if !dayTasks.isEmpty {
+                                    Text("\(dayTasks.count)")
+                                        .font(.caption.bold())
+                                        .foregroundStyle(.white)
+                                        .frame(width: 24, height: 24)
+                                        .background(Circle().fill(Color.themeAccent))
+                                }
+                            }
+                            .padding(.horizontal)
+                            .padding(.vertical, 8)
+                            .background(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .fill(calendar.isDateInToday(day) ? Color.themeAccent.opacity(0.15) : Color.themeSecondary)
+                            )
+
+                            // Tasks for this day
+                            if dayTasks.isEmpty {
+                                Text("No tasks")
+                                    .font(.subheadline)
+                                    .foregroundStyle(themeColors.subtext)
+                                    .padding(.horizontal)
+                                    .padding(.vertical, 4)
+                            } else {
+                                ForEach(dayTasks, id: \.calendarItemIdentifier) { task in
+                                    WeeklyTaskRow(task: task)
+                                }
+                            }
+                        }
+                        .padding(.horizontal)
+                    }
+
+                    // Tasks without dates
+                    let undatedTasks = reminders.filter { $0.dueDateComponents?.date == nil }
+                    if !undatedTasks.isEmpty {
+                        VStack(alignment: .leading, spacing: 8) {
+                            HStack {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("No Date Set")
+                                        .font(.headline)
+                                        .foregroundStyle(themeColors.subtext)
+
+                                    Text("Unscheduled tasks")
+                                        .font(.caption)
+                                        .foregroundStyle(themeColors.subtext)
+                                }
+
+                                Spacer()
+
+                                Text("\(undatedTasks.count)")
+                                    .font(.caption.bold())
+                                    .foregroundStyle(.white)
+                                    .frame(width: 24, height: 24)
+                                    .background(Circle().fill(.gray))
+                            }
+                            .padding(.horizontal)
+                            .padding(.vertical, 8)
+                            .background(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .fill(Color.themeSecondary.opacity(0.5))
+                            )
+
+                            ForEach(undatedTasks, id: \.calendarItemIdentifier) { task in
+                                WeeklyTaskRow(task: task)
+                            }
+                        }
+                        .padding(.horizontal)
+                    }
+                }
+                .padding(.vertical)
+            }
+            .background(Color.themeBackground)
+            .navigationTitle("Week View")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Done") {
+                        dismiss()
+                    }
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Weekly Task Row
+
+struct WeeklyTaskRow: View {
+    let task: EKReminder
+    @ObservedObject private var themeColors = ThemeColors.shared
+
+    private var timeString: String {
+        guard let date = task.dueDateComponents?.date else { return "" }
+        let formatter = DateFormatter()
+        formatter.dateFormat = "h:mm a"
+        return formatter.string(from: date)
+    }
+
+    private var priorityColor: Color {
+        switch task.priority {
+        case 1...4: return themeColors.priorityHigh
+        case 5...6: return themeColors.priorityMedium
+        default: return themeColors.subtext
+        }
+    }
+
+    var body: some View {
+        HStack(spacing: 12) {
+            // Priority indicator
+            Circle()
+                .fill(priorityColor)
+                .frame(width: 8, height: 8)
+
+            // Task info
+            VStack(alignment: .leading, spacing: 2) {
+                Text(task.title ?? "Untitled")
+                    .font(.subheadline)
+                    .foregroundStyle(themeColors.text)
+                    .lineLimit(1)
+
+                if !timeString.isEmpty {
+                    Text(timeString)
+                        .font(.caption)
+                        .foregroundStyle(themeColors.subtext)
+                }
+            }
+
+            Spacer()
+        }
+        .padding(.horizontal)
+        .padding(.vertical, 6)
+        .background(
+            RoundedRectangle(cornerRadius: 6)
+                .fill(Color.themeSecondary.opacity(0.3))
+        )
+        .padding(.horizontal)
+    }
+}
+
+// MARK: - Push To Later Sheet (Flexible Date Picker)
 
 struct PushToTomorrowSheet: View {
     let taskTitle: String
@@ -375,100 +710,73 @@ struct PushToTomorrowSheet: View {
 
     @ObservedObject private var themeColors = ThemeColors.shared
     @EnvironmentObject var appState: AppState
-    @State private var selectedTime = Date()
+    @State private var selectedDate = Date()
+    @State private var selectedTab = 0 // 0 = Quick, 1 = Calendar
 
-    // Preset time options
-    private let timePresets: [(String, Int, Int)] = [
-        ("Morning (9 AM)", 9, 0),
-        ("Late Morning (11 AM)", 11, 0),
-        ("Afternoon (2 PM)", 14, 0),
-        ("Evening (6 PM)", 18, 0)
+    // Quick day options
+    private let dayPresets: [(String, Int, String)] = [
+        ("Tomorrow", 1, "sunrise.fill"),
+        ("In 2 Days", 2, "calendar"),
+        ("In 3 Days", 3, "calendar"),
+        ("Next Week", 7, "calendar.badge.plus")
     ]
+
+    // Time presets
+    private let timePresets: [(String, Int, Int)] = [
+        ("9 AM", 9, 0),
+        ("12 PM", 12, 0),
+        ("3 PM", 15, 0),
+        ("6 PM", 18, 0)
+    ]
+
+    @State private var selectedDayOffset = 1
+    @State private var selectedHour = 9
+    @State private var selectedMinute = 0
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 24) {
-                // Bot asking
-                VStack(spacing: 12) {
-                    Text(appState.selectedPersonality.emoji)
-                        .font(.system(size: 50))
+            ScrollView {
+                VStack(spacing: 20) {
+                    // Task title
+                    VStack(spacing: 8) {
+                        Text(appState.selectedPersonality.emoji)
+                            .font(.system(size: 40))
 
-                    Text("When tomorrow?")
-                        .font(.title2)
-                        .fontWeight(.bold)
-                        .foregroundStyle(themeColors.text)
+                        Text("When should I remind you?")
+                            .font(.title3)
+                            .fontWeight(.bold)
+                            .foregroundStyle(themeColors.text)
 
-                    Text(taskTitle)
-                        .font(.subheadline)
-                        .foregroundStyle(themeColors.subtext)
-                        .lineLimit(2)
-                        .multilineTextAlignment(.center)
-                }
-                .padding(.top, 20)
-
-                // Quick time buttons - BIG
-                VStack(spacing: 12) {
-                    ForEach(timePresets, id: \.0) { preset in
-                        Button {
-                            var components = Calendar.current.dateComponents([.year, .month, .day], from: Date().addingTimeInterval(86400))
-                            components.hour = preset.1
-                            components.minute = preset.2
-                            if let time = Calendar.current.date(from: components) {
-                                onPush(time)
-                            }
-                        } label: {
-                            Text(preset.0)
-                                .font(.headline)
-                                .foregroundStyle(themeColors.text)
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 16)
-                                .background(Color.themeSecondary)
-                                .cornerRadius(12)
-                        }
+                        Text(taskTitle)
+                            .font(.subheadline)
+                            .foregroundStyle(themeColors.subtext)
+                            .lineLimit(2)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal)
                     }
-                }
-                .padding(.horizontal)
+                    .padding(.top, 12)
 
-                // Or pick specific time
-                VStack(spacing: 8) {
-                    Text("Or pick a specific time:")
-                        .font(.caption)
-                        .foregroundStyle(themeColors.subtext)
-
-                    DatePicker(
-                        "",
-                        selection: $selectedTime,
-                        displayedComponents: .hourAndMinute
-                    )
-                    .datePickerStyle(.wheel)
-                    .labelsHidden()
-                    .frame(height: 100)
-
-                    Button {
-                        // Set the selected time to tomorrow
-                        var components = Calendar.current.dateComponents([.year, .month, .day], from: Date().addingTimeInterval(86400))
-                        let timeComponents = Calendar.current.dateComponents([.hour, .minute], from: selectedTime)
-                        components.hour = timeComponents.hour
-                        components.minute = timeComponents.minute
-                        if let time = Calendar.current.date(from: components) {
-                            onPush(time)
-                        }
-                    } label: {
-                        Text("Set for this time")
-                            .font(.headline)
-                            .foregroundStyle(.black)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 14)
-                            .background(Color.themeAccent)
-                            .cornerRadius(12)
+                    // Tab picker
+                    Picker("Mode", selection: $selectedTab) {
+                        Text("Quick Pick").tag(0)
+                        Text("Calendar").tag(1)
                     }
+                    .pickerStyle(.segmented)
                     .padding(.horizontal)
-                }
 
-                Spacer()
+                    if selectedTab == 0 {
+                        // Quick pick mode
+                        quickPickView
+                    } else {
+                        // Calendar mode
+                        calendarPickView
+                    }
+
+                    Spacer(minLength: 20)
+                }
             }
             .background(Color.themeBackground)
-            .navigationTitle("Push to Tomorrow")
+            .navigationTitle("Push Task")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -479,7 +787,125 @@ struct PushToTomorrowSheet: View {
             }
         }
         .onAppear {
-            SpeechService.shared.queueSpeech("When do you want to tackle this tomorrow?")
+            SpeechService.shared.queueSpeech("When do you want to tackle this?")
+        }
+    }
+
+    // MARK: - Quick Pick View
+
+    private var quickPickView: some View {
+        VStack(spacing: 16) {
+            // Day selection - BIG buttons
+            VStack(spacing: 8) {
+                Text("Which day?")
+                    .font(.caption)
+                    .foregroundStyle(themeColors.subtext)
+
+                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
+                    ForEach(dayPresets, id: \.0) { preset in
+                        Button {
+                            selectedDayOffset = preset.1
+                        } label: {
+                            HStack(spacing: 8) {
+                                Image(systemName: preset.2)
+                                Text(preset.0)
+                            }
+                            .font(.subheadline.weight(.medium))
+                            .foregroundStyle(selectedDayOffset == preset.1 ? .white : themeColors.text)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 14)
+                            .background(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .fill(selectedDayOffset == preset.1 ? Color.themeAccent : Color.themeSecondary)
+                            )
+                        }
+                    }
+                }
+            }
+            .padding(.horizontal)
+
+            // Time selection - BIG buttons
+            VStack(spacing: 8) {
+                Text("What time?")
+                    .font(.caption)
+                    .foregroundStyle(themeColors.subtext)
+
+                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 8) {
+                    ForEach(timePresets, id: \.0) { preset in
+                        Button {
+                            selectedHour = preset.1
+                            selectedMinute = preset.2
+                        } label: {
+                            Text(preset.0)
+                                .font(.subheadline.weight(.medium))
+                                .foregroundStyle(selectedHour == preset.1 ? .white : themeColors.text)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 12)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .fill(selectedHour == preset.1 ? Color.blue : Color.themeSecondary)
+                                )
+                        }
+                    }
+                }
+            }
+            .padding(.horizontal)
+
+            // Confirm button
+            Button {
+                let calendar = Calendar.current
+                var components = calendar.dateComponents([.year, .month, .day], from: calendar.date(byAdding: .day, value: selectedDayOffset, to: Date())!)
+                components.hour = selectedHour
+                components.minute = selectedMinute
+                if let date = calendar.date(from: components) {
+                    onPush(date)
+                }
+            } label: {
+                HStack {
+                    Image(systemName: "arrow.right.circle.fill")
+                    Text("Push to \(dayPresets.first { $0.1 == selectedDayOffset }?.0 ?? "Later") at \(selectedHour > 12 ? selectedHour - 12 : selectedHour) \(selectedHour >= 12 ? "PM" : "AM")")
+                }
+                .font(.headline)
+                .foregroundStyle(.black)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 16)
+                .background(Color.themeAccent)
+                .cornerRadius(14)
+            }
+            .padding(.horizontal)
+        }
+    }
+
+    // MARK: - Calendar Pick View
+
+    private var calendarPickView: some View {
+        VStack(spacing: 16) {
+            // Full date/time picker
+            DatePicker(
+                "Select date and time",
+                selection: $selectedDate,
+                in: Date()...,
+                displayedComponents: [.date, .hourAndMinute]
+            )
+            .datePickerStyle(.graphical)
+            .padding(.horizontal)
+
+            // Confirm button
+            Button {
+                onPush(selectedDate)
+            } label: {
+                HStack {
+                    Image(systemName: "arrow.right.circle.fill")
+                    Text("Push to \(selectedDate.formatted(date: .abbreviated, time: .shortened))")
+                }
+                .font(.headline)
+                .foregroundStyle(.black)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 16)
+                .background(Color.themeAccent)
+                .cornerRadius(14)
+            }
+            .padding(.horizontal)
         }
     }
 }

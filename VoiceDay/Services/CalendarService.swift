@@ -208,23 +208,28 @@ class CalendarService: ObservableObject {
 
     /// Push a task to tomorrow at a specific time
     func pushToTomorrowAtTime(_ reminder: EKReminder, time: Date) async throws {
+        try await pushToDate(reminder, date: time)
+    }
+
+    /// Push a task to any future date/time
+    func pushToDate(_ reminder: EKReminder, date: Date) async throws {
         let calendar = Calendar.current
 
         reminder.dueDateComponents = calendar.dateComponents(
             [.year, .month, .day, .hour, .minute],
-            from: time
+            from: date
         )
 
         // Update alarm
         reminder.alarms?.forEach { reminder.removeAlarm($0) }
-        let alarm = EKAlarm(absoluteDate: time)
+        let alarm = EKAlarm(absoluteDate: date)
         reminder.addAlarm(alarm)
 
         try eventStore.save(reminder, commit: true)
 
         let formatter = DateFormatter()
-        formatter.dateFormat = "h:mm a"
-        print("📅 Pushed '\(reminder.title ?? "task")' to tomorrow at \(formatter.string(from: time))")
+        formatter.dateFormat = "MMM d 'at' h:mm a"
+        print("📅 Pushed '\(reminder.title ?? "task")' to \(formatter.string(from: date))")
     }
 
     /// Push a task to later today (X hours from now)
