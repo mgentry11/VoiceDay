@@ -506,6 +506,19 @@ struct StartChoiceStep: View {
                     }
                     .padding(.horizontal)
 
+                    // Mid-day Check-in option
+                    Button {
+                        startWithMiddayCheckIn()
+                    } label: {
+                        startOptionRow(
+                            icon: "sun.max.fill",
+                            color: .yellow,
+                            title: "Mid-day Check-in",
+                            subtitle: "Quick focus reset"
+                        )
+                    }
+                    .padding(.horizontal)
+
                     // Evening Check-in option
                     Button {
                         startWithEveningCheckIn()
@@ -515,6 +528,19 @@ struct StartChoiceStep: View {
                             color: .indigo,
                             title: "Evening Check-in",
                             subtitle: "Reflect on your day"
+                        )
+                    }
+                    .padding(.horizontal)
+
+                    // Custom Check-in option
+                    Button {
+                        startWithCustomCheckIn()
+                    } label: {
+                        startOptionRow(
+                            icon: "slider.horizontal.3",
+                            color: .teal,
+                            title: "Custom Check-in",
+                            subtitle: "Build your own routine"
                         )
                     }
                     .padding(.horizontal)
@@ -596,10 +622,19 @@ struct StartChoiceStep: View {
         appState.selectedTab = 0
     }
 
+    private func startWithMiddayCheckIn() {
+        speakAndComplete("Time for a quick focus reset! Let's check in on your progress.")
+        appState.selectedTab = 0
+    }
+
     private func startWithEveningCheckIn() {
-        // Navigate to Focus tab - evening checklist button is there
         speakAndComplete("Time to reflect! Tap the moon button for your evening check-in.")
         appState.selectedTab = 0
+    }
+
+    private func startWithCustomCheckIn() {
+        speakAndComplete("Let's set up your custom routine! Go to Settings to customize your check-ins.")
+        appState.selectedTab = 4 // Settings tab
     }
 
     private func startWithTasks() {
