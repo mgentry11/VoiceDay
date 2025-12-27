@@ -42,6 +42,11 @@ struct SettingsView: View {
                     profileSection
                     personalitySection
 
+                    // Voice section (always visible - critical for user experience)
+                    if appState.isSimpleMode {
+                        simpleVoiceSection
+                    }
+
                     // Pro-only sections (hidden in Simple mode)
                     if !appState.isSimpleMode {
                         PresetModeSettingsSection()
@@ -355,6 +360,72 @@ struct SettingsView: View {
         SpeechService.shared.queueSpeech("\(personality.displayName) activated.")
 
         pendingPersonality = nil
+    }
+
+    // MARK: - Simple Voice Section (for Simple Mode)
+
+    private var simpleVoiceSection: some View {
+        Section {
+            // Voice picker button
+            Button {
+                Task {
+                    await loadVoices()
+                    if voiceError == nil {
+                        showVoicePicker = true
+                    }
+                }
+            } label: {
+                HStack {
+                    Image(systemName: "speaker.wave.2.fill")
+                        .foregroundStyle(themeColors.accent)
+                    Text("Change Voice")
+                        .foregroundStyle(themeColors.text)
+                    Spacer()
+                    if isLoadingVoices {
+                        ProgressView()
+                    } else if !appState.selectedVoiceName.isEmpty {
+                        Text(appState.selectedVoiceName)
+                            .foregroundStyle(.green)
+                    } else {
+                        Text("Select")
+                            .foregroundStyle(.secondary)
+                    }
+                    Image(systemName: "chevron.right")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+
+            // Clear custom voice if it exists (debugging helper)
+            if VoiceCloningService.shared.customVoiceId != nil {
+                Button(role: .destructive) {
+                    VoiceCloningService.shared.clearCustomVoice()
+                    SpeechService.shared.queueSpeech("Custom voice cleared. Using selected voice now.")
+                } label: {
+                    HStack {
+                        Image(systemName: "trash")
+                            .foregroundStyle(.red)
+                        Text("Clear Custom Voice")
+                            .foregroundStyle(.red)
+                        Spacer()
+                        if let name = VoiceCloningService.shared.customVoiceName {
+                            Text(name)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+            }
+
+            if let error = voiceError {
+                Text(error)
+                    .font(.caption)
+                    .foregroundStyle(.red)
+            }
+        } header: {
+            Text("Voice")
+        } footer: {
+            Text("Choose a voice that works for you. This is the voice that will speak all reminders and check-ins.")
+        }
     }
 
     private var openAISection: some View {

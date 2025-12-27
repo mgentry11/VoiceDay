@@ -268,6 +268,15 @@ class VoiceCloningService: NSObject, ObservableObject {
         saveVoice()
     }
 
+    /// Clear local custom voice data without deleting from ElevenLabs
+    /// Use this when user wants to switch to a different voice
+    func clearCustomVoice() {
+        print("🎤 Clearing custom voice locally")
+        customVoiceId = nil
+        customVoiceName = nil
+        saveVoice()
+    }
+
     // MARK: - Persistence
 
     private func getRecordingURL(for phraseIndex: Int) -> URL {

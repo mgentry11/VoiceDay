@@ -63,17 +63,22 @@ class ElevenLabsService: NSObject, ObservableObject {
         }
     }
 
-    /// Speak using the best available voice (custom clone > selected > default)
+    /// Speak using the best available voice (selected > custom clone > default)
+    /// Priority changed: User's explicit selection now takes priority over custom voice
     func speakWithBestVoice(_ text: String, apiKey: String, selectedVoiceId: String) async throws {
-        // Priority: Custom voice clone > Selected voice > Default
         let voiceId: String
-        if let customVoice = VoiceCloningService.shared.customVoiceId {
-            voiceId = customVoice
-            print("🎤 Using custom voice clone: \(VoiceCloningService.shared.customVoiceName ?? "Unknown")")
-        } else if !selectedVoiceId.isEmpty {
+
+        // NEW PRIORITY: Selected voice > Custom voice clone > Default
+        // This ensures the user's explicit voice selection is always respected
+        if !selectedVoiceId.isEmpty {
             voiceId = selectedVoiceId
+            print("🎤 Using SELECTED voice: \(selectedVoiceId)")
+        } else if let customVoice = VoiceCloningService.shared.customVoiceId {
+            voiceId = customVoice
+            print("🎤 Using custom voice clone: \(VoiceCloningService.shared.customVoiceName ?? "Unknown") (\(customVoice))")
         } else {
             voiceId = "21m00Tcm4TlvDq8ikWAM" // Default Rachel voice
+            print("🎤 Using DEFAULT voice (Rachel)")
         }
 
         try await speak(text, apiKey: apiKey, voiceId: voiceId)
@@ -466,6 +471,15 @@ class VoiceCloningService: NSObject, ObservableObject {
             throw VoiceCloneError.deleteFailed
         }
 
+        customVoiceId = nil
+        customVoiceName = nil
+        saveVoice()
+    }
+
+    /// Clear local custom voice data without deleting from ElevenLabs
+    /// Use this when user wants to switch to a different voice
+    func clearCustomVoice() {
+        print("🎤 Clearing custom voice locally")
         customVoiceId = nil
         customVoiceName = nil
         saveVoice()
