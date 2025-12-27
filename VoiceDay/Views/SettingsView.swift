@@ -396,23 +396,41 @@ struct SettingsView: View {
                 }
             }
 
-            // Clear custom voice if it exists (debugging helper)
-            if VoiceCloningService.shared.customVoiceId != nil {
-                Button(role: .destructive) {
-                    VoiceCloningService.shared.clearCustomVoice()
-                    SpeechService.shared.queueSpeech("Custom voice cleared. Using selected voice now.")
-                } label: {
+            // Show current voice state for debugging
+            VStack(alignment: .leading, spacing: 4) {
+                if let customId = VoiceCloningService.shared.customVoiceId {
                     HStack {
-                        Image(systemName: "trash")
-                            .foregroundStyle(.red)
-                        Text("Clear Custom Voice")
-                            .foregroundStyle(.red)
-                        Spacer()
-                        if let name = VoiceCloningService.shared.customVoiceName {
-                            Text(name)
-                                .foregroundStyle(.secondary)
-                        }
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundStyle(.orange)
+                        Text("Custom voice active: \(VoiceCloningService.shared.customVoiceName ?? "Unknown")")
+                            .font(.caption)
+                            .foregroundStyle(.orange)
                     }
+                }
+                if !appState.selectedVoiceId.isEmpty {
+                    Text("Selected: \(appState.selectedVoiceName) (\(appState.selectedVoiceId.prefix(8))...)")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
+            }
+
+            // Reset ALL voice data (nuclear option)
+            Button(role: .destructive) {
+                // Clear custom voice
+                VoiceCloningService.shared.clearCustomVoice()
+
+                // Clear UserDefaults directly
+                UserDefaults.standard.removeObject(forKey: "custom_voice_id")
+                UserDefaults.standard.removeObject(forKey: "custom_voice_name")
+
+                // Speak confirmation with system voice
+                SpeechService.shared.queueSpeech("All voice data cleared. Please select a new voice.")
+            } label: {
+                HStack {
+                    Image(systemName: "arrow.counterclockwise")
+                        .foregroundStyle(.red)
+                    Text("Reset All Voice Data")
+                        .foregroundStyle(.red)
                 }
             }
 
@@ -424,7 +442,7 @@ struct SettingsView: View {
         } header: {
             Text("Voice")
         } footer: {
-            Text("Choose a voice that works for you. This is the voice that will speak all reminders and check-ins.")
+            Text("If you hear the wrong voice, tap 'Reset All Voice Data' first, then select your preferred voice.")
         }
     }
 
@@ -536,6 +554,38 @@ struct SettingsView: View {
                         Image(systemName: "chevron.right")
                             .foregroundStyle(.secondary)
                     }
+                }
+
+                // Voice debug info
+                VStack(alignment: .leading, spacing: 4) {
+                    if let customId = VoiceCloningService.shared.customVoiceId {
+                        HStack {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .foregroundStyle(.orange)
+                            Text("Custom: \(VoiceCloningService.shared.customVoiceName ?? customId)")
+                                .font(.caption)
+                                .foregroundStyle(.orange)
+                        }
+                    }
+                    if !appState.selectedVoiceId.isEmpty {
+                        Text("Selected: \(appState.selectedVoiceName)")
+                            .font(.caption)
+                            .foregroundStyle(.green)
+                    }
+                }
+
+                // Reset all voice data
+                Button(role: .destructive) {
+                    VoiceCloningService.shared.clearCustomVoice()
+                    UserDefaults.standard.removeObject(forKey: "custom_voice_id")
+                    UserDefaults.standard.removeObject(forKey: "custom_voice_name")
+                    SpeechService.shared.queueSpeech("Voice data reset. Select a new voice.")
+                } label: {
+                    HStack {
+                        Image(systemName: "arrow.counterclockwise")
+                        Text("Reset All Voice Data")
+                    }
+                    .foregroundStyle(.red)
                 }
             }
 
