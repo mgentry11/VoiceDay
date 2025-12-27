@@ -1581,7 +1581,9 @@ struct VoicePickerView: View {
     @Binding var selectedVoiceName: String
     var onSave: ((String) -> Void)? = nil
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject var appState: AppState
     @StateObject private var blockedVoices = BlockedVoicesManager.shared
+    @StateObject private var elevenLabsService = ElevenLabsService()
 
     // Delete confirmation states
     @State private var voiceToDelete: ElevenLabsService.Voice?
@@ -1611,12 +1613,7 @@ struct VoicePickerView: View {
                                     voice: voice,
                                     isSelected: voice.voice_id == selectedVoiceId
                                 ) {
-                                    selectedVoiceId = voice.voice_id
-                                    selectedVoiceName = voice.name
-                                    let generator = UIImpactFeedbackGenerator(style: .medium)
-                                    generator.impactOccurred()
-                                    onSave?(voice.name)
-                                    dismiss()
+                                    selectVoice(voice)
                                 }
                                 .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                                     Button(role: .destructive) {
@@ -1638,12 +1635,7 @@ struct VoicePickerView: View {
                                 voice: voice,
                                 isSelected: voice.voice_id == selectedVoiceId
                             ) {
-                                selectedVoiceId = voice.voice_id
-                                selectedVoiceName = voice.name
-                                let generator = UIImpactFeedbackGenerator(style: .medium)
-                                generator.impactOccurred()
-                                onSave?(voice.name)
-                                dismiss()
+                                selectVoice(voice)
                             }
                             .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                                 Button(role: .destructive) {
@@ -1733,6 +1725,82 @@ struct VoicePickerView: View {
     private var otherVoices: [ElevenLabsService.Voice] {
         availableVoices.filter { voice in
             !britishVoices.contains(where: { $0.voice_id == voice.voice_id })
+        }
+    }
+
+    // MARK: - Voice Selection with Immediate Playback
+
+    private func selectVoice(_ voice: ElevenLabsService.Voice) {
+        // Save the selection
+        selectedVoiceId = voice.voice_id
+        selectedVoiceName = voice.name
+
+        // Haptic feedback
+        let generator = UIImpactFeedbackGenerator(style: .medium)
+        generator.impactOccurred()
+
+        // Callback
+        onSave?(voice.name)
+
+        // Speak immediately with the new voice in the chosen personality
+        Task {
+            await speakAsPersonality(voiceId: voice.voice_id, voiceName: voice.name)
+        }
+
+        // Dismiss after a short delay to let voice start playing
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            dismiss()
+        }
+    }
+
+    private func speakAsPersonality(voiceId: String, voiceName: String) async {
+        let apiKey = KeychainService.load(key: "elevenlabs_api_key") ?? ""
+        guard !apiKey.isEmpty else { return }
+
+        // Get the greeting for the current personality
+        let greeting = getPersonalityGreeting(voiceName: voiceName)
+
+        do {
+            try await elevenLabsService.speak(greeting, apiKey: apiKey, voiceId: voiceId)
+        } catch {
+            print("❌ Voice preview failed: \(error)")
+        }
+    }
+
+    private func getPersonalityGreeting(voiceName: String) -> String {
+        let personality = appState.selectedPersonality
+
+        switch personality {
+        case .pemberton:
+            return "Ah, \(voiceName) it is. A fine choice. I shall nag you with this voice from now on."
+        case .sergent:
+            return "\(voiceName) reporting for duty! This is my new voice, soldier!"
+        case .cheerleader:
+            return "Yay! I'm \(voiceName) now! This is going to be so great!"
+        case .butler:
+            return "Very good. I shall address you as \(voiceName) from this moment forward."
+        case .coach:
+            return "Alright! \(voiceName) is in the game! Let's win this!"
+        case .zen:
+            return "I am now \(voiceName). May this voice bring you peace and focus."
+        case .parent:
+            return "Hi sweetie, I'm using \(voiceName) now. Hope you like it!"
+        case .bestie:
+            return "Hey! I'm \(voiceName) now! What do you think?"
+        case .robot:
+            return "Voice module updated. \(voiceName) activated."
+        case .therapist:
+            return "I'll be using \(voiceName) from now on. How does that feel?"
+        case .hypeFriend:
+            return "\(voiceName.uppercased()) IS HERE! LET'S GOOO!"
+        case .chillBuddy:
+            return "Cool... I'm \(voiceName) now. No big deal."
+        case .snarky:
+            return "Oh great, now I'm \(voiceName). Try not to get too attached."
+        case .gamer:
+            return "New voice unlocked: \(voiceName)! Achievement: Voice Customization!"
+        case .tiredParent:
+            return "Okay, I'm \(voiceName) now. That was exhausting to set up."
         }
     }
 }
