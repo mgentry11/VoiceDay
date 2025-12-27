@@ -28,13 +28,13 @@ class SpeechService: NSObject, ObservableObject {
         synthesizer.delegate = self
     }
 
-    // Check if ElevenLabs is configured
+    // Check if ElevenLabs is configured - ONLY use if selected voice exists
     private var hasElevenLabsVoice: Bool {
         let apiKey = KeychainService.load(key: "elevenlabs_api_key") ?? ""
         let selectedVoiceId = UserDefaults.standard.string(forKey: "selected_voice_id") ?? ""
-        let customVoiceId = VoiceCloningService.shared.customVoiceId
-        let hasVoice = !apiKey.isEmpty && (customVoiceId != nil || !selectedVoiceId.isEmpty)
-        print("🎤 Voice check: apiKey=\(!apiKey.isEmpty), selectedVoiceId='\(selectedVoiceId)', customVoiceId=\(customVoiceId ?? "nil"), hasVoice=\(hasVoice)")
+        // CHANGED: Only return true if there's a SELECTED voice (ignore custom voice)
+        let hasVoice = !apiKey.isEmpty && !selectedVoiceId.isEmpty
+        print("🎤 Voice check: apiKey=\(!apiKey.isEmpty), selectedVoiceId='\(selectedVoiceId)', hasVoice=\(hasVoice)")
         return hasVoice
     }
 

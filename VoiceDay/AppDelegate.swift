@@ -127,19 +127,28 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
         // Try to get ElevenLabs credentials from UserDefaults/Keychain
         let elevenLabsKey = KeychainService.load(key: "elevenlabs_api_key") ?? ""
         let selectedVoiceId = UserDefaults.standard.string(forKey: "selected_voice_id") ?? ""
-        let customVoiceId = VoiceCloningService.shared.customVoiceId
 
-        // Use ElevenLabs if we have API key AND (custom voice OR selected voice)
-        let hasVoice = customVoiceId != nil || !selectedVoiceId.isEmpty
-        if !elevenLabsKey.isEmpty && hasVoice {
+        // PRIORITY: Selected voice ALWAYS wins over custom voice
+        // Only use ElevenLabs if we have API key AND a selected voice
+        if !elevenLabsKey.isEmpty && !selectedVoiceId.isEmpty {
+            print("🎤 AppDelegate: Using selected voice: \(selectedVoiceId)")
             do {
                 try await elevenLabsService?.speakWithBestVoice(message, apiKey: elevenLabsKey, selectedVoiceId: selectedVoiceId)
             } catch {
-                // Fallback to system voice
+                print("❌ ElevenLabs failed: \(error), falling back to system voice")
+                speakWithSystemVoice(message)
+            }
+        } else if !elevenLabsKey.isEmpty, let customVoiceId = VoiceCloningService.shared.customVoiceId {
+            // Only use custom voice if NO selected voice exists
+            print("🎤 AppDelegate: Using custom voice (no selection): \(customVoiceId)")
+            do {
+                try await elevenLabsService?.speakWithBestVoice(message, apiKey: elevenLabsKey, selectedVoiceId: "")
+            } catch {
                 speakWithSystemVoice(message)
             }
         } else {
             // Use system voice
+            print("🎤 AppDelegate: Using system voice")
             speakWithSystemVoice(message)
         }
     }
