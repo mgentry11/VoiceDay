@@ -24,6 +24,9 @@ struct SettingsView: View {
     @State private var showPersonalityConfirmation = false
     @State private var pendingPersonality: BotPersonality?
 
+    // Location-based checkout checklists
+    @State private var showLocationsManager = false
+
     var body: some View {
         NavigationStack {
             ZStack {
@@ -50,6 +53,9 @@ struct SettingsView: View {
 
                     // Morning checklist (always visible - core feature)
                     morningChecklistSection
+
+                    // Location-based checkout checklists (always visible)
+                    locationsSection
 
                     // Pro-only sections
                     if !appState.isSimpleMode {
@@ -634,6 +640,50 @@ struct SettingsView: View {
         }
         .sheet(isPresented: $showMorningChecklistSettings) {
             ManageSelfChecksView()
+        }
+    }
+
+    private var locationsSection: some View {
+        Section {
+            Button {
+                showLocationsManager = true
+            } label: {
+                HStack {
+                    Image(systemName: "location.fill")
+                        .foregroundStyle(.blue)
+                    Text("Checkout Locations")
+                        .foregroundStyle(themeColors.text)
+                    Spacer()
+                    Text("\(LocationService.shared.savedLocations.count) saved")
+                        .foregroundStyle(.secondary)
+                    Image(systemName: "chevron.right")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+
+            // Test location exit (development)
+            #if DEBUG
+            if let firstLocation = LocationService.shared.savedLocations.first {
+                Button {
+                    LocationService.shared.simulateExitFromLocation(firstLocation)
+                } label: {
+                    HStack {
+                        Image(systemName: "play.circle")
+                            .foregroundStyle(.orange)
+                        Text("Test Exit: \(firstLocation.name)")
+                            .foregroundStyle(.orange)
+                    }
+                }
+            }
+            #endif
+        } header: {
+            Text("Location Checklists")
+        } footer: {
+            Text("Save locations like 'Gym' or 'Work' and create exit checklists that trigger when you leave. Great for post-workout routines!")
+        }
+        .sheet(isPresented: $showLocationsManager) {
+            LocationsManagerView()
         }
     }
 

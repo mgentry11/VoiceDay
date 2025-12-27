@@ -55,9 +55,14 @@
     <array>
         <string>audio</string>
         <string>fetch</string>
+        <string>location</string>
     </array>
     <key>NSContactsUsageDescription</key>
     <string>Gadfly can access your contacts to add people you want to share reminders with.</string>
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>Gadfly uses your location to save places like your gym or office so it can show checkout checklists when you leave.</string>
+    <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+    <string>Gadfly needs background location access to automatically show checkout checklists when you leave saved locations like your gym or office.</string>
     <key>CFBundleURLTypes</key>
     <array>
         <dict>

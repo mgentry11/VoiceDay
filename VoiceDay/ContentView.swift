@@ -3,6 +3,11 @@ import SwiftUI
 struct ContentView: View {
     @EnvironmentObject var appState: AppState
     @ObservedObject private var themeColors = ThemeColors.shared
+    @ObservedObject private var locationService = LocationService.shared
+    @ObservedObject private var checkoutService = CheckoutChecklistService.shared
+
+    @State private var showCheckoutChecklist = false
+    @State private var checkoutLocation: LocationService.SavedLocation?
 
     var body: some View {
         TabView(selection: $appState.selectedTab) {
@@ -42,6 +47,33 @@ struct ContentView: View {
         .onAppear {
             if !appState.hasValidClaudeKey {
                 appState.selectedTab = 4  // Settings tab
+            }
+        }
+        // Location exit trigger
+        .onChange(of: locationService.locationExitTriggered) { _, triggeredLocation in
+            if let location = triggeredLocation {
+                checkoutLocation = location
+                showCheckoutChecklist = true
+            }
+        }
+        .fullScreenCover(isPresented: $showCheckoutChecklist) {
+            if let location = checkoutLocation {
+                CheckoutChecklistView(
+                    location: location,
+                    onComplete: {
+                        showCheckoutChecklist = false
+                        checkoutLocation = nil
+                        locationService.clearExitTrigger()
+                        checkoutService.completeCheckout()
+                    },
+                    onDismiss: {
+                        showCheckoutChecklist = false
+                        checkoutLocation = nil
+                        locationService.clearExitTrigger()
+                        checkoutService.dismissCheckout()
+                    }
+                )
+                .environmentObject(appState)
             }
         }
     }
