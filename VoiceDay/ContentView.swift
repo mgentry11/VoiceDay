@@ -12,12 +12,12 @@ struct ContentView: View {
     @State private var showVoiceSetup = false
     @State private var voicesLoaded = false
 
-    // Check if voice is properly configured
-    private var needsVoiceSetup: Bool {
+    // Check if onboarding should show
+    private var needsOnboarding: Bool {
         let hasApiKey = !appState.elevenLabsKey.isEmpty
-        let hasSelectedVoice = !appState.selectedVoiceId.isEmpty
-        // Only prompt if they have API key but no voice selected
-        return hasApiKey && !hasSelectedVoice
+        let hasCompletedOnboarding = UserDefaults.standard.bool(forKey: "has_completed_onboarding")
+        // Show onboarding if has API key but hasn't completed onboarding
+        return hasApiKey && !hasCompletedOnboarding
     }
 
     var body: some View {
@@ -59,8 +59,8 @@ struct ContentView: View {
             if !appState.hasValidClaudeKey {
                 appState.selectedTab = 4  // Settings tab
             }
-            // Show voice setup if needed
-            if needsVoiceSetup && !voicesLoaded {
+            // Show onboarding if needed
+            if needsOnboarding && !voicesLoaded {
                 Task {
                     await loadVoicesAndShowPicker()
                 }
@@ -495,13 +495,26 @@ struct StartChoiceStep: View {
 
                     // Morning Check-in option
                     Button {
-                        startWithCheckIn()
+                        startWithMorningCheckIn()
                     } label: {
                         startOptionRow(
                             icon: "sunrise.fill",
                             color: .orange,
                             title: "Morning Check-in",
-                            subtitle: "Walk through your day with me"
+                            subtitle: "Start your day with a guided routine"
+                        )
+                    }
+                    .padding(.horizontal)
+
+                    // Evening Check-in option
+                    Button {
+                        startWithEveningCheckIn()
+                    } label: {
+                        startOptionRow(
+                            icon: "moon.fill",
+                            color: .indigo,
+                            title: "Evening Check-in",
+                            subtitle: "Reflect on your day"
                         )
                     }
                     .padding(.horizontal)
@@ -525,9 +538,22 @@ struct StartChoiceStep: View {
                     } label: {
                         startOptionRow(
                             icon: "scope",
-                            color: .purple,
+                            color: .green,
                             title: "Focus Mode",
                             subtitle: "Simple view, one thing at a time"
+                        )
+                    }
+                    .padding(.horizontal)
+
+                    // Record option
+                    Button {
+                        startWithRecord()
+                    } label: {
+                        startOptionRow(
+                            icon: "mic.fill",
+                            color: .red,
+                            title: "Voice Record",
+                            subtitle: "Tell me what you need to do"
                         )
                     }
                     .padding(.horizontal)
@@ -564,8 +590,15 @@ struct StartChoiceStep: View {
         .cornerRadius(12)
     }
 
-    private func startWithCheckIn() {
-        speakAndComplete("Let's start with your morning check-in!")
+    private func startWithMorningCheckIn() {
+        // Navigate to Focus tab - morning checklist button is there
+        speakAndComplete("Let's start your day! Tap the sunrise button for your morning check-in.")
+        appState.selectedTab = 0
+    }
+
+    private func startWithEveningCheckIn() {
+        // Navigate to Focus tab - evening checklist button is there
+        speakAndComplete("Time to reflect! Tap the moon button for your evening check-in.")
         appState.selectedTab = 0
     }
 
@@ -579,7 +612,15 @@ struct StartChoiceStep: View {
         appState.selectedTab = 0
     }
 
+    private func startWithRecord() {
+        speakAndComplete("I'm listening. Tell me what you need to get done.")
+        appState.selectedTab = 1
+    }
+
     private func speakAndComplete(_ message: String) {
+        // Mark onboarding as complete
+        UserDefaults.standard.set(true, forKey: "has_completed_onboarding")
+
         Task {
             do {
                 try await elevenLabsService.speak(message, apiKey: appState.elevenLabsKey, voiceId: appState.selectedVoiceId)

@@ -37,6 +37,10 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
             print("⚠️ CLEARING STALE CUSTOM VOICE: \(customVoiceId ?? "nil")")
             UserDefaults.standard.removeObject(forKey: "custom_voice_id")
             UserDefaults.standard.removeObject(forKey: "custom_voice_name")
+
+            // Also reset onboarding so user can pick fresh voice
+            UserDefaults.standard.set(false, forKey: "has_completed_onboarding")
+
             UserDefaults.standard.synchronize()
 
             // Also clear from VoiceCloningService
