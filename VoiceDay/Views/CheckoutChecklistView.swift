@@ -72,7 +72,7 @@ struct CheckoutChecklistView: View {
                     .foregroundStyle(themeColors.subtext.opacity(0.7))
                     .padding(.horizontal, 12)
                     .padding(.vertical, 6)
-                    .background(themeColors.card)
+                    .background(themeColors.secondary)
                     .cornerRadius(12)
             }
 
@@ -245,7 +245,7 @@ struct CheckoutChecklistView: View {
                     .foregroundStyle(themeColors.subtext.opacity(0.7))
                     .padding(.horizontal, 12)
                     .padding(.vertical, 6)
-                    .background(themeColors.card)
+                    .background(themeColors.secondary)
                     .cornerRadius(12)
             }
 

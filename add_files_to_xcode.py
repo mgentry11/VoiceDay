@@ -16,6 +16,11 @@ NEW_FILES = [
     ("TaskCoach.swift", "Services"),
     ("TaskAttackView.swift", "Views"),
     ("TaskBreakdownView.swift", "Views"),
+    # Location-based checkout checklists
+    ("LocationService.swift", "Services"),
+    ("CheckoutChecklistService.swift", "Services"),
+    ("CheckoutChecklistView.swift", "Views"),
+    ("LocationsManagerView.swift", "Views"),
 ]
 
 def generate_uuid():

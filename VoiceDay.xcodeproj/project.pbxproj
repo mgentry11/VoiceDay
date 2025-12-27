@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2989136E1FCE4D9380B752AA /* LocationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C2E6BD70E0A4C2980DD4875 /* LocationService.swift */; };
+		5E49729C44524CC39396A81F /* CheckoutChecklistService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70A18A9C2DE041D4BC914056 /* CheckoutChecklistService.swift */; };
+		15F9C9FD9B724B73835D85BC /* CheckoutChecklistView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC378AE2B15A475FB3557891 /* CheckoutChecklistView.swift */; };
+		13CFCDFE35FE48C6A9EDB8A8 /* LocationsManagerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5764B4B33DC543659ABA7907 /* LocationsManagerView.swift */; };
 		05EFDE3CDDB4085A5998AAB5 /* AccountabilityTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D553E2AFE192A235E70AB3 /* AccountabilityTracker.swift */; };
 		0ABDEB363414C2CF4DDFE26C /* NagContactsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F98A31C2ED45B2BFFD266626 /* NagContactsService.swift */; };
 		0DAEB3143CB8D1F91EF1364D /* PersonalityService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0F902F13EB08AA09CF886B3 /* PersonalityService.swift */; };
@@ -111,6 +115,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		7C2E6BD70E0A4C2980DD4875 /* LocationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationService.swift; sourceTree = "<group>"; };
+		70A18A9C2DE041D4BC914056 /* CheckoutChecklistService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckoutChecklistService.swift; sourceTree = "<group>"; };
+		EC378AE2B15A475FB3557891 /* CheckoutChecklistView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckoutChecklistView.swift; sourceTree = "<group>"; };
+		5764B4B33DC543659ABA7907 /* LocationsManagerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationsManagerView.swift; sourceTree = "<group>"; };
 		1A2054E11A976B47D4ED1352 /* WatchConnectivity.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WatchConnectivity.framework; path = System/Library/Frameworks/WatchConnectivity.framework; sourceTree = SDKROOT; };
 		21D5E2DF26EF9EE993D8AA84 /* MorningIntentionView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MorningIntentionView.swift; sourceTree = "<group>"; };
 		2A2134D18210FCE429777B0D /* ConnectionsListView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ConnectionsListView.swift; sourceTree = "<group>"; };
@@ -288,6 +296,8 @@
 		A10000000000000000000034 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				5764B4B33DC543659ABA7907 /* LocationsManagerView.swift */,
+				EC378AE2B15A475FB3557891 /* CheckoutChecklistView.swift */,
 				61E7AFE0F0AF44F9B1E332DC /* TaskBreakdownView.swift */,
 				6CED4EF130D54C8F8A99A863 /* TaskAttackView.swift */,
 				A1000000000000000000001A /* RecordingView.swift */,
@@ -324,6 +334,8 @@
 		A10000000000000000000035 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				70A18A9C2DE041D4BC914056 /* CheckoutChecklistService.swift */,
+				7C2E6BD70E0A4C2980DD4875 /* LocationService.swift */,
 				9F32C9B18F944CDD93F66D82 /* TaskCoach.swift */,
 				7F91CDF0C4424AE08A8022DB /* TaskAttackAdvisor.swift */,
 				A10000000000000000000016 /* SpeechService.swift */,
@@ -484,6 +496,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2989136E1FCE4D9380B752AA /* LocationService.swift in Sources */,
+				5E49729C44524CC39396A81F /* CheckoutChecklistService.swift in Sources */,
+				15F9C9FD9B724B73835D85BC /* CheckoutChecklistView.swift in Sources */,
+				13CFCDFE35FE48C6A9EDB8A8 /* LocationsManagerView.swift in Sources */,
 				0E9B4E824AB0424F83FA8DE3 /* VoiceDayTask.swift in Sources */,
 				61331DFCDE9B4FAF85E5BAF9 /* TaskAttackAdvisor.swift in Sources */,
 				9A093C6C4AA7428188644B23 /* TaskCoach.swift in Sources */,

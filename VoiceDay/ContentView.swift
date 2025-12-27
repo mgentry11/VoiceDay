@@ -50,7 +50,7 @@ struct ContentView: View {
             }
         }
         // Location exit trigger
-        .onChange(of: locationService.locationExitTriggered) { _, triggeredLocation in
+        .onChange(of: locationService.locationExitTriggered) { (triggeredLocation: LocationService.SavedLocation?) in
             if let location = triggeredLocation {
                 checkoutLocation = location
                 showCheckoutChecklist = true

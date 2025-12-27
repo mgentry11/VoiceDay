@@ -281,7 +281,7 @@ struct AddLocationView: View {
                                 }
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 16)
-                                .background(selectedPreset == preset ? themeColors.accent.opacity(0.2) : themeColors.card)
+                                .background(selectedPreset == preset ? themeColors.accent.opacity(0.2) : themeColors.secondary)
                                 .foregroundStyle(selectedPreset == preset ? themeColors.accent : themeColors.text)
                                 .cornerRadius(12)
                                 .overlay(
@@ -302,7 +302,7 @@ struct AddLocationView: View {
 
                     TextField("e.g., Planet Fitness", text: $customName)
                         .padding()
-                        .background(themeColors.card)
+                        .background(themeColors.secondary)
                         .cornerRadius(12)
                 }
                 .padding(.horizontal)
@@ -328,7 +328,7 @@ struct AddLocationView: View {
                         }
                         .padding()
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(themeColors.card)
+                        .background(themeColors.secondary)
                         .cornerRadius(12)
                     }
                     .padding(.horizontal)
