@@ -12,6 +12,10 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
         UNUserNotificationCenter.current().delegate = self
         elevenLabsService = ElevenLabsService()
 
+        // NUCLEAR FIX: Clear any stale custom voice ID that might be causing Syn voice
+        // This runs ONCE on startup to fix the persistent Syn voice issue
+        clearStaleCustomVoice()
+
         // Configure audio session for speaker output IMMEDIATELY at launch
         configureAudioForSpeaker()
 
@@ -24,6 +28,22 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
         }
 
         return true
+    }
+
+    /// Clear any stale custom voice ID - fixes Syn voice issue
+    private func clearStaleCustomVoice() {
+        let customVoiceId = UserDefaults.standard.string(forKey: "custom_voice_id")
+        if customVoiceId != nil {
+            print("⚠️ CLEARING STALE CUSTOM VOICE: \(customVoiceId ?? "nil")")
+            UserDefaults.standard.removeObject(forKey: "custom_voice_id")
+            UserDefaults.standard.removeObject(forKey: "custom_voice_name")
+            UserDefaults.standard.synchronize()
+
+            // Also clear from VoiceCloningService
+            Task { @MainActor in
+                VoiceCloningService.shared.clearCustomVoice()
+            }
+        }
     }
 
     /// Configure audio session to always use speaker - call at app launch and before any speech
