@@ -80,6 +80,7 @@ struct OpenAIParseResponse: Decodable {
     let breakCommand: BreakDTO?
     let goals: [GoalDTO]?
     let goalOperations: [GoalOperationDTO]?
+    let rescheduleOperations: [RescheduleDTO]?
     let helpRequest: HelpRequestDTO?
     let clarifyingQuestion: String?
     let isComplete: Bool
@@ -113,6 +114,12 @@ struct OpenAIParseResponse: Decodable {
         let durationMinutes: Int?   // Duration in minutes (e.g., 30, 60, 120)
         let endTime: String?        // ISO8601 end time for "until X" commands
         let isEndingBreak: Bool?    // True if user wants to END their break early
+    }
+
+    struct RescheduleDTO: Decodable {
+        let taskTitle: String       // Partial task name to match
+        let newDate: String?        // ISO8601 new date/time
+        let bringToToday: Bool?     // If true, bring back to now
     }
 }
 

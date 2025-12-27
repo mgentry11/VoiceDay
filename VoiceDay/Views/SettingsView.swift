@@ -15,30 +15,54 @@ struct SettingsView: View {
     @State private var showThemeSaved = false
     @State private var savedThemeName = ""
     @State private var showMorningChecklistSettings = false
+    @State private var showPersonalitySaved = false
+    @State private var savedPersonalityName = ""
+    @State private var showVoiceSaved = false
+    @State private var savedVoiceName = ""
+
+    // Personality change confirmation
+    @State private var showPersonalityConfirmation = false
+    @State private var pendingPersonality: BotPersonality?
 
     var body: some View {
         NavigationStack {
             ZStack {
                 Form {
-                    // Version Selector Section
+                    // Simple/Pro Mode Toggle (always visible)
+                    simpleModeSection
+
+                    // Version Selector Section (always visible)
                     versionSection
 
-                    PresetModeSettingsSection()
-                    EnergySettingsSection()
+                    // Core sections (always visible)
                     appearanceSection
                     profileSection
                     personalitySection
-                    openAISection
-                    elevenLabsSection
-                    reminderSection
+
+                    // Pro-only sections (hidden in Simple mode)
+                    if !appState.isSimpleMode {
+                        PresetModeSettingsSection()
+                        EnergySettingsSection()
+                        openAISection
+                        elevenLabsSection
+                        reminderSection
+                    }
+
+                    // Morning checklist (always visible - core feature)
                     morningChecklistSection
-                    celebrationSection
-                    selfCareSection
-                    endOfDayCheckSection
-                    rewardBreaksSection
-                    breakModeSection
-                    messageGenerationSection
-                    connectionsSection
+
+                    // Pro-only sections
+                    if !appState.isSimpleMode {
+                        celebrationSection
+                        selfCareSection
+                        endOfDayCheckSection
+                        rewardBreaksSection
+                        breakModeSection
+                        messageGenerationSection
+                        connectionsSection
+                    }
+
+                    // About and Legal (always visible)
                     aboutSection
                     legalSection
                 }
@@ -67,14 +91,72 @@ struct SettingsView: View {
                     .transition(.move(edge: .bottom).combined(with: .opacity))
                     .zIndex(100)
                 }
+
+                // Personality saved toast
+                if showPersonalitySaved {
+                    VStack {
+                        Spacer()
+                        HStack(spacing: 12) {
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundStyle(.white)
+                                .font(.title2)
+                            Text("\(savedPersonalityName) Saved!")
+                                .foregroundStyle(.white)
+                                .fontWeight(.semibold)
+                        }
+                        .padding(.horizontal, 24)
+                        .padding(.vertical, 16)
+                        .background(themeColors.accent)
+                        .cornerRadius(30)
+                        .shadow(radius: 10)
+                        .padding(.bottom, 100)
+                    }
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                    .zIndex(100)
+                }
+
+                // Voice saved toast
+                if showVoiceSaved {
+                    VStack {
+                        Spacer()
+                        HStack(spacing: 12) {
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundStyle(.white)
+                                .font(.title2)
+                            Text("Voice: \(savedVoiceName) Saved!")
+                                .foregroundStyle(.white)
+                                .fontWeight(.semibold)
+                        }
+                        .padding(.horizontal, 24)
+                        .padding(.vertical, 16)
+                        .background(themeColors.accent)
+                        .cornerRadius(30)
+                        .shadow(radius: 10)
+                        .padding(.bottom, 100)
+                    }
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                    .zIndex(100)
+                }
             }
             .animation(.spring(response: 0.3), value: showThemeSaved)
+            .animation(.spring(response: 0.3), value: showPersonalitySaved)
+            .animation(.spring(response: 0.3), value: showVoiceSaved)
             .navigationTitle("Settings")
             .sheet(isPresented: $showVoicePicker) {
                 VoicePickerView(
                     voices: elevenLabsService.availableVoices,
                     selectedVoiceId: $appState.selectedVoiceId,
-                    selectedVoiceName: $appState.selectedVoiceName
+                    selectedVoiceName: $appState.selectedVoiceName,
+                    onSave: { voiceName in
+                        savedVoiceName = voiceName
+                        // Delay to let sheet dismiss first
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                            showVoiceSaved = true
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                showVoiceSaved = false
+                            }
+                        }
+                    }
                 )
             }
         }
@@ -176,11 +258,12 @@ struct SettingsView: View {
                     personality: personality,
                     isSelected: appState.selectedPersonality == personality
                 ) {
-                    withAnimation(.spring(response: 0.3)) {
-                        appState.selectedPersonality = personality
-                    }
-                    let generator = UIImpactFeedbackGenerator(style: .light)
-                    generator.impactOccurred()
+                    // Skip if already selected
+                    guard personality != appState.selectedPersonality else { return }
+
+                    // Show confirmation
+                    pendingPersonality = personality
+                    showPersonalityConfirmation = true
                 }
             }
 
@@ -210,11 +293,12 @@ struct SettingsView: View {
                         personality: personality,
                         isSelected: appState.selectedPersonality == personality
                     ) {
-                        withAnimation(.spring(response: 0.3)) {
-                            appState.selectedPersonality = personality
-                        }
-                        let generator = UIImpactFeedbackGenerator(style: .light)
-                        generator.impactOccurred()
+                        // Skip if already selected
+                        guard personality != appState.selectedPersonality else { return }
+
+                        // Show confirmation
+                        pendingPersonality = personality
+                        showPersonalityConfirmation = true
                     }
                 }
             }
@@ -225,8 +309,46 @@ struct SettingsView: View {
                 Text("How should I talk to you?")
             }
         } footer: {
-            Text("Change anytime! Tap to switch instantly. No commitment, no judgment.")
+            Text("Tap to select, then confirm to apply changes.")
         }
+        .alert("Change Personality?", isPresented: $showPersonalityConfirmation) {
+            Button("Apply Changes") {
+                applyPersonalityChange()
+            }
+            Button("Cancel", role: .cancel) {
+                pendingPersonality = nil
+            }
+        } message: {
+            if let personality = pendingPersonality {
+                Text("Switch to \(personality.displayName)?\n\nThis will clear scheduled reminders so they use the new personality.")
+            }
+        }
+    }
+
+    private func applyPersonalityChange() {
+        guard let personality = pendingPersonality else { return }
+
+        withAnimation(.spring(response: 0.3)) {
+            appState.selectedPersonality = personality
+        }
+
+        let generator = UIImpactFeedbackGenerator(style: .medium)
+        generator.impactOccurred()
+
+        // Cancel all pending notifications with old personality
+        NotificationService.shared.cancelAllNotifications()
+
+        // Show save confirmation
+        savedPersonalityName = personality.displayName
+        showPersonalitySaved = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            showPersonalitySaved = false
+        }
+
+        // Voice feedback
+        SpeechService.shared.queueSpeech("\(personality.displayName) activated.")
+
+        pendingPersonality = nil
     }
 
     private var openAISection: some View {
@@ -477,6 +599,32 @@ struct SettingsView: View {
                     Image(systemName: "chevron.right")
                         .font(.caption)
                         .foregroundStyle(.secondary)
+                }
+            }
+
+            // Reset for testing
+            Button {
+                // Reset morning self-checks
+                MorningChecklistService.shared.resetForTesting()
+
+                // Reset calendar/tasks review tracking
+                UserDefaults.standard.removeObject(forKey: "calendar_review_last_shown")
+                UserDefaults.standard.removeObject(forKey: "tasks_review_last_shown")
+                UserDefaults.standard.removeObject(forKey: "morning_routine_completed_today")
+
+                // Cancel all pending notifications so they reschedule with current personality
+                NotificationService.shared.cancelAllNotifications()
+
+                let generator = UINotificationFeedbackGenerator()
+                generator.notificationOccurred(.success)
+
+                SpeechService.shared.queueSpeech("All check-ins and notifications reset.")
+            } label: {
+                HStack {
+                    Image(systemName: "arrow.counterclockwise")
+                        .foregroundStyle(.blue)
+                    Text("Reset All Check-ins (Test)")
+                        .foregroundStyle(themeColors.text)
                 }
             }
         } header: {
@@ -1033,6 +1181,91 @@ struct SettingsView: View {
         }
     }
 
+    // MARK: - Simple/Pro Mode Section
+
+    private var simpleModeSection: some View {
+        Section {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(spacing: 16) {
+                    // Simple Mode Button
+                    Button {
+                        let generator = UIImpactFeedbackGenerator(style: .medium)
+                        generator.impactOccurred()
+                        withAnimation(.spring(response: 0.3)) {
+                            appState.isSimpleMode = true
+                        }
+                        SpeechService.shared.queueSpeech("Simple mode. Voice-guided walk-through enabled.")
+                    } label: {
+                        VStack(spacing: 8) {
+                            Image(systemName: "leaf.fill")
+                                .font(.title2)
+                            Text("Simple")
+                                .font(.headline)
+                            Text("Less is more")
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(appState.isSimpleMode ? themeColors.accent.opacity(0.2) : Color.themeSecondary)
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(appState.isSimpleMode ? themeColors.accent : Color.clear, lineWidth: 2)
+                        )
+                    }
+                    .buttonStyle(.plain)
+                    .foregroundStyle(appState.isSimpleMode ? themeColors.accent : .primary)
+
+                    // Pro Mode Button
+                    Button {
+                        let generator = UIImpactFeedbackGenerator(style: .medium)
+                        generator.impactOccurred()
+                        withAnimation(.spring(response: 0.3)) {
+                            appState.isSimpleMode = false
+                        }
+                        SpeechService.shared.queueSpeech("Pro mode. All features unlocked.")
+                    } label: {
+                        VStack(spacing: 8) {
+                            Image(systemName: "slider.horizontal.3")
+                                .font(.title2)
+                            Text("Pro")
+                                .font(.headline)
+                            Text("All features")
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(!appState.isSimpleMode ? themeColors.accent.opacity(0.2) : Color.themeSecondary)
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(!appState.isSimpleMode ? themeColors.accent : Color.clear, lineWidth: 2)
+                        )
+                    }
+                    .buttonStyle(.plain)
+                    .foregroundStyle(!appState.isSimpleMode ? themeColors.accent : .primary)
+                }
+            }
+            .padding(.vertical, 4)
+        } header: {
+            HStack {
+                Image(systemName: "sparkles")
+                    .foregroundStyle(themeColors.accent)
+                Text("Interface Mode")
+            }
+        } footer: {
+            Text(appState.isSimpleMode
+                 ? "Simple mode hides advanced settings for a cleaner experience."
+                 : "Pro mode shows all settings and advanced features.")
+        }
+    }
+
     private var aboutSection: some View {
         Section {
             NavigationLink {
@@ -1134,21 +1367,72 @@ struct SettingsView: View {
     }
 }
 
+// MARK: - Blocked Voices Manager
+class BlockedVoicesManager: ObservableObject {
+    static let shared = BlockedVoicesManager()
+    private let key = "permanently_blocked_voices"
+
+    @Published var blockedVoiceIds: Set<String> = []
+
+    init() {
+        loadBlockedVoices()
+    }
+
+    private func loadBlockedVoices() {
+        if let blocked = UserDefaults.standard.array(forKey: key) as? [String] {
+            blockedVoiceIds = Set(blocked)
+        }
+    }
+
+    func blockVoice(id: String, name: String) {
+        blockedVoiceIds.insert(id)
+        saveBlockedVoices()
+        print("🚫 Permanently blocked voice: \(name) (\(id))")
+    }
+
+    func unblockVoice(id: String) {
+        blockedVoiceIds.remove(id)
+        saveBlockedVoices()
+    }
+
+    func isBlocked(id: String) -> Bool {
+        blockedVoiceIds.contains(id)
+    }
+
+    private func saveBlockedVoices() {
+        UserDefaults.standard.set(Array(blockedVoiceIds), forKey: key)
+    }
+}
+
 struct VoicePickerView: View {
     let voices: [ElevenLabsService.Voice]
     @Binding var selectedVoiceId: String
     @Binding var selectedVoiceName: String
+    var onSave: ((String) -> Void)? = nil
     @Environment(\.dismiss) private var dismiss
+    @StateObject private var blockedVoices = BlockedVoicesManager.shared
+
+    // Delete confirmation states
+    @State private var voiceToDelete: ElevenLabsService.Voice?
+    @State private var showFirstConfirmation = false
+    @State private var showSecondConfirmation = false
 
     var body: some View {
         NavigationStack {
             List {
-                if voices.isEmpty {
+                if availableVoices.isEmpty {
                     Section {
                         Text("No voices available. Check your ElevenLabs API key.")
                             .foregroundStyle(.secondary)
                     }
                 } else {
+                    // Instructions
+                    Section {
+                        Text("Tap to select • Swipe left to permanently remove")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+
                     if !britishVoices.isEmpty {
                         Section {
                             ForEach(britishVoices) { voice in
@@ -1158,7 +1442,18 @@ struct VoicePickerView: View {
                                 ) {
                                     selectedVoiceId = voice.voice_id
                                     selectedVoiceName = voice.name
+                                    let generator = UIImpactFeedbackGenerator(style: .medium)
+                                    generator.impactOccurred()
+                                    onSave?(voice.name)
                                     dismiss()
+                                }
+                                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                                    Button(role: .destructive) {
+                                        voiceToDelete = voice
+                                        showFirstConfirmation = true
+                                    } label: {
+                                        Label("Remove Forever", systemImage: "trash.fill")
+                                    }
                                 }
                             }
                         } header: {
@@ -1174,26 +1469,89 @@ struct VoicePickerView: View {
                             ) {
                                 selectedVoiceId = voice.voice_id
                                 selectedVoiceName = voice.name
+                                let generator = UIImpactFeedbackGenerator(style: .medium)
+                                generator.impactOccurred()
+                                onSave?(voice.name)
                                 dismiss()
+                            }
+                            .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                                Button(role: .destructive) {
+                                    voiceToDelete = voice
+                                    showFirstConfirmation = true
+                                } label: {
+                                    Label("Remove Forever", systemImage: "trash.fill")
+                                }
                             }
                         }
                     } header: {
                         Text(britishVoices.isEmpty ? "All Voices" : "Other Voices")
                     }
                 }
+
+                // Show blocked voices section if any exist
+                if !blockedVoices.blockedVoiceIds.isEmpty {
+                    Section {
+                        Text("\(blockedVoices.blockedVoiceIds.count) voice(s) permanently hidden")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    } footer: {
+                        Text("Blocked voices will never appear again.")
+                    }
+                }
             }
-            .navigationTitle("Select Voice (\(voices.count))")
+            .navigationTitle("Select Voice (\(availableVoices.count))")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Done") { dismiss() }
                 }
             }
+            // First confirmation
+            .alert("Remove This Voice?", isPresented: $showFirstConfirmation) {
+                Button("Cancel", role: .cancel) {
+                    voiceToDelete = nil
+                }
+                Button("Yes, Remove It", role: .destructive) {
+                    showSecondConfirmation = true
+                }
+            } message: {
+                if let voice = voiceToDelete {
+                    Text("This will permanently hide \"\(voice.name)\" from your voice list.")
+                }
+            }
+            // Second confirmation - more serious
+            .alert("Confirm Permanent Removal", isPresented: $showSecondConfirmation) {
+                Button("Cancel", role: .cancel) {
+                    voiceToDelete = nil
+                }
+                Button("PERMANENTLY REMOVE", role: .destructive) {
+                    if let voice = voiceToDelete {
+                        blockedVoices.blockVoice(id: voice.voice_id, name: voice.name)
+                        // If this was the selected voice, clear selection
+                        if selectedVoiceId == voice.voice_id {
+                            selectedVoiceId = ""
+                            selectedVoiceName = ""
+                        }
+                        let generator = UINotificationFeedbackGenerator()
+                        generator.notificationOccurred(.success)
+                    }
+                    voiceToDelete = nil
+                }
+            } message: {
+                if let voice = voiceToDelete {
+                    Text("Are you absolutely sure?\n\n\"\(voice.name)\" will NEVER appear in this app again.\n\nThis cannot be undone.")
+                }
+            }
         }
     }
 
+    // Filter out blocked voices
+    private var availableVoices: [ElevenLabsService.Voice] {
+        voices.filter { !blockedVoices.isBlocked(id: $0.voice_id) }
+    }
+
     private var britishVoices: [ElevenLabsService.Voice] {
-        voices.filter { voice in
+        availableVoices.filter { voice in
             let accent = voice.labels?.accent?.lowercased() ?? ""
             let name = voice.name.lowercased()
             return accent.contains("british") || accent.contains("english") ||
@@ -1202,7 +1560,7 @@ struct VoicePickerView: View {
     }
 
     private var otherVoices: [ElevenLabsService.Voice] {
-        voices.filter { voice in
+        availableVoices.filter { voice in
             !britishVoices.contains(where: { $0.voice_id == voice.voice_id })
         }
     }

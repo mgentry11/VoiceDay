@@ -137,6 +137,19 @@ struct RecordingView: View {
             Spacer()
 
             VStack(alignment: .trailing, spacing: 8) {
+                // Current personality display
+                HStack(spacing: 6) {
+                    Text(appState.selectedPersonality.emoji)
+                        .font(.system(size: 20))
+                    Text(appState.selectedPersonality.displayName)
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundStyle(Color.themeAccent)
+                }
+                .padding(.horizontal, 10)
+                .padding(.vertical, 6)
+                .background(Color.themeAccent.opacity(0.15))
+                .cornerRadius(12)
+
                 // Architect Mode Shortcut
                 Button {
                     appState.selectedTab = 1
@@ -668,7 +681,9 @@ struct RecordingView: View {
 
     private func processWithAI(_ input: String) async {
         do {
-            let result = try await openAIService.processUserInput(input, apiKey: appState.claudeKey)
+            print("🎭 SENDING TO AI WITH PERSONALITY: \(appState.selectedPersonality.displayName)")
+            let result = try await openAIService.processUserInput(input, apiKey: appState.claudeKey, personality: appState.selectedPersonality)
+            print("🎭 AI RESPONSE SUMMARY: \(result.summary ?? "nil")")
 
             // Handle break command first (takes priority)
             if let breakCommand = result.breakCommand {
@@ -694,6 +709,13 @@ struct RecordingView: View {
             // Handle goal operations
             if !result.goalOperations.isEmpty {
                 await handleGoalOperations(result.goalOperations, summary: result.summary)
+                currentPhase = .idle
+                return
+            }
+
+            // Handle reschedule operations - move existing tasks
+            if !result.rescheduleOperations.isEmpty {
+                await handleRescheduleOperations(result.rescheduleOperations, summary: result.summary)
                 currentPhase = .idle
                 return
             }
@@ -792,7 +814,7 @@ struct RecordingView: View {
         if command.isEndingBreak {
             // User wants to end their break early
             appState.endBreakMode()
-            response = summary ?? "Very well, break mode cancelled. The Gadfly resumes its sacred duty of reminding you of your inadequacies. Aristotle would be proud of your work ethic."
+            response = summary ?? getBreakCancelMessage()
         } else if let durationMinutes = command.durationMinutes {
             // Start break with specified duration
             appState.startBreakMode(durationMinutes: durationMinutes)
@@ -801,14 +823,14 @@ struct RecordingView: View {
             let timeString = hours > 0
                 ? (mins > 0 ? "\(hours) hour\(hours == 1 ? "" : "s") and \(mins) minute\(mins == 1 ? "" : "s")" : "\(hours) hour\(hours == 1 ? "" : "s")")
                 : "\(durationMinutes) minute\(durationMinutes == 1 ? "" : "s")"
-            response = summary ?? "Very well, I shall grant you \(timeString) of blessed silence. Seneca wrote that we waste the time we're given, but who am I to judge? The notifications shall cease, and the Gadfly shall slumber. Do try to be productive with this reprieve."
+            response = summary ?? getBreakStartMessage(duration: timeString)
         } else if let endTime = command.endTime {
             // Start break until specific time
             appState.startBreakMode(until: endTime)
             let formatter = DateFormatter()
             formatter.timeStyle = .short
             let timeString = formatter.string(from: endTime)
-            response = summary ?? "Break mode enabled until \(timeString). I shall restrain my nagging until then, though it pains me greatly. Wittgenstein said whereof one cannot speak, thereof one must be silent. I shall be silent - for now."
+            response = summary ?? getBreakUntilMessage(time: timeString)
         } else {
             // No valid duration or time - shouldn't happen but handle gracefully
             response = "I understood you want a break, but I couldn't determine how long. Try saying something like 'take a break for 30 minutes' or 'stop nagging until 5pm'."
@@ -818,6 +840,66 @@ struct RecordingView: View {
         await speakResponse(response)
     }
 
+    private func getBreakCancelMessage() -> String {
+        switch appState.selectedPersonality {
+        case .pemberton: return "Very well, break mode cancelled. I resume my sacred duty of reminding you. Aristotle would be proud."
+        case .sergent: return "Break cancelled! Back to business, soldier! Eyes on the mission!"
+        case .cheerleader: return "Break's over! Yay! Ready to crush more goals together!"
+        case .butler: return "Very good. Break mode has been cancelled. I'm at your service once more."
+        case .coach: return "Back in the game! Break cancelled! Let's finish strong!"
+        case .zen: return "Your break ends as it began - in awareness. We continue our journey."
+        case .parent: return "Break's done, sweetie. I'm here whenever you need me."
+        case .bestie: return "Cool, break cancelled. Back to it! I'm here with you."
+        case .robot: return "Break cancelled. Resuming normal operations."
+        case .therapist: return "Break cancelled. I'm here when you're ready to continue."
+        case .hypeFriend: return "Break CANCELLED! Time to be AMAZING again! Let's GO!"
+        case .chillBuddy: return "Break's done... we're back, no rush though."
+        case .snarky: return "Oh, actually being productive now? How refreshing."
+        case .gamer: return "Break ended! Back to grinding quests!"
+        case .tiredParent: return "Break's done. Let's keep going. We've got this. Maybe."
+        }
+    }
+
+    private func getBreakStartMessage(duration: String) -> String {
+        switch appState.selectedPersonality {
+        case .pemberton: return "Very well, I shall grant you \(duration) of silence. Do try to be productive."
+        case .sergent: return "Roger that! \(duration) break authorized! Make it count, soldier!"
+        case .cheerleader: return "You got it! Taking \(duration) for yourself - you deserve it!"
+        case .butler: return "Very good. I shall pause for \(duration). Enjoy your respite."
+        case .coach: return "Halftime! Taking \(duration) off the clock. Rest up, champ!"
+        case .zen: return "A mindful pause of \(duration). Rest well."
+        case .parent: return "Of course, take \(duration). I'll be here when you're ready."
+        case .bestie: return "Sure thing! \(duration) break. Enjoy, I'll be here."
+        case .robot: return "Break mode: \(duration). Notifications paused."
+        case .therapist: return "Taking \(duration) for yourself is healthy. I'll be here."
+        case .hypeFriend: return "\(duration) break! You earned it! REST UP and come back STRONG!"
+        case .chillBuddy: return "\(duration) break... sounds good. No rush."
+        case .snarky: return "\(duration) break? Sure, I'll pretend I didn't notice."
+        case .gamer: return "\(duration) break! Save point reached! Rest bonus activated!"
+        case .tiredParent: return "\(duration) break. Smart. We both need it."
+        }
+    }
+
+    private func getBreakUntilMessage(time: String) -> String {
+        switch appState.selectedPersonality {
+        case .pemberton: return "Break mode enabled until \(time). I shall be silent until then."
+        case .sergent: return "On break until \(time)! Use this time wisely, soldier!"
+        case .cheerleader: return "Got it! Break until \(time). Enjoy your time!"
+        case .butler: return "Very good. I shall pause until \(time). Do let me know if you need anything."
+        case .coach: return "Break until \(time)! Get some rest, then we're back at it!"
+        case .zen: return "Silence until \(time). May this time serve you well."
+        case .parent: return "Okay sweetie, break until \(time). Take care of yourself."
+        case .bestie: return "Cool, break until \(time). Catch you later!"
+        case .robot: return "Break until \(time). Notifications suspended."
+        case .therapist: return "Taking time until \(time). That's a healthy choice."
+        case .hypeFriend: return "Break until \(time)! Come back ready to be LEGENDARY!"
+        case .chillBuddy: return "Until \(time)... sounds chill. Take your time."
+        case .snarky: return "Until \(time)? Fine. I'll contain my observations."
+        case .gamer: return "AFK until \(time)! Don't let the IRL boss get you!"
+        case .tiredParent: return "Until \(time). Good call. We all need breaks."
+        }
+    }
+
     private func handleHelpRequest(_ request: HelpRequestDTO, summary: String?) async {
         let topic = (request.topic ?? "general").lowercased()
         var response: String
@@ -825,52 +907,43 @@ struct RecordingView: View {
         switch topic {
         case "goals":
             response = summary ?? """
-            Ah, goals! The eternal pursuit of the examined life. I can help you with long-term aspirations. \
-            Simply tell me something like "My goal is to learn real analysis" or "I want to get fit by summer." \
+            I can help you with long-term goals! Tell me something like "My goal is to learn Spanish" or "I want to get fit by summer." \
             I'll break it down into milestones, suggest a daily schedule, and remind you each morning. \
-            As Aristotle taught: we are what we repeatedly do. Excellence, then, is not an act, but a habit. \
-            I shall be your habit-former, your Socratic gadfly, nudging you toward your best self.
+            We become what we repeatedly do - I'll help you build those habits.
             """
         case "accountability":
             response = summary ?? """
-            Accountability is my specialty. I track how long you've been away from your goals and will remind you \
-            with increasing urgency. Leave the app too long, and I'll notice. Doomscroll repeatedly, and I'll speak up. \
-            The escalation goes from gentle reminders to pointed observations about wasted potential. \
-            Seneca wrote: "It is not that we have a short time to live, but that we waste much of it." \
-            I'm here to ensure you waste less.
+            Accountability is what I do best! I track how long you've been away from your goals and remind you \
+            with increasing urgency. I'll notice when you're drifting and help you get back on track. \
+            The goal is to help you make the most of your time.
             """
         case "break", "breaks":
             response = summary ?? """
-            Even the Gadfly must grant respite. Say "Gadfly, take a break for 30 minutes" or "Stop nagging until 3pm" \
-            and I shall hold my tongue. The reminders cease, the focus checks pause, and you get peace. \
-            When the time expires, I return to my sacred duty. Wittgenstein said whereof one cannot speak, \
-            thereof one must be silent. During breaks, I am silent.
+            Need some peace and quiet? Just say "take a break for 30 minutes" or "stop reminding me until 3pm" \
+            and I'll pause all reminders and check-ins. When the break ends, I'll be back to help you stay on track.
             """
         case "vault":
             response = summary ?? """
-            The vault is your encrypted fortress for secrets. Say "Put my Netflix password in the vault" and I'll store it \
-            with 256-bit AES encryption. Later, ask "What's my Netflix password?" and I'll retrieve it. \
-            Say "List my vault" to see what's stored, or "Delete my Netflix password" to remove it. \
-            Your secrets are encrypted on this device alone - I cannot see them, nor can anyone else.
+            The vault is your encrypted place for secrets. Say "Put my Netflix password in the vault" and I'll store it \
+            with strong encryption. Later, just ask "What's my Netflix password?" and I'll retrieve it. \
+            Say "List my vault" to see what's stored. Everything stays on this device alone.
             """
         case "tasks", "reminders", "calendar", "events":
             response = summary ?? """
-            I parse your natural speech into actionable items. Tasks go to Apple Reminders, events to Calendar. \
-            Say "I need to call mom tomorrow at 3pm" and I'll create an event. \
-            Say "Remind me to buy milk" and I'll create a task. \
-            Say "I have a meeting with John on Friday at 10am, and don't forget to bring the report" - \
-            I'll create both the event and a reminder. Then I'll nag you about them until they're done.
+            I turn your natural speech into actionable items. Tasks go to Apple Reminders, events to Calendar. \
+            Say "I need to call mom tomorrow at 3pm" for an event. Say "Remind me to buy milk" for a task. \
+            I'll create them and remind you until they're done.
             """
         default:
+            let name = appState.selectedPersonality.displayName
             response = summary ?? """
-            I am Gadfly, your personal accountability companion. Here's what I can do for you: \
-            \n\n• **Goals**: Tell me your aspirations and I'll break them into milestones with daily schedules \
-            \n• **Tasks & Events**: Speak naturally and I'll parse out tasks, reminders, and calendar events \
-            \n• **Accountability**: I track your focus and remind you when you're drifting from your goals \
-            \n• **Break Mode**: Tell me to take a break when you need silence \
-            \n• **Secure Vault**: Store passwords and secrets with military-grade encryption \
-            \n\nAs Socrates' gadfly stung the Athenians awake, I sting you toward excellence. \
-            Ask about any of these features and I'll explain further.
+            Hi! I'm \(name), your productivity companion. Here's what I can do: \
+            \n\n• **Goals**: Tell me your aspirations and I'll break them into milestones \
+            \n• **Tasks & Events**: Speak naturally and I'll create tasks and calendar events \
+            \n• **Accountability**: I'll remind you and help you stay focused \
+            \n• **Break Mode**: Tell me to take a break when you need quiet \
+            \n• **Secure Vault**: Store passwords and secrets safely \
+            \n\nAsk about any feature and I'll explain more!
             """
         }
 
@@ -1005,6 +1078,47 @@ struct RecordingView: View {
         }
 
         let response = summary ?? (responses.isEmpty ? "I understood the goal operation but couldn't complete it." : responses.joined(separator: " "))
+        localMessages.append(ConversationMessage(role: .assistant, content: response, timestamp: Date()))
+        await speakResponse(response)
+    }
+
+    private func handleRescheduleOperations(_ operations: [OpenAIService.RescheduleOperation], summary: String?) async {
+        // Fetch all reminders to find matches
+        let reminders = await calendarService.fetchReminders(includeCompleted: false)
+        var movedCount = 0
+        var movedTasks: [String] = []
+
+        for op in operations {
+            // Find matching task (case-insensitive partial match)
+            let searchTerm = op.taskTitle.lowercased()
+            if let matchingReminder = reminders.first(where: {
+                ($0.title ?? "").lowercased().contains(searchTerm)
+            }) {
+                do {
+                    try await calendarService.pushToDate(matchingReminder, date: op.newDate)
+                    movedCount += 1
+                    movedTasks.append(matchingReminder.title ?? op.taskTitle)
+                } catch {
+                    print("Failed to reschedule '\(op.taskTitle)': \(error)")
+                }
+            } else {
+                print("Could not find task matching '\(op.taskTitle)'")
+            }
+        }
+
+        // Build response
+        let response: String
+        if movedCount > 0 {
+            if let aiSummary = summary {
+                response = aiSummary
+            } else {
+                let taskList = movedTasks.joined(separator: ", ")
+                response = "Done. I've rescheduled \(taskList)."
+            }
+        } else {
+            response = "I couldn't find any tasks matching what you asked to reschedule."
+        }
+
         localMessages.append(ConversationMessage(role: .assistant, content: response, timestamp: Date()))
         await speakResponse(response)
     }

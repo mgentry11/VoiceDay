@@ -28,6 +28,18 @@ class MorningChecklistService: ObservableObject {
         didSet { UserDefaults.standard.set(triggerOnAppOpen, forKey: "morning_checklist_on_open") }
     }
 
+    // Midday check settings
+    @Published var middayCheckEnabled: Bool {
+        didSet { UserDefaults.standard.set(middayCheckEnabled, forKey: "midday_check_enabled") }
+    }
+
+    @Published var middayCheckTime: Date {
+        didSet { UserDefaults.standard.set(middayCheckTime, forKey: "midday_check_time") }
+    }
+
+    @Published var shouldShowMiddayCheck = false
+    @Published var lastMiddayCheckDate: Date?
+
     // MARK: - Model
 
     struct SelfCheck: Identifiable, Codable {
@@ -51,6 +63,7 @@ class MorningChecklistService: ObservableObject {
     init() {
         self.isEnabled = UserDefaults.standard.bool(forKey: "morning_checklist_enabled")
         self.triggerOnAppOpen = UserDefaults.standard.object(forKey: "morning_checklist_on_open") as? Bool ?? true
+        self.middayCheckEnabled = UserDefaults.standard.bool(forKey: "midday_check_enabled")
 
         if let savedTime = UserDefaults.standard.object(forKey: "morning_checklist_time") as? Date {
             self.triggerTime = savedTime
@@ -60,6 +73,16 @@ class MorningChecklistService: ObservableObject {
             components.hour = 7
             components.minute = 0
             self.triggerTime = Calendar.current.date(from: components) ?? Date()
+        }
+
+        if let savedMiddayTime = UserDefaults.standard.object(forKey: "midday_check_time") as? Date {
+            self.middayCheckTime = savedMiddayTime
+        } else {
+            // Default to 1 PM
+            var components = Calendar.current.dateComponents([.year, .month, .day], from: Date())
+            components.hour = 13
+            components.minute = 0
+            self.middayCheckTime = Calendar.current.date(from: components) ?? Date()
         }
 
         loadSelfChecks()
@@ -209,6 +232,70 @@ class MorningChecklistService: ObservableObject {
     func dismissChecklist() {
         shouldShowMorningChecklist = false
         markChecklistShown()
+    }
+
+    /// Reset for testing - clears today's progress and last shown date
+    func resetForTesting() {
+        todaysProgress.removeAll()
+        lastChecklistDate = nil
+        lastMiddayCheckDate = nil
+        UserDefaults.standard.removeObject(forKey: "morning_checklist_last_shown")
+        UserDefaults.standard.removeObject(forKey: "midday_check_last_shown")
+        saveTodaysProgress()
+        shouldShowMorningChecklist = true
+        print("🔄 Morning checklist reset for testing")
+    }
+
+    // MARK: - Midday Check Logic
+
+    func checkIfShouldShowMiddayCheck() {
+        guard middayCheckEnabled else {
+            shouldShowMiddayCheck = false
+            return
+        }
+
+        guard !activeChecks.isEmpty else {
+            shouldShowMiddayCheck = false
+            return
+        }
+
+        let calendar = Calendar.current
+        let now = Date()
+
+        // Check if we already showed midday check today
+        if let lastDate = lastMiddayCheckDate,
+           calendar.isDateInToday(lastDate) {
+            shouldShowMiddayCheck = false
+            return
+        }
+
+        // Check if current time is around the midday check time (within 30 min window)
+        let middayComponents = calendar.dateComponents([.hour, .minute], from: middayCheckTime)
+        let nowComponents = calendar.dateComponents([.hour, .minute], from: now)
+
+        if let middayHour = middayComponents.hour,
+           let middayMinute = middayComponents.minute,
+           let nowHour = nowComponents.hour,
+           let nowMinute = nowComponents.minute {
+
+            let middayMinutes = middayHour * 60 + middayMinute
+            let nowMinutes = nowHour * 60 + nowMinute
+
+            // Show if we're within 30 minutes of the midday time
+            if nowMinutes >= middayMinutes && nowMinutes <= middayMinutes + 30 {
+                shouldShowMiddayCheck = true
+            }
+        }
+    }
+
+    func markMiddayCheckShown() {
+        lastMiddayCheckDate = Date()
+        UserDefaults.standard.set(lastMiddayCheckDate, forKey: "midday_check_last_shown")
+    }
+
+    func dismissMiddayCheck() {
+        shouldShowMiddayCheck = false
+        markMiddayCheckShown()
     }
 
     // MARK: - Persistence

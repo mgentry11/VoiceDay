@@ -13,6 +13,8 @@ struct FocusHomeView: View {
     @ObservedObject private var energyService = EnergyService.shared
     @ObservedObject private var modeService = PresetModeService.shared
     @StateObject private var calendarService = CalendarService()
+    @StateObject private var speechService = SpeechService()
+    @StateObject private var openAIService = OpenAIService()
 
     @State private var reminders: [EKReminder] = []
     @State private var isLoading = true
@@ -29,6 +31,11 @@ struct FocusHomeView: View {
     @State private var showEveningCheckIn = false
     @ObservedObject private var hyperfocusService = HyperfocusModeService.shared
     @ObservedObject private var morningChecklistService = MorningChecklistService.shared
+
+    // Voice command state
+    @State private var isVoiceActive = false
+    @State private var voiceStatusMessage = ""
+    @State private var isProcessingVoice = false
 
     // Current task is the highest priority incomplete one
     private var currentTask: EKReminder? {
@@ -53,120 +60,148 @@ struct FocusHomeView: View {
     }
 
     var body: some View {
-        VStack(spacing: 16) {
-                // Top bar with energy and mode
-                HStack {
-                    EnergyBadge()
-                        .onTapGesture { showEnergyCheckIn = true }
+        VStack(spacing: 12) {
+            // FIXED HEADER - doesn't scroll
 
-                    Spacer()
+            // Voice status banner
+            if isVoiceActive || isProcessingVoice {
+                VoiceStatusBanner(
+                    isListening: isVoiceActive && !isProcessingVoice,
+                    isProcessing: isProcessingVoice,
+                    message: voiceStatusMessage,
+                    transcription: speechService.transcribedText
+                )
+                .padding(.horizontal)
+            }
 
-                    // Calendar button
-                    Button {
-                        showCalendar = true
-                    } label: {
-                        Image(systemName: "calendar")
-                            .font(.title3)
-                            .foregroundStyle(themeColors.accent)
-                            .padding(8)
-                            .background(
-                                Circle()
-                                    .fill(themeColors.secondary)
-                            )
-                    }
+            // Top bar with energy and mode
+            HStack {
+                EnergyBadge()
+                    .onTapGesture { showEnergyCheckIn = true }
 
-                    // Mode indicator
-                    HStack(spacing: 4) {
-                        Image(systemName: modeService.currentMode.icon)
-                        Text(modeService.currentMode.displayName)
-                    }
-                    .font(.caption)
-                    .foregroundStyle(modeService.currentMode.color)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(
-                        Capsule()
-                            .fill(modeService.currentMode.color.opacity(0.15))
-                    )
+                // Microphone button
+                Button {
+                    toggleVoiceCommand()
+                } label: {
+                    Image(systemName: isVoiceActive ? "mic.fill" : "mic")
+                        .font(.title3)
+                        .foregroundStyle(isVoiceActive ? Color.red : themeColors.accent)
+                        .symbolEffect(.pulse, isActive: isVoiceActive)
+                        .padding(8)
+                        .background(
+                            Circle()
+                                .fill(themeColors.secondary)
+                        )
                 }
+
+                Spacer()
+
+                // Calendar button
+                Button {
+                    showCalendar = true
+                } label: {
+                    Image(systemName: "calendar")
+                        .font(.title3)
+                        .foregroundStyle(themeColors.accent)
+                        .padding(8)
+                        .background(
+                            Circle()
+                                .fill(themeColors.secondary)
+                        )
+                }
+
+                // Mode indicator
+                HStack(spacing: 4) {
+                    Image(systemName: modeService.currentMode.icon)
+                    Text(modeService.currentMode.displayName)
+                }
+                .font(.caption)
+                .foregroundStyle(modeService.currentMode.color)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(
+                    Capsule()
+                        .fill(modeService.currentMode.color.opacity(0.15))
+                )
+            }
+            .padding(.horizontal)
+
+            // Momentum meter
+            MomentumMeterView()
                 .padding(.horizontal)
 
-                // Momentum meter
-                MomentumMeterView()
-                    .padding(.horizontal)
+            // Mode selector (compact)
+            PresetModeSelector()
+                .padding(.horizontal)
 
-                // Mode selector (compact)
-                PresetModeSelector()
-                    .padding(.horizontal)
-
-                Spacer()
-
-                // Main content
-                if isLoading {
-                    ProgressView()
-                        .tint(themeColors.accent)
-                } else if let task = currentTask {
-                    // Show time ring for tasks with deadlines
-                    if let dueDate = task.dueDateComponents?.date, showTimeRing {
-                        TimeRingView(
-                            deadline: dueDate,
-                            taskTitle: task.title ?? "Task",
-                            totalDuration: TimeInterval(estimatedMinutes(for: task) * 60)
-                        )
-                        .frame(width: 180, height: 180)
-                        .onTapGesture { showTimeRing = false }
-                    } else {
-                        focusTaskCard(task)
+            // Hyperfocus button
+            Button {
+                showHyperfocus = true
+            } label: {
+                HStack(spacing: 8) {
+                    Image(systemName: hyperfocusService.isActive ? "lock.fill" : "scope")
+                        .font(.title3)
+                    Text(hyperfocusService.isActive ? "Focused" : "Hyperfocus")
+                        .fontWeight(.semibold)
+                    if hyperfocusService.isActive {
+                        Text(hyperfocusService.timerDisplayString)
+                            .font(.callout.monospacedDigit())
                     }
-                } else {
-                    allDoneView
                 }
-
-                Spacer()
-
-                // Bottom actions
-                if currentTask != nil {
-                    bottomActions
-                }
-
-                // Hyperfocus button - tap to open dedicated page
-                Button {
-                    showHyperfocus = true
-                } label: {
-                    HStack(spacing: 8) {
-                        Image(systemName: hyperfocusService.isActive ? "lock.fill" : "scope")
-                            .font(.title3)
-                        Text(hyperfocusService.isActive ? "Focused" : "Hyperfocus")
-                            .fontWeight(.semibold)
-                        if hyperfocusService.isActive {
-                            Text(hyperfocusService.timerDisplayString)
-                                .font(.callout.monospacedDigit())
-                        }
-                    }
-                    .foregroundStyle(.white)
-                    .padding(.horizontal, 24)
-                    .padding(.vertical, 14)
-                    .background(
-                        Capsule()
-                            .fill(
-                                LinearGradient(
-                                    colors: hyperfocusService.currentStage.gradientColors,
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                )
+                .foregroundStyle(.white)
+                .padding(.horizontal, 24)
+                .padding(.vertical, 14)
+                .background(
+                    Capsule()
+                        .fill(
+                            LinearGradient(
+                                colors: hyperfocusService.currentStage.gradientColors,
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
                             )
-                    )
-                    .shadow(
-                        color: hyperfocusService.currentStage.color.opacity(0.4),
-                        radius: hyperfocusService.isActive ? 12 : 8,
-                        x: 0,
-                        y: 4
-                    )
+                        )
+                )
+                .shadow(
+                    color: hyperfocusService.currentStage.color.opacity(0.4),
+                    radius: hyperfocusService.isActive ? 12 : 8,
+                    x: 0,
+                    y: 4
+                )
+            }
+            .buttonStyle(.plain)
+
+            // SCROLLABLE CONTENT - task card and actions
+            ScrollView {
+                VStack(spacing: 12) {
+                    // Main content - task card
+                    if isLoading {
+                        ProgressView()
+                            .tint(themeColors.accent)
+                    } else if let task = currentTask {
+                        // Show time ring for tasks with deadlines
+                        if let dueDate = task.dueDateComponents?.date, showTimeRing {
+                            TimeRingView(
+                                deadline: dueDate,
+                                taskTitle: task.title ?? "Task",
+                                totalDuration: TimeInterval(estimatedMinutes(for: task) * 60)
+                            )
+                            .frame(width: 180, height: 180)
+                            .onTapGesture { showTimeRing = false }
+                        } else {
+                            focusTaskCard(task)
+                        }
+                    } else {
+                        allDoneView
+                    }
+
+                    // Bottom actions
+                    if currentTask != nil {
+                        bottomActions
+                    }
                 }
-                .buttonStyle(.plain)
-                .padding(.bottom, 8)
+                .padding(.bottom, 100)  // Extra padding for tab bar
+            }
         }
-        .padding(.bottom, 60)  // Extra padding for tab bar
         .background(themeColors.background.ignoresSafeArea())
         .overlay(alignment: .center) {
             // Celebration overlay
@@ -290,6 +325,78 @@ struct FocusHomeView: View {
     private func estimatedMinutes(for task: EKReminder) -> Int {
         let estimate = DurationEstimator.shared.estimateDuration(for: task.title ?? "")
         return estimate.minutes
+    }
+
+    // MARK: - Voice Commands
+
+    private func toggleVoiceCommand() {
+        if isVoiceActive {
+            stopListeningAndProcess()
+        } else {
+            startListening()
+        }
+    }
+
+    private func startListening() {
+        do {
+            try speechService.startListening()
+            isVoiceActive = true
+            voiceStatusMessage = "Listening..."
+        } catch {
+            voiceStatusMessage = "Microphone error"
+            isVoiceActive = false
+        }
+    }
+
+    private func stopListeningAndProcess() {
+        speechService.stopListening()
+        isVoiceActive = false
+
+        let transcription = speechService.transcribedText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !transcription.isEmpty else {
+            voiceStatusMessage = ""
+            return
+        }
+
+        Task {
+            await processVoiceCommand(transcription)
+        }
+    }
+
+    private func processVoiceCommand(_ transcription: String) async {
+        voiceStatusMessage = "Processing..."
+        isProcessingVoice = true
+
+        do {
+            print("🎯 Focus voice command: \(transcription)")
+            let result = try await openAIService.processUserInput(transcription, apiKey: appState.claudeKey, personality: appState.selectedPersonality)
+
+            // Save any items
+            if !result.tasks.isEmpty || !result.events.isEmpty || !result.reminders.isEmpty {
+                let _ = try await calendarService.saveAllItems(from: result)
+                await loadReminders() // Refresh the list
+            }
+
+            voiceStatusMessage = result.summary ?? "Done!"
+
+            // Speak the response
+            if let summary = result.summary {
+                await AppDelegate.shared?.speakMessage(summary)
+            }
+
+            // Clear after delay
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                isProcessingVoice = false
+                voiceStatusMessage = ""
+            }
+
+        } catch {
+            voiceStatusMessage = "Error: \(error.localizedDescription)"
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                isProcessingVoice = false
+                voiceStatusMessage = ""
+            }
+        }
     }
 
     // MARK: - Focus Task Card

@@ -1,4 +1,7 @@
 import SwiftUI
+#if os(watchOS)
+import WatchKit
+#endif
 
 struct ContentView: View {
     @EnvironmentObject var connectivity: WatchConnectivityManager
@@ -55,11 +58,17 @@ struct ContentView: View {
             ForEach(connectivity.tasks) { task in
                 TaskRow(task: task) {
                     connectivity.sendTaskCompleted(taskId: task.id.uuidString)
+                    #if os(watchOS)
                     WKInterfaceDevice.current().play(.success)
+                    #endif
                 }
             }
         }
+        #if os(watchOS)
         .listStyle(.carousel)
+        #else
+        .listStyle(.plain)
+        #endif
     }
 }
 
@@ -143,7 +152,9 @@ struct DictationView: View {
                         guard !dictatedText.isEmpty else { return }
                         isProcessing = true
                         connectivity.sendNewTask(text: dictatedText)
+                        #if os(watchOS)
                         WKInterfaceDevice.current().play(.success)
+                        #endif
                         dismiss()
                     }
                     .disabled(dictatedText.isEmpty)

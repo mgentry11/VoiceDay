@@ -214,22 +214,35 @@ class CalendarService: ObservableObject {
     /// Push a task to any future date/time
     func pushToDate(_ reminder: EKReminder, date: Date) async throws {
         let calendar = Calendar.current
+        let taskTitle = reminder.title ?? "task"
 
+        print("🔄 PUSH START: '\(taskTitle)'")
+        print("   isCompleted BEFORE: \(reminder.isCompleted)")
+        print("   Target date: \(date)")
+
+        // ONLY update the due date - nothing else
         reminder.dueDateComponents = calendar.dateComponents(
             [.year, .month, .day, .hour, .minute],
             from: date
         )
+
+        print("   isCompleted AFTER setting date: \(reminder.isCompleted)")
 
         // Update alarm
         reminder.alarms?.forEach { reminder.removeAlarm($0) }
         let alarm = EKAlarm(absoluteDate: date)
         reminder.addAlarm(alarm)
 
+        print("   isCompleted AFTER setting alarm: \(reminder.isCompleted)")
+
+        // Save
         try eventStore.save(reminder, commit: true)
+
+        print("   isCompleted AFTER save: \(reminder.isCompleted)")
 
         let formatter = DateFormatter()
         formatter.dateFormat = "MMM d 'at' h:mm a"
-        print("📅 Pushed '\(reminder.title ?? "task")' to \(formatter.string(from: date))")
+        print("🔄 PUSH DONE: '\(taskTitle)' to \(formatter.string(from: date))")
     }
 
     /// Push a task to later today (X hours from now)

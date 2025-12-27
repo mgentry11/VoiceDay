@@ -11,6 +11,7 @@ struct EveningCheckInView: View {
     @ObservedObject private var themeColors = ThemeColors.shared
     @EnvironmentObject var appState: AppState
 
+    @State private var showingIntro = true
     @State private var currentStep: CheckInStep = .mood
     @State private var selectedMood: Mood?
     @State private var selectedFactors: Set<DownFactor> = []
@@ -101,37 +102,168 @@ struct EveningCheckInView: View {
 
     var body: some View {
         VStack(spacing: 24) {
-            // Progress indicator
-            HStack(spacing: 8) {
-                ForEach(0..<totalSteps, id: \.self) { step in
-                    Circle()
-                        .fill(step <= currentStepIndex ? Color.themeAccent : Color.themeSecondary)
-                        .frame(width: 8, height: 8)
+            if showingIntro {
+                introView
+            } else {
+                // Progress indicator
+                HStack(spacing: 8) {
+                    ForEach(0..<totalSteps, id: \.self) { step in
+                        Circle()
+                            .fill(step <= currentStepIndex ? Color.themeAccent : Color.themeSecondary)
+                            .frame(width: 8, height: 8)
+                    }
                 }
+                .padding(.top)
+
+                Spacer()
+
+                // Content based on step
+                switch currentStep {
+                case .mood:
+                    moodSelectionView
+                case .factors:
+                    factorsView
+                case .suggestion:
+                    suggestionView
+                case .celebration:
+                    celebrationView
+                }
+
+                Spacer()
             }
-            .padding(.top)
-
-            Spacer()
-
-            // Content based on step
-            switch currentStep {
-            case .mood:
-                moodSelectionView
-            case .factors:
-                factorsView
-            case .suggestion:
-                suggestionView
-            case .celebration:
-                celebrationView
-            }
-
-            Spacer()
         }
         .padding()
         .background(Color.themeBackground)
         .onAppear {
+            speakIntroGreeting()
+        }
+    }
+
+    // MARK: - Intro View
+
+    private var introView: some View {
+        VStack(spacing: 24) {
+            Spacer()
+
+            // Personality emoji
+            Text(appState.selectedPersonality.emoji)
+                .font(.system(size: 80))
+
+            // Greeting
+            Text(getEveningGreeting())
+                .font(.title2)
+                .fontWeight(.semibold)
+                .foregroundStyle(themeColors.text)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal)
+
+            // Task summary if any
+            if completedTaskCount > 0 {
+                HStack(spacing: 8) {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundStyle(.green)
+                    Text("You completed \(completedTaskCount) task\(completedTaskCount == 1 ? "" : "s") today")
+                        .font(.subheadline)
+                        .foregroundStyle(themeColors.subtext)
+                }
+                .padding()
+                .background(Color.themeSecondary)
+                .cornerRadius(12)
+            }
+
+            // What this check-in covers
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Quick check-in:")
+                    .font(.caption)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(themeColors.subtext)
+
+                HStack(spacing: 8) {
+                    Image(systemName: "heart.fill")
+                        .foregroundStyle(.pink)
+                    Text("How are you feeling?")
+                        .font(.subheadline)
+                }
+
+                HStack(spacing: 8) {
+                    Image(systemName: "lightbulb.fill")
+                        .foregroundStyle(.yellow)
+                    Text("Quick tips for tomorrow")
+                        .font(.subheadline)
+                }
+            }
+            .padding()
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Color.themeSecondary)
+            .cornerRadius(12)
+
+            Spacer()
+
+            // Start button
+            Button {
+                startCheckIn()
+            } label: {
+                HStack {
+                    Image(systemName: "play.fill")
+                        .font(.title2)
+                    Text("Let's Check In")
+                        .font(.title3)
+                        .fontWeight(.bold)
+                }
+                .foregroundStyle(.black)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 20)
+                .background(Color.themeAccent)
+                .cornerRadius(16)
+            }
+
+            // Skip option
+            Button {
+                onComplete()
+            } label: {
+                Text("Skip for now")
+                    .font(.subheadline)
+                    .foregroundStyle(themeColors.subtext)
+            }
+            .padding(.bottom, 8)
+        }
+    }
+
+    private func getEveningGreeting() -> String {
+        switch appState.selectedPersonality {
+        case .pemberton:
+            return "Good evening. Time to take stock of the day."
+        case .sergent:
+            return "End of day debrief! How'd we do today?"
+        case .cheerleader:
+            return "Hey superstar! Let's reflect on your amazing day!"
+        case .hypeFriend:
+            return "YO! Day's almost done! How you feeling?!"
+        case .chillBuddy:
+            return "Hey... day's winding down. Quick check-in?"
+        case .tiredParent:
+            return "Almost bedtime. Let's see how today went."
+        default:
+            return "Good evening! Quick end-of-day check-in?"
+        }
+    }
+
+    private func startCheckIn() {
+        let generator = UIImpactFeedbackGenerator(style: .medium)
+        generator.impactOccurred()
+
+        withAnimation(.spring(response: 0.3)) {
+            showingIntro = false
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             speakMoodQuestion()
         }
+    }
+
+    private func speakIntroGreeting() {
+        let greeting = getEveningGreeting()
+        speak(greeting)
     }
 
     private var totalSteps: Int {

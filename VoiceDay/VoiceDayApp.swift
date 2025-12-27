@@ -467,12 +467,16 @@ class AppState: ObservableObject {
     @Published var selectedVoiceId: String {
         didSet {
             UserDefaults.standard.set(selectedVoiceId, forKey: "selected_voice_id")
+            UserDefaults.standard.synchronize()
+            print("🎤 VOICE ID SAVED: \(selectedVoiceId)")
         }
     }
 
     @Published var selectedVoiceName: String {
         didSet {
             UserDefaults.standard.set(selectedVoiceName, forKey: "selected_voice_name")
+            UserDefaults.standard.synchronize()
+            print("🎤 VOICE NAME SAVED: \(selectedVoiceName)")
         }
     }
 
@@ -548,7 +552,10 @@ class AppState: ObservableObject {
 
     @Published var selectedPersonality: BotPersonality {
         didSet {
-            UserDefaults.standard.set(selectedPersonality.rawValue, forKey: "selected_personality")
+            let rawValue = selectedPersonality.rawValue
+            UserDefaults.standard.set(rawValue, forKey: "selected_personality")
+            UserDefaults.standard.synchronize() // Force immediate save
+            print("🎭 PERSONALITY SAVED: \(rawValue)")
         }
     }
 
@@ -578,6 +585,12 @@ class AppState: ObservableObject {
     }
     @Published var featureSocial: Bool {
         didSet { UserDefaults.standard.set(featureSocial, forKey: "feature_social") }
+    }
+
+    // MARK: - Simple/Pro Mode
+
+    @Published var isSimpleMode: Bool {
+        didSet { UserDefaults.standard.set(isSimpleMode, forKey: "is_simple_mode") }
     }
 
     // MARK: - Reward Breaks
@@ -707,8 +720,11 @@ class AppState: ObservableObject {
         // Use defaults - they contain the API keys
         self.claudeKey = Self.defaultClaudeKey
         self.elevenLabsKey = Self.defaultElevenLabsKey
-        self.selectedVoiceId = UserDefaults.standard.string(forKey: "selected_voice_id") ?? ""
-        self.selectedVoiceName = UserDefaults.standard.string(forKey: "selected_voice_name") ?? "Default"
+        let loadedVoiceId = UserDefaults.standard.string(forKey: "selected_voice_id") ?? ""
+        let loadedVoiceName = UserDefaults.standard.string(forKey: "selected_voice_name") ?? "Default"
+        print("🎤 LOADING VOICE - ID: '\(loadedVoiceId)', Name: '\(loadedVoiceName)'")
+        self.selectedVoiceId = loadedVoiceId
+        self.selectedVoiceName = loadedVoiceName
 
         // Reminder settings
         self.remindersEnabled = UserDefaults.standard.object(forKey: "reminders_enabled") as? Bool ?? true
@@ -725,7 +741,10 @@ class AppState: ObservableObject {
 
         // Personality
         let savedPersonality = UserDefaults.standard.string(forKey: "selected_personality") ?? ""
-        self.selectedPersonality = BotPersonality(rawValue: savedPersonality) ?? .pemberton
+        print("🎭 LOADING PERSONALITY - saved value: '\(savedPersonality)'")
+        let loadedPersonality = BotPersonality(rawValue: savedPersonality) ?? .pemberton
+        print("🎭 LOADED PERSONALITY: \(loadedPersonality.rawValue)")
+        self.selectedPersonality = loadedPersonality
 
         // App Version
         let savedVersion = UserDefaults.standard.string(forKey: "app_version") ?? ""
@@ -738,6 +757,9 @@ class AppState: ObservableObject {
         self.featureHome = UserDefaults.standard.object(forKey: "feature_home") as? Bool ?? true
         self.featureCreative = UserDefaults.standard.object(forKey: "feature_creative") as? Bool ?? false
         self.featureSocial = UserDefaults.standard.object(forKey: "feature_social") as? Bool ?? false
+
+        // Simple/Pro Mode (default to Pro mode = false)
+        self.isSimpleMode = UserDefaults.standard.object(forKey: "is_simple_mode") as? Bool ?? false
 
         // Reward breaks
         self.rewardBreaksEnabled = UserDefaults.standard.object(forKey: "reward_breaks_enabled") as? Bool ?? false

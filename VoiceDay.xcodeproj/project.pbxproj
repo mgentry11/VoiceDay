@@ -420,7 +420,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				FF37BC8DD022F30B7CD6D220 /* PBXTargetDependency */,
 			);
 			name = VoiceDay;
 			productName = VoiceDay;

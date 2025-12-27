@@ -1,6 +1,10 @@
 import SwiftUI
 import UserNotifications
+#if os(watchOS)
+import WatchKit
+#endif
 
+#if os(watchOS)
 @main
 struct VoiceDayWatchApp: App {
     @WKApplicationDelegateAdaptor(WatchAppDelegate.self) var appDelegate
@@ -78,3 +82,4 @@ class WatchAppDelegate: NSObject, WKApplicationDelegate, UNUserNotificationCente
         completionHandler()
     }
 }
+#endif

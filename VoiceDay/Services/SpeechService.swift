@@ -33,7 +33,21 @@ class SpeechService: NSObject, ObservableObject {
         let apiKey = KeychainService.load(key: "elevenlabs_api_key") ?? ""
         let selectedVoiceId = UserDefaults.standard.string(forKey: "selected_voice_id") ?? ""
         let customVoiceId = VoiceCloningService.shared.customVoiceId
-        return !apiKey.isEmpty && (customVoiceId != nil || !selectedVoiceId.isEmpty)
+        let hasVoice = !apiKey.isEmpty && (customVoiceId != nil || !selectedVoiceId.isEmpty)
+        print("🎤 Voice check: apiKey=\(!apiKey.isEmpty), selectedVoiceId='\(selectedVoiceId)', customVoiceId=\(customVoiceId ?? "nil"), hasVoice=\(hasVoice)")
+        return hasVoice
+    }
+
+    /// Ensure audio is routed to speaker before any speech
+    private func ensureSpeakerOutput() {
+        do {
+            let audioSession = AVAudioSession.sharedInstance()
+            try audioSession.setCategory(.playback, mode: .default, options: [.defaultToSpeaker, .mixWithOthers])
+            try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
+            try audioSession.overrideOutputAudioPort(.speaker)
+        } catch {
+            print("❌ Failed to ensure speaker output: \(error)")
+        }
     }
 
     func requestAuthorization() async -> Bool {
@@ -58,7 +72,7 @@ class SpeechService: NSObject, ObservableObject {
         }
 
         let audioSession = AVAudioSession.sharedInstance()
-        try audioSession.setCategory(.playAndRecord, mode: .measurement, options: .duckOthers)
+        try audioSession.setCategory(.playAndRecord, mode: .measurement, options: [.duckOthers, .defaultToSpeaker, .allowBluetooth])
         try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
 
         recognitionRequest = SFSpeechAudioBufferRecognitionRequest()
@@ -142,6 +156,9 @@ class SpeechService: NSObject, ObservableObject {
     private func speakImmediate(_ text: String) async {
         isSpeaking = true
 
+        // Force audio to speaker BEFORE any speech
+        ensureSpeakerOutput()
+
         // Try ElevenLabs first if configured
         if hasElevenLabsVoice {
             let apiKey = KeychainService.load(key: "elevenlabs_api_key") ?? ""
@@ -157,9 +174,9 @@ class SpeechService: NSObject, ObservableObject {
             }
         }
 
-        // Fallback to system voice
+        // Fallback to system voice - use US English (more universal)
         let utterance = AVSpeechUtterance(string: text)
-        utterance.voice = AVSpeechSynthesisVoice(language: "en-GB")  // British for The Gadfly
+        utterance.voice = AVSpeechSynthesisVoice(language: "en-US")
         utterance.rate = 0.5  // Slightly slower for ADHD clarity
         utterance.pitchMultiplier = 1.0
         utterance.volume = 1.0

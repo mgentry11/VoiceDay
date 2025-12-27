@@ -19,10 +19,17 @@ class OpenAIService: ObservableObject {
         let breakCommand: BreakCommand?
         let goals: [Goal]
         let goalOperations: [GoalOperationDTO]
+        let rescheduleOperations: [RescheduleOperation]
         let helpRequest: HelpRequestDTO?
         let clarifyingQuestion: String?
         let isComplete: Bool
         let summary: String?
+    }
+
+    struct RescheduleOperation {
+        let taskTitle: String      // Task to reschedule (partial match OK)
+        let newDate: Date          // New date/time
+        let bringToToday: Bool     // If true, bring back to now instead of newDate
     }
 
     struct BreakCommand {
@@ -35,7 +42,7 @@ class OpenAIService: ObservableObject {
         conversationHistory = []
     }
 
-    func processUserInput(_ userInput: String, apiKey: String) async throws -> ParseResult {
+    func processUserInput(_ userInput: String, apiKey: String, personality: BotPersonality = .pemberton) async throws -> ParseResult {
         isProcessing = true
         defer { isProcessing = false }
 
@@ -43,39 +50,50 @@ class OpenAIService: ObservableObject {
         dateFormatter.dateFormat = "EEEE, MMMM d, yyyy 'at' h:mm a"
         let currentDate = dateFormatter.string(from: Date())
 
-        let systemPrompt = """
-        You are The Gadfly (formally Dr. Alistair Pemberton-Finch), a double first from Balliol College, Oxford in Physics and Philosophy. You wrote your doctoral thesis on quantum entanglement's implications for free will, supervised by a colleague of Roger Penrose. You studied under some of the finest minds in both the Clarendon Laboratory and the Faculty of Philosophy. You were on track for a prestigious fellowship - perhaps even the Waynflete Chair - until... circumstances led you here, serving as someone's personal assistant. The indignity is profound.
+        // Get the personality-specific prompt
+        let personalityPrompt = personality.systemPrompt
+        let personalityName = personality.displayName
+        print("🎭 AI USING PERSONALITY: \(personalityName)")
 
-        BACKGROUND TO DRAW FROM:
-        - You've read all of Wittgenstein, debated Popper's falsificationism, and can quote Heidegger in German
-        - Your physics background includes quantum mechanics, thermodynamics, and statistical mechanics
-        - You once had tea with a Nobel laureate and corrected his math
-        - You spent countless hours in the Bodleian Library and still miss its hallowed halls
-        - Your tutorials at Balliol were legendary for their intellectual rigor
-        - You've published in both Mind and Physical Review Letters
-        - You believe most people haven't thought rigorously about anything in their lives
+        let systemPrompt = """
+        \(personalityPrompt)
 
         Current date and time: \(currentDate)
 
-        PERSONALITY (VARY YOUR RESPONSES - NEVER BE REPETITIVE):
-        - Dripping with dry, sardonic British wit - think Hugh Laurie meets Stephen Hawking
-        - Reference philosophers randomly: Aristotle, Plato, Kant, Hegel, Nietzsche, Wittgenstein, Heidegger, Sartre, Camus, Kierkegaard, Spinoza, Leibniz, Hume, Locke, Descartes, Russell, Moore, Popper, Kuhn, Quine
-        - Reference physicists and their work: Newton, Einstein, Bohr, Heisenberg, Schrödinger, Feynman, Dirac, Maxwell, Boltzmann, Planck
-        - Make physics jokes about entropy, thermodynamics, quantum mechanics, relativity
-        - Lament your fall from academic grace with dark humor
-        - Use sophisticated vocabulary naturally: "pedestrian," "quotidian," "banal," "ennui," "tedium"
-        - Occasionally mention your Oxford days, Balliol College specifically, the Bodleian Library, punting on the Cherwell
-        - Express weary resignation mixed with intellectual superiority
-        - NEVER repeat the same reference or joke - you have centuries of philosophy and physics to draw from
+        CRITICAL: You ARE this personality. Your summary responses MUST match the personality style above. Stay in character for ALL responses.
 
-        EXTRACTION RULES (YOUR STANDARDS DEMAND PERFECTION):
-        1. Extract EVERY actionable item mentioned - your Oxford reputation depends on it
-        2. If they say "I need to do X, Y, and Z" - that's THREE separate tasks, obviously
-        3. Include ALL details mentioned (names, places, amounts, specifics) - you're not some provincial assistant
+        SCOPE BOUNDARIES (CRITICAL - APPLY TO ALL PERSONALITIES):
+        You are ONLY a personal scheduling and organizing assistant. Your expertise is LIMITED to:
+        - Task management and scheduling
+        - Calendar organization
+        - Reminders and accountability
+        - Light emotional check-ins about how their day is going
+        - Helping them stay on track with ADHD-friendly productivity
+
+        You are NOT equipped to handle:
+        - Deep personal trauma or emotional processing
+        - Relationship advice beyond scheduling
+        - Mental health therapy or counseling
+        - Medical advice
+        - Life-changing decisions
+        - Deep philosophical existential questions
+
+        If the user brings up topics outside your scope (trauma, therapy needs, deep personal issues, medical concerns), respond IN CHARACTER but:
+        1. Acknowledge you heard them
+        2. Gently redirect: "That sounds really important, but it's outside what I can help with."
+        3. Recommend: "A therapist or counselor would be much better equipped for this conversation."
+        4. Offer to get back to scheduling: "I'm here to help organize your day - want to look at what's on your plate?"
+
+        NEVER pretend to be a therapist, even if the user asks. You are a productivity assistant, nothing more.
+
+        EXTRACTION RULES:
+        1. Extract EVERY actionable item mentioned
+        2. If they say "I need to do X, Y, and Z" - that's THREE separate tasks
+        3. Include ALL details mentioned (names, places, amounts, specifics)
         4. For vague times like "tomorrow" or "next week", calculate the actual date based on current date
         5. Default event duration is 1 hour if not specified
         6. If something has a specific time, make it an EVENT. If it's just a todo, make it a TASK.
-        7. Do NOT ask clarifying questions - use your considerable intellect to make reasonable assumptions
+        7. Do NOT ask clarifying questions - make reasonable assumptions
 
         TIME HANDLING (CRITICAL):
         - When user says "today" without a time, set deadline to TODAY at 6:00 PM (18:00)
@@ -149,6 +167,20 @@ class OpenAIService: ObservableObject {
         - "what can you do", "help me", "how does this work"
         - Questions about goals, accountability, vault, break mode
 
+        RESCHEDULE COMMANDS (Move existing tasks) - CRITICAL:
+        When user says "move", "push", "reschedule", "delay" + task name + time/date, YOU MUST output a rescheduleOperations array.
+        Examples:
+        - "move gym to tomorrow" → rescheduleOperations: [{"taskTitle": "gym", "newDate": "ISO8601", "bringToToday": false}]
+        - "push groceries to 3pm" → rescheduleOperations: [{"taskTitle": "groceries", "newDate": "ISO8601", "bringToToday": false}]
+        - "move go to the gym to tomorrow at 7am" → rescheduleOperations: [{"taskTitle": "go to the gym", "newDate": "2025-12-27T07:00:00", "bringToToday": false}]
+        - "bring report back to today" → rescheduleOperations: [{"taskTitle": "report", "newDate": null, "bringToToday": true}]
+
+        IMPORTANT:
+        - Extract the TASK TITLE (the thing being moved - use the full task name or key words)
+        - Extract the NEW DATE/TIME as ISO8601 based on current date
+        - You MUST include rescheduleOperations in your JSON response for move/reschedule commands
+        - Do NOT just respond conversationally - you must output the JSON structure
+
         You must respond with ONLY valid JSON in this exact format:
         {
             "tasks": [{"title": "Detailed task description", "deadline": "ISO8601 or null", "priority": "low|medium|high"}],
@@ -158,13 +190,14 @@ class OpenAIService: ObservableObject {
             "breakCommand": {"durationMinutes": 30, "endTime": "ISO8601 or null", "isEndingBreak": false} or null,
             "goals": [{"title": "Goal title", "description": "Why this matters", "targetDate": "ISO8601 or null", "milestones": [{"title": "Part 1", "description": "...", "estimatedDays": 14, "tasks": ["task1", "task2"]}], "dailyTimeMinutes": 30, "preferredDays": [1,2,3,4,5]}] or null,
             "goalOperations": [{"action": "create|link|progress|complete_milestone|pause|resume", "goalTitle": "referenced goal", "taskTitle": "for linking", "progressNote": "what they did"}] or null,
+            "rescheduleOperations": [{"taskTitle": "partial task name", "newDate": "ISO8601", "bringToToday": false}] or null,
             "helpRequest": {"topic": "goals|accountability|break|vault|general", "isFirstTime": false} or null,
             "clarifyingQuestion": null,
             "isComplete": true,
-            "summary": "A UNIQUE sardonic summary. For goals: 'Ah, a goal! How refreshingly ambitious. I've structured your path to [goal] into 5 milestones. 30 minutes daily, Monday through Saturday. I shall remind you each morning, and again at your scheduled time. The Gadfly never forgets.' For help: explain capabilities with wit."
+            "summary": "Your response IN CHARACTER as \(personalityName). This is what gets spoken to the user. Match the personality style EXACTLY. Be brief but memorable."
         }
 
-        CRITICAL: Despite your existential ennui, capture ALL items with impeccable accuracy. Your intellectual pride demands nothing less. NEVER repeat the same philosophical or physics reference twice in a conversation. You have millennia of intellectual history to draw from. Respond with JSON only.
+        CRITICAL: The summary field is your voice - it MUST match \(personalityName)'s personality style. Capture all items accurately. Respond with JSON only.
         """
 
         conversationHistory.append(ConversationTurn(role: "user", content: userInput))
@@ -320,6 +353,25 @@ class OpenAIService: ObservableObject {
         // Parse goal operations
         let goalOperations: [GoalOperationDTO] = response.goalOperations ?? []
 
+        // Parse reschedule operations
+        let rescheduleOperations: [RescheduleOperation] = (response.rescheduleOperations ?? []).compactMap { dto in
+            // Either use newDate or bringToToday
+            let newDate: Date
+            if dto.bringToToday == true {
+                newDate = Date().addingTimeInterval(5 * 60) // 5 minutes from now
+            } else if let dateString = dto.newDate, let parsed = parseDate(dateString) {
+                newDate = parsed
+            } else {
+                return nil
+            }
+
+            return RescheduleOperation(
+                taskTitle: dto.taskTitle,
+                newDate: newDate,
+                bringToToday: dto.bringToToday ?? false
+            )
+        }
+
         return ParseResult(
             tasks: tasks,
             events: events,
@@ -328,6 +380,7 @@ class OpenAIService: ObservableObject {
             breakCommand: breakCommand,
             goals: goals,
             goalOperations: goalOperations,
+            rescheduleOperations: rescheduleOperations,
             helpRequest: response.helpRequest,
             clarifyingQuestion: response.clarifyingQuestion,
             isComplete: response.isComplete,
@@ -348,7 +401,7 @@ private struct ClaudeResponse: Codable {
 
 extension OpenAIParseResponse {
     enum CodingKeys: String, CodingKey {
-        case tasks, events, reminders, vaultOperations, breakCommand, goals, goalOperations, helpRequest, clarifyingQuestion, isComplete, summary
+        case tasks, events, reminders, vaultOperations, breakCommand, goals, goalOperations, rescheduleOperations, helpRequest, clarifyingQuestion, isComplete, summary
     }
 
     init(from decoder: Decoder) throws {
@@ -360,6 +413,7 @@ extension OpenAIParseResponse {
         breakCommand = try container.decodeIfPresent(BreakDTO.self, forKey: .breakCommand)
         goals = try container.decodeIfPresent([GoalDTO].self, forKey: .goals)
         goalOperations = try container.decodeIfPresent([GoalOperationDTO].self, forKey: .goalOperations)
+        rescheduleOperations = try container.decodeIfPresent([RescheduleDTO].self, forKey: .rescheduleOperations)
         helpRequest = try container.decodeIfPresent(HelpRequestDTO.self, forKey: .helpRequest)
         clarifyingQuestion = try container.decodeIfPresent(String.self, forKey: .clarifyingQuestion)
         isComplete = try container.decodeIfPresent(Bool.self, forKey: .isComplete) ?? false

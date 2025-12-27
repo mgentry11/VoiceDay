@@ -2,7 +2,7 @@ import Foundation
 import AVFoundation
 
 @MainActor
-class ElevenLabsService: ObservableObject {
+class ElevenLabsService: NSObject, ObservableObject {
     @Published var isSpeaking = false
     @Published var availableVoices: [Voice] = []
 
@@ -117,29 +117,39 @@ class ElevenLabsService: ObservableObject {
     }
 
     private func playAudio(data: Data) async throws {
+        // Stop any currently playing audio first
+        audioPlayer?.stop()
+        audioPlayer = nil
+
         let audioSession = AVAudioSession.sharedInstance()
-        try audioSession.setCategory(.playback, mode: .default)
-        try audioSession.setActive(true)
+        // Force audio through speaker - use multiple options to ensure it works
+        try audioSession.setCategory(.playback, mode: .default, options: [.defaultToSpeaker, .mixWithOthers])
+        try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
+        try audioSession.overrideOutputAudioPort(.speaker)
 
         audioPlayer = try AVAudioPlayer(data: data)
-        audioPlayer?.delegate = AudioPlayerDelegate.shared
 
-        await withCheckedContinuation { continuation in
-            AudioPlayerDelegate.shared.onFinish = {
-                continuation.resume()
-            }
+        await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+            playbackContinuation = continuation
+            audioPlayer?.delegate = self
             audioPlayer?.play()
         }
     }
+
+    func stopPlayback() {
+        audioPlayer?.stop()
+        audioPlayer = nil
+        playbackContinuation?.resume()
+        playbackContinuation = nil
+    }
 }
 
-private class AudioPlayerDelegate: NSObject, AVAudioPlayerDelegate {
-    static let shared = AudioPlayerDelegate()
-    var onFinish: (() -> Void)?
-
-    func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
-        onFinish?()
-        onFinish = nil
+extension ElevenLabsService: AVAudioPlayerDelegate {
+    nonisolated func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
+        Task { @MainActor in
+            self.playbackContinuation?.resume()
+            self.playbackContinuation = nil
+        }
     }
 }
 

@@ -12,15 +12,37 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
         UNUserNotificationCenter.current().delegate = self
         elevenLabsService = ElevenLabsService()
 
-        // Refill focus check-ins if session is active
+        // Configure audio session for speaker output IMMEDIATELY at launch
+        configureAudioForSpeaker()
+
+        // Clear any stale notifications that might have old personality
+        // This ensures clean slate on each launch
         Task { @MainActor in
+            // Cancel all pending notifications - they'll be rescheduled with current personality
+            NotificationService.shared.cancelAllNotifications()
             NotificationService.shared.refillFocusCheckIns()
         }
 
         return true
     }
 
+    /// Configure audio session to always use speaker - call at app launch and before any speech
+    func configureAudioForSpeaker() {
+        do {
+            let audioSession = AVAudioSession.sharedInstance()
+            try audioSession.setCategory(.playback, mode: .default, options: [.defaultToSpeaker, .mixWithOthers])
+            try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
+            try audioSession.overrideOutputAudioPort(.speaker)
+            print("🔊 Audio configured for speaker output")
+        } catch {
+            print("❌ Failed to configure audio for speaker: \(error)")
+        }
+    }
+
     func applicationDidBecomeActive(_ application: UIApplication) {
+        // Ensure audio is configured for speaker every time app becomes active
+        configureAudioForSpeaker()
+
         // Refill focus check-ins when app becomes active
         Task { @MainActor in
             NotificationService.shared.refillFocusCheckIns()
@@ -144,7 +166,9 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
             print("⏸️ Break mode ended via notification")
 
             Task { @MainActor in
-                await speakMessage("Your break is over. The Gadfly returns, ready to nag you about your tasks.")
+                // Get personality-aware break-end message
+                let message = getBreakEndMessage()
+                await speakMessage(message)
             }
 
             completionHandler()
@@ -246,6 +270,45 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
                 type: type,
                 delayMinutes: delayMinutes
             )
+        }
+    }
+
+    /// Get personality-aware break-end message
+    private func getBreakEndMessage() -> String {
+        let savedPersonality = UserDefaults.standard.string(forKey: "selected_personality") ?? ""
+        let personality = BotPersonality(rawValue: savedPersonality) ?? .pemberton
+
+        switch personality {
+        case .pemberton:
+            return "Your break is over. I return, ready to nag you about your tasks."
+        case .sergent:
+            return "BREAK TIME OVER! Back to work, soldier! No excuses!"
+        case .cheerleader:
+            return "Break's over! Ready to crush more goals? I know you are! Let's go!"
+        case .butler:
+            return "If I may, your break has concluded. Shall we resume our endeavors?"
+        case .coach:
+            return "Halftime's over, champ! Back in the game! Let's finish strong!"
+        case .zen:
+            return "Your rest has been honored. When you are ready, we may continue our journey."
+        case .parent:
+            return "Hey sweetie, break's over. Ready to get back to it? No rush."
+        case .bestie:
+            return "Break's done! Ready to get back at it? I'm here if you need me."
+        case .robot:
+            return "Break concluded. Resuming task tracking."
+        case .therapist:
+            return "I hope your break was restorative. Ready to continue when you are."
+        case .hypeFriend:
+            return "BREAK'S OVER! Time to get back to being AMAZING! Let's GOOO!"
+        case .chillBuddy:
+            return "Hey... break's up. No rush though. We can ease back into it."
+        case .snarky:
+            return "Oh look, break's over. Back to pretending to be productive?"
+        case .gamer:
+            return "Break ended! Ready to jump back into the quest? XP awaits!"
+        case .tiredParent:
+            return "Break's over. We're both tired, but we've got this. Probably."
         }
     }
 }

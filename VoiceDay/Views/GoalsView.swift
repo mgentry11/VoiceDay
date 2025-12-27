@@ -3,9 +3,17 @@ import SwiftUI
 struct GoalsView: View {
     @StateObject private var goalsService = GoalsService.shared
     @StateObject private var accountabilityTracker = AccountabilityTracker.shared
+    @StateObject private var speechService = SpeechService()
+    @StateObject private var openAIService = OpenAIService()
+    @StateObject private var calendarService = CalendarService()
     @EnvironmentObject var appState: AppState
     @State private var selectedGoal: Goal?
     @State private var showingStats = false
+
+    // Voice command state
+    @State private var isVoiceActive = false
+    @State private var voiceStatusMessage = ""
+    @State private var isProcessingVoice = false
 
     var body: some View {
         NavigationStack {
@@ -38,9 +46,33 @@ struct GoalsView: View {
                         .padding()
                     }
                 }
+
+                // Voice status banner
+                if isVoiceActive || isProcessingVoice {
+                    VStack {
+                        VoiceStatusBanner(
+                            isListening: isVoiceActive && !isProcessingVoice,
+                            isProcessing: isProcessingVoice,
+                            message: voiceStatusMessage,
+                            transcription: speechService.transcribedText
+                        )
+                        Spacer()
+                    }
+                }
             }
             .navigationTitle("Goals")
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    // Microphone button
+                    Button {
+                        toggleVoiceCommand()
+                    } label: {
+                        Image(systemName: isVoiceActive ? "mic.fill" : "mic")
+                            .font(.title3)
+                            .foregroundStyle(isVoiceActive ? Color.red : Color.themeAccent)
+                            .symbolEffect(.pulse, isActive: isVoiceActive)
+                    }
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         showingStats = true
@@ -55,6 +87,117 @@ struct GoalsView: View {
             .sheet(isPresented: $showingStats) {
                 AccountabilityStatsView()
             }
+        }
+    }
+
+    // MARK: - Voice Commands
+
+    private func toggleVoiceCommand() {
+        if isVoiceActive {
+            stopListeningAndProcess()
+        } else {
+            startListening()
+        }
+    }
+
+    private func startListening() {
+        do {
+            try speechService.startListening()
+            isVoiceActive = true
+            voiceStatusMessage = "Listening..."
+        } catch {
+            voiceStatusMessage = "Microphone error"
+            isVoiceActive = false
+        }
+    }
+
+    private func stopListeningAndProcess() {
+        speechService.stopListening()
+        isVoiceActive = false
+
+        let transcription = speechService.transcribedText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !transcription.isEmpty else {
+            voiceStatusMessage = ""
+            return
+        }
+
+        Task {
+            await processVoiceCommand(transcription)
+        }
+    }
+
+    private func processVoiceCommand(_ transcription: String) async {
+        voiceStatusMessage = "Processing..."
+        isProcessingVoice = true
+
+        do {
+            print("🎯 Goals voice command: \(transcription)")
+            let result = try await openAIService.processUserInput(transcription, apiKey: appState.claudeKey, personality: appState.selectedPersonality)
+
+            // Handle goals
+            if !result.goals.isEmpty {
+                for goal in result.goals {
+                    goalsService.addGoal(goal)
+                }
+                voiceStatusMessage = result.summary ?? "Goal added!"
+            }
+            // Handle goal operations
+            else if !result.goalOperations.isEmpty {
+                for op in result.goalOperations {
+                    handleGoalOperation(op)
+                }
+                voiceStatusMessage = result.summary ?? "Done!"
+            }
+            // Handle tasks/events/reminders too
+            else if !result.tasks.isEmpty || !result.events.isEmpty || !result.reminders.isEmpty {
+                let _ = try await calendarService.saveAllItems(from: result)
+                voiceStatusMessage = result.summary ?? "Items saved!"
+            }
+            else {
+                voiceStatusMessage = result.summary ?? "Got it!"
+            }
+
+            // Speak the response
+            if let summary = result.summary {
+                await AppDelegate.shared?.speakMessage(summary)
+            }
+
+            // Clear after delay
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                isProcessingVoice = false
+                voiceStatusMessage = ""
+            }
+
+        } catch {
+            voiceStatusMessage = "Error: \(error.localizedDescription)"
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                isProcessingVoice = false
+                voiceStatusMessage = ""
+            }
+        }
+    }
+
+    private func handleGoalOperation(_ op: GoalOperationDTO) {
+        switch op.action {
+        case "progress":
+            if let title = op.goalTitle, let goal = goalsService.goals.first(where: { $0.title.lowercased().contains(title.lowercased()) }) {
+                goalsService.recordProgress(goalId: goal.id)
+            }
+        case "complete_milestone":
+            if let title = op.goalTitle, let goal = goalsService.goals.first(where: { $0.title.lowercased().contains(title.lowercased()) }) {
+                let index = op.milestoneIndex ?? goal.currentMilestoneIndex
+                _ = goalsService.completeMilestone(goalId: goal.id, milestoneIndex: index)
+            }
+        case "pause":
+            if let title = op.goalTitle, let goal = goalsService.goals.first(where: { $0.title.lowercased().contains(title.lowercased()) }) {
+                goalsService.pauseGoal(id: goal.id)
+            }
+        case "resume":
+            if let title = op.goalTitle, let goal = goalsService.goals.first(where: { $0.title.lowercased().contains(title.lowercased()) }) {
+                goalsService.resumeGoal(id: goal.id)
+            }
+        default:
+            break
         }
     }
 

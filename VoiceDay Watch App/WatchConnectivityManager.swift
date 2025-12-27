@@ -1,6 +1,8 @@
 import Foundation
 import WatchConnectivity
+#if os(watchOS)
 import WatchKit
+#endif
 
 struct WatchTask: Identifiable, Codable {
     let id: UUID
@@ -113,6 +115,17 @@ extension WatchConnectivityManager: WCSessionDelegate {
         }
     }
 
+    #if os(iOS)
+    nonisolated func sessionDidBecomeInactive(_ session: WCSession) {
+        print("⌚ Session became inactive")
+    }
+
+    nonisolated func sessionDidDeactivate(_ session: WCSession) {
+        print("⌚ Session deactivated")
+        session.activate()
+    }
+    #endif
+
     // Receive messages from iPhone
     nonisolated func session(_ session: WCSession, didReceiveMessage message: [String : Any]) {
         Task { @MainActor in
@@ -145,7 +158,9 @@ extension WatchConnectivityManager: WCSessionDelegate {
                 if let taskData = message["task"] as? Data,
                    let task = try? JSONDecoder().decode(WatchTask.self, from: taskData) {
                     tasks.append(task)
+                    #if os(watchOS)
                     WKInterfaceDevice.current().play(.notification)
+                    #endif
                 }
 
             case "taskRemoved":
@@ -156,7 +171,9 @@ extension WatchConnectivityManager: WCSessionDelegate {
             case "speak":
                 if let text = message["text"] as? String {
                     WatchSpeechService.shared.speak(text)
+                    #if os(watchOS)
                     WKInterfaceDevice.current().play(.notification)
+                    #endif
                 }
 
             default:

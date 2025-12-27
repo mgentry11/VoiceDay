@@ -15,6 +15,13 @@ class NotificationService: ObservableObject {
         loadGeneratedMessages()
     }
 
+    /// Get the current personality's display name for notifications
+    private var personalityName: String {
+        let savedPersonality = UserDefaults.standard.string(forKey: "selected_personality") ?? ""
+        let personality = BotPersonality(rawValue: savedPersonality) ?? .pemberton
+        return personality.displayName
+    }
+
     // Track recently used messages to avoid repetition
     private var recentMessageIndices: [String: [Int]] = [:]
     private let maxRecentMessages = 10
@@ -524,7 +531,7 @@ class NotificationService: ObservableObject {
 
         let content = UNMutableNotificationContent()
         let message = getRandomMessage(from: allTaskMessages, category: "task")
-        content.title = "The Gadfly"
+        content.title = personalityName
         content.body = String(format: message, title)
         content.sound = .default
         content.categoryIdentifier = "TASK_REMINDER"
@@ -559,7 +566,7 @@ class NotificationService: ObservableObject {
     // Test notification - fires in 5 seconds
     func sendTestNotification() {
         let content = UNMutableNotificationContent()
-        content.title = "The Gadfly"
+        content.title = personalityName
         content.body = getRandomMessage(from: allNagMessages, category: "nag").replacingOccurrences(of: "%@", with: "test task")
         content.sound = .default
 
@@ -594,7 +601,7 @@ class NotificationService: ObservableObject {
         } else {
             message = String(format: getRandomMessage(from: eventReminderMessages, category: "event"), title) // events don't use generated messages
         }
-        content.title = "The Gadfly"
+        content.title = personalityName
         content.body = message
         content.sound = .default
         content.categoryIdentifier = "EVENT_REMINDER"
@@ -631,7 +638,7 @@ class NotificationService: ObservableObject {
     ) {
         let content = UNMutableNotificationContent()
         let message = getRandomMessage(from: allNagMessages, category: "nag")
-        content.title = "The Gadfly (Again)"
+        content.title = "\(personalityName) (Again)"
         content.body = String(format: message, title)
         content.sound = .default
         content.categoryIdentifier = "NAG_REMINDER"
@@ -678,7 +685,7 @@ class NotificationService: ObservableObject {
 
         for (index, time) in times.enumerated() {
             let content = UNMutableNotificationContent()
-            content.title = "The Gadfly"
+            content.title = personalityName
             content.body = messages[index % messages.count]
             content.sound = .default
             content.categoryIdentifier = "TASK_REMINDER"
@@ -817,11 +824,14 @@ class NotificationService: ObservableObject {
             messages.append(getRandomMessage(from: allFocusMessages, category: "focus"))
         }
 
+        // Capture personality name before the closure
+        let notificationTitle = personalityName
+
         // Schedule on background thread to avoid blocking
         DispatchQueue.global(qos: .utility).async {
             for i in 1...maxCheckIns {
                 let content = UNMutableNotificationContent()
-                content.title = "The Gadfly"
+                content.title = notificationTitle
                 content.body = messages[i - 1]
                 if taskCount > 0 {
                     content.body += " (\(taskCount) tasks pending)"
@@ -893,11 +903,14 @@ class NotificationService: ObservableObject {
             messages.append(getRandomMessage(from: allFocusMessages, category: "focus"))
         }
 
+        // Capture personality name before the closure
+        let notificationTitle = personalityName
+
         DispatchQueue.global(qos: .utility).async {
             for i in 0..<count {
                 let checkInNumber = startingFrom + i
                 let content = UNMutableNotificationContent()
-                content.title = "The Gadfly"
+                content.title = notificationTitle
                 content.body = messages[i]
                 if taskCount > 0 {
                     content.body += " (\(taskCount) tasks pending)"
@@ -942,6 +955,12 @@ class NotificationService: ObservableObject {
                 .map { $0.identifier }
             self.center.removePendingNotificationRequests(withIdentifiers: idsToRemove)
         }
+    }
+
+    /// Cancel ALL pending notifications (for personality change or testing)
+    func cancelAllNotifications() {
+        center.removeAllPendingNotificationRequests()
+        print("🔔 All pending notifications cancelled")
     }
 
     var isFocusSessionActive: Bool {
@@ -1052,7 +1071,7 @@ class NotificationService: ObservableObject {
 
     private let goalReminderMessages = [
         "Morning check-in: Your goal '%@' awaits. %@ of daily commitment builds excellence.",
-        "The Gadfly reminds you: '%@' requires attention today. Aristotle's virtuous habits begin now.",
+        "Reminder: '%@' requires attention today. Small daily habits build great results.",
         "Goal update: '%@' is scheduled for today. %@ will move you closer to mastery.",
         "Daily reminder: Your pursuit of '%@' continues. Every session compounds into achievement.",
         "Scheduled focus time for '%@' approaches. The examined life requires examination.",
@@ -1110,7 +1129,7 @@ class NotificationService: ObservableObject {
         // Schedule break mode end notification
         let content = UNMutableNotificationContent()
         content.title = "Break Over"
-        content.body = "Your break is over. The Gadfly returns, ready to nag you about your tasks."
+        content.body = "Your break is over. \(personalityName) is back to help you stay on track!"
         content.sound = .default
         content.userInfo = ["type": "break_mode_end"]
 
