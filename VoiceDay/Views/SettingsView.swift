@@ -76,6 +76,9 @@ struct SettingsView: View {
                     // About and Legal (always visible)
                     aboutSection
                     legalSection
+
+                    // Reset App (always visible at bottom)
+                    resetAppSection
                 }
                 .scrollContentBackground(.hidden)
                 .background(Color.themeBackground)
@@ -1519,6 +1522,41 @@ struct SettingsView: View {
             }
         } footer: {
             Text("Your data is stored securely. You can delete your account and all associated data at any time.")
+        }
+    }
+
+    private var resetAppSection: some View {
+        Section {
+            Button {
+                restartFromBeginning()
+            } label: {
+                HStack {
+                    Image(systemName: "arrow.counterclockwise")
+                        .foregroundStyle(.blue)
+                    Text("Restart from Beginning")
+                        .foregroundStyle(.primary)
+                    Spacer()
+                }
+            }
+        } header: {
+            HStack {
+                Image(systemName: "arrow.triangle.2.circlepath")
+                    .foregroundStyle(.blue)
+                Text("Restart")
+            }
+        } footer: {
+            Text("Go back to onboarding to change voice, personality, or mode.")
+        }
+    }
+
+    private func restartFromBeginning() {
+        // Just reset onboarding flag - keeps all other settings
+        UserDefaults.standard.set(false, forKey: "has_completed_onboarding")
+        UserDefaults.standard.synchronize()
+
+        // Force app to restart
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            exit(0)
         }
     }
 

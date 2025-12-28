@@ -607,6 +607,12 @@ class AppState: ObservableObject {
         didSet { UserDefaults.standard.set(autoSuggestBreaks, forKey: "auto_suggest_breaks") }
     }
 
+    // MARK: - Onboarding Triggers (not persisted)
+
+    @Published var triggerMorningChecklist = false
+    @Published var triggerEveningChecklist = false
+    @Published var triggerMiddayChecklist = false
+
     // MARK: - User Profile
 
     @Published var userName: String {

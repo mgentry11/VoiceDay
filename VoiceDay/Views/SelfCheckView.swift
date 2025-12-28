@@ -272,6 +272,7 @@ struct SelfCheckView: View {
 
 struct SelfCheckSettingsView: View {
     @ObservedObject private var service = SelfCheckService.shared
+    @State private var showAddCustomItem = false
 
     var body: some View {
         Form {
@@ -282,6 +283,55 @@ struct SelfCheckSettingsView: View {
             }
 
             if service.isEnabled {
+                // Custom items section
+                if !service.customItems.isEmpty {
+                    Section {
+                        ForEach(service.customItems) { item in
+                            HStack {
+                                Toggle(isOn: Binding(
+                                    get: { service.enabledItems.contains(item.id) },
+                                    set: { _ in service.toggleItem(item.id) }
+                                )) {
+                                    HStack {
+                                        Image(systemName: item.icon)
+                                            .foregroundStyle(.green)
+                                            .frame(width: 24)
+                                        VStack(alignment: .leading) {
+                                            Text(item.name)
+                                            Text(item.question)
+                                                .font(.caption)
+                                                .foregroundStyle(.secondary)
+                                        }
+                                    }
+                                }
+                            }
+                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                Button(role: .destructive) {
+                                    service.removeCustomItem(item.id)
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
+                            }
+                        }
+                    } header: {
+                        Text("Your Custom Items")
+                    }
+                }
+
+                // Add custom item button
+                Section {
+                    Button {
+                        showAddCustomItem = true
+                    } label: {
+                        HStack {
+                            Image(systemName: "plus.circle.fill")
+                                .foregroundStyle(.green)
+                            Text("Add Custom Item")
+                                .foregroundStyle(.primary)
+                        }
+                    }
+                }
+
                 Section {
                     ForEach(SelfCheckService.allItems) { item in
                         Toggle(isOn: Binding(
@@ -297,7 +347,7 @@ struct SelfCheckSettingsView: View {
                         }
                     }
                 } header: {
-                    Text("Items to Check")
+                    Text("Preset Items")
                 }
             }
         }
@@ -305,6 +355,113 @@ struct SelfCheckSettingsView: View {
         .background(Color.themeBackground)
         .navigationTitle("End-of-Day Check")
         .navigationBarTitleDisplayMode(.inline)
+        .sheet(isPresented: $showAddCustomItem) {
+            AddCustomCheckItemView()
+        }
+    }
+}
+
+// MARK: - Add Custom Item View
+
+struct AddCustomCheckItemView: View {
+    @Environment(\.dismiss) private var dismiss
+
+    @State private var name: String = ""
+    @State private var question: String = ""
+    @State private var selectedIcon: String = "star.fill"
+
+    var body: some View {
+        NavigationStack {
+            VStack(spacing: 0) {
+                // Text input section
+                VStack(alignment: .leading, spacing: 16) {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Item Name")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        TextField("e.g., Back Door", text: $name)
+                            .textFieldStyle(.roundedBorder)
+                            .textInputAutocapitalization(.words)
+                            .autocorrectionDisabled()
+                    }
+
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Question to ask")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        TextField("e.g., Did you lock the back door?", text: $question)
+                            .textFieldStyle(.roundedBorder)
+                            .textInputAutocapitalization(.sentences)
+                    }
+                }
+                .padding()
+
+                Divider()
+
+                // Icon picker
+                IconPickerGrid(selectedIcon: $selectedIcon)
+            }
+            .background(Color.themeBackground)
+            .navigationTitle("Add Custom Item")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Add") {
+                        addItem()
+                    }
+                    .disabled(name.isEmpty)
+                }
+            }
+        }
+    }
+
+    private func addItem() {
+        let finalQuestion = question.isEmpty ? "Did you check \(name.lowercased())?" : question
+        // Access service directly only when adding - no observation needed
+        SelfCheckService.shared.addCustomItem(name: name, question: finalQuestion, icon: selectedIcon)
+        dismiss()
+    }
+}
+
+// Separate view for icon picker to prevent re-renders when typing
+private struct IconPickerGrid: View {
+    @Binding var selectedIcon: String
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Choose Icon")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .padding(.horizontal)
+                    .padding(.top, 12)
+
+                LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 6), spacing: 12) {
+                    ForEach(SelfCheckService.customItemIcons, id: \.icon) { iconInfo in
+                        Button {
+                            selectedIcon = iconInfo.icon
+                        } label: {
+                            Image(systemName: iconInfo.icon)
+                                .font(.system(size: 22))
+                                .foregroundStyle(selectedIcon == iconInfo.icon ? .green : .secondary)
+                                .frame(width: 40, height: 40)
+                                .background(
+                                    Circle()
+                                        .fill(selectedIcon == iconInfo.icon ? Color.green.opacity(0.2) : Color.clear)
+                                )
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                .padding(.horizontal)
+                .padding(.bottom, 20)
+            }
+        }
     }
 }
 

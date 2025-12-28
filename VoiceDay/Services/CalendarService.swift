@@ -178,6 +178,12 @@ class CalendarService: ObservableObject {
         try eventStore.remove(reminder, commit: true)
     }
 
+    func completeReminder(_ reminder: EKReminder) async throws {
+        reminder.isCompleted = true
+        reminder.completionDate = Date()
+        try eventStore.save(reminder, commit: true)
+    }
+
     // MARK: - Push Task to Later/Tomorrow
 
     /// Push a task to tomorrow morning (9 AM)

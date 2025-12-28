@@ -11,13 +11,21 @@ struct ContentView: View {
     @State private var checkoutLocation: LocationService.SavedLocation?
     @State private var showVoiceSetup = false
     @State private var voicesLoaded = false
+    @State private var loadedVoices: [ElevenLabsService.Voice] = []
 
-    // Check if onboarding should show
+    // Check if onboarding should show - show if no voice selected
     private var needsOnboarding: Bool {
         let hasApiKey = !appState.elevenLabsKey.isEmpty
-        let hasCompletedOnboarding = UserDefaults.standard.bool(forKey: "has_completed_onboarding")
-        // Show onboarding if has API key but hasn't completed onboarding
-        return hasApiKey && !hasCompletedOnboarding
+        let hasVoice = !appState.selectedVoiceId.isEmpty
+        let completedOnboarding = UserDefaults.standard.bool(forKey: "has_completed_onboarding")
+        // Show onboarding if has API key but no voice selected AND not completed
+        let shouldShow = hasApiKey && (!hasVoice || !completedOnboarding)
+        print("🎯 needsOnboarding CHECK:")
+        print("   hasApiKey: \(hasApiKey)")
+        print("   hasVoice: \(hasVoice) (id: '\(appState.selectedVoiceId)')")
+        print("   completedOnboarding: \(completedOnboarding)")
+        print("   shouldShow: \(shouldShow)")
+        return shouldShow
     }
 
     var body: some View {
@@ -56,22 +64,28 @@ struct ContentView: View {
         .tint(themeColors.accent)
         .id(themeColors.currentTheme.rawValue) // Force rebuild when theme changes
         .onAppear {
+            print("🚀 ContentView onAppear - voiceId: '\(appState.selectedVoiceId)'")
             if !appState.hasValidClaudeKey {
                 appState.selectedTab = 4  // Settings tab
             }
-            // Show onboarding if needed
-            if needsOnboarding && !voicesLoaded {
-                Task {
-                    await loadVoicesAndShowPicker()
+            // Show onboarding if needed - with slight delay for appState to settle
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                print("🚀 Checking onboarding - needsOnboarding: \(needsOnboarding), voicesLoaded: \(voicesLoaded)")
+                if needsOnboarding && !voicesLoaded {
+                    Task {
+                        await loadVoicesAndShowPicker()
+                    }
                 }
             }
         }
-        // Voice setup sheet - shows immediately if no voice selected
-        .sheet(isPresented: $showVoiceSetup) {
+        // Voice setup - FULL SCREEN to ensure it shows first
+        .fullScreenCover(isPresented: $showVoiceSetup) {
             VoiceSetupView(
-                voices: elevenLabsService.availableVoices,
+                voices: loadedVoices,
                 onComplete: {
                     showVoiceSetup = false
+                    // Mark onboarding complete
+                    UserDefaults.standard.set(true, forKey: "has_completed_onboarding")
                 }
             )
             .environmentObject(appState)
@@ -109,13 +123,24 @@ struct ContentView: View {
 
     private func loadVoicesAndShowPicker() async {
         voicesLoaded = true
+        print("🎤 Loading voices for onboarding... API key: \(appState.elevenLabsKey.prefix(10))...")
         do {
-            _ = try await elevenLabsService.fetchVoices(apiKey: appState.elevenLabsKey)
+            let voices = try await elevenLabsService.fetchVoices(apiKey: appState.elevenLabsKey)
+            print("🎤 Loaded \(voices.count) voices:")
+            for voice in voices.prefix(5) {
+                print("   - \(voice.name) (\(voice.voice_id))")
+            }
             await MainActor.run {
+                loadedVoices = voices
                 showVoiceSetup = true
             }
         } catch {
             print("❌ Failed to load voices: \(error)")
+            // Still show the setup sheet with empty state
+            await MainActor.run {
+                loadedVoices = []
+                showVoiceSetup = true
+            }
         }
     }
 }
@@ -129,14 +154,16 @@ struct VoiceSetupView: View {
     @EnvironmentObject var appState: AppState
     @Environment(\.dismiss) private var dismiss
 
-    @State private var currentStep = 0 // 0: Voice, 1: Personality, 2: Start Choice
+    // 0: Voice, 1: Personality, 2: Daily Structure, 3: Nagging Level, 4: Start Choice
+    @State private var currentStep = 0
+    private let totalSteps = 5
 
     var body: some View {
         NavigationStack {
             VStack {
                 // Progress indicator
                 HStack(spacing: 8) {
-                    ForEach(0..<3) { step in
+                    ForEach(0..<totalSteps, id: \.self) { step in
                         Capsule()
                             .fill(step <= currentStep ? Color.green : Color.gray.opacity(0.3))
                             .frame(height: 4)
@@ -144,6 +171,19 @@ struct VoiceSetupView: View {
                 }
                 .padding(.horizontal)
                 .padding(.top)
+
+                // Step labels
+                HStack {
+                    Text(stepLabel)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    Text("\(currentStep + 1) of \(totalSteps)")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                .padding(.horizontal)
+                .padding(.top, 4)
 
                 // Step content
                 switch currentStep {
@@ -156,7 +196,16 @@ struct VoiceSetupView: View {
                         withAnimation { currentStep = 2 }
                     }
                 case 2:
+                    DailyStructureStep {
+                        withAnimation { currentStep = 3 }
+                    }
+                case 3:
+                    NaggingLevelStep {
+                        withAnimation { currentStep = 4 }
+                    }
+                case 4:
                     StartChoiceStep {
+                        DayStructureService.shared.hasCompletedSetup = true
                         onComplete()
                         dismiss()
                     }
@@ -178,6 +227,17 @@ struct VoiceSetupView: View {
             }
         }
     }
+
+    private var stepLabel: String {
+        switch currentStep {
+        case 0: return "Voice"
+        case 1: return "Personality"
+        case 2: return "Daily Structure"
+        case 3: return "Reminders"
+        case 4: return "Get Started"
+        default: return ""
+        }
+    }
 }
 
 // MARK: - Step 1: Voice Selection
@@ -189,6 +249,12 @@ struct VoiceSelectionStep: View {
     @EnvironmentObject var appState: AppState
     @StateObject private var elevenLabsService = ElevenLabsService()
     @State private var playingVoiceId: String?
+    @State private var localVoices: [ElevenLabsService.Voice] = []
+    @State private var isLoading = false
+    @State private var errorMessage: String?
+    @State private var selectedId: String = "" // Local tracking for UI
+
+    @State private var showQuickStart = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -208,12 +274,75 @@ struct VoiceSelectionStep: View {
             }
             .padding(.vertical, 20)
 
+            // Quick Start option
+            Button {
+                quickStart()
+            } label: {
+                HStack(spacing: 12) {
+                    Image(systemName: "bolt.fill")
+                        .foregroundStyle(.yellow)
+                    Text("Quick Start with Defaults")
+                        .font(.headline)
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                        .foregroundStyle(.secondary)
+                }
+                .padding()
+                .background(Color(.systemGray6))
+                .cornerRadius(12)
+            }
+            .padding(.horizontal)
+            .padding(.bottom, 8)
+
             // Voice list
             List {
-                ForEach(voices) { voice in
-                    Button {
-                        selectAndPreview(voice)
-                    } label: {
+                if isLoading {
+                    VStack(spacing: 16) {
+                        ProgressView()
+                            .scaleEffect(1.5)
+                        Text("Loading voices...")
+                            .font(.headline)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 40)
+                } else if displayVoices.isEmpty {
+                    VStack(spacing: 16) {
+                        Image(systemName: "exclamationmark.triangle")
+                            .font(.largeTitle)
+                            .foregroundStyle(.orange)
+                        Text("No voices loaded")
+                            .font(.headline)
+                        if let error = errorMessage {
+                            Text(error)
+                                .font(.caption)
+                                .foregroundStyle(.red)
+                                .multilineTextAlignment(.center)
+                        } else {
+                            Text("Check your internet connection")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                                .multilineTextAlignment(.center)
+                        }
+
+                        Button {
+                            loadVoices()
+                        } label: {
+                            HStack {
+                                Image(systemName: "arrow.clockwise")
+                                Text("Retry")
+                            }
+                            .font(.headline)
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 24)
+                            .padding(.vertical, 12)
+                            .background(Color.blue)
+                            .cornerRadius(10)
+                        }
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 40)
+                } else {
+                    ForEach(displayVoices) { voice in
                         HStack {
                             VStack(alignment: .leading, spacing: 4) {
                                 Text(voice.name)
@@ -231,20 +360,35 @@ struct VoiceSelectionStep: View {
 
                             if playingVoiceId == voice.voice_id {
                                 ProgressView()
-                            } else if appState.selectedVoiceId == voice.voice_id {
+                            } else if selectedId == voice.voice_id {
                                 Image(systemName: "checkmark.circle.fill")
                                     .foregroundStyle(.green)
                                     .font(.title2)
                             }
                         }
-                        .padding(.vertical, 6)
+                        .padding(.vertical, 10)
+                        .padding(.horizontal, 4)
+                        .contentShape(Rectangle()) // Make entire row tappable
+                        .onTapGesture {
+                            print("👆 TAPPED: \(voice.name)")
+                            selectAndPreview(voice)
+                        }
                     }
                 }
             }
             .listStyle(.plain)
+            .onAppear {
+                print("🎤 VoiceSelectionStep appeared with \(voices.count) passed voices")
+                // Use passed voices or load if empty
+                if voices.isEmpty && localVoices.isEmpty {
+                    loadVoices()
+                } else if !voices.isEmpty {
+                    localVoices = voices
+                }
+            }
 
             // Continue button
-            if !appState.selectedVoiceId.isEmpty {
+            if !selectedId.isEmpty {
                 Button(action: onNext) {
                     Text("Next: Choose Personality")
                         .font(.headline)
@@ -259,21 +403,96 @@ struct VoiceSelectionStep: View {
         }
     }
 
+    // Use local voices if loaded, otherwise passed voices
+    private var displayVoices: [ElevenLabsService.Voice] {
+        localVoices.isEmpty ? voices : localVoices
+    }
+
+    private func loadVoices() {
+        isLoading = true
+        errorMessage = nil
+        print("🎤 VoiceSelectionStep: Loading voices directly...")
+
+        Task {
+            do {
+                let loadedVoices = try await elevenLabsService.fetchVoices(apiKey: appState.elevenLabsKey)
+                print("🎤 VoiceSelectionStep: Loaded \(loadedVoices.count) voices")
+                await MainActor.run {
+                    localVoices = loadedVoices
+                    isLoading = false
+                }
+            } catch {
+                print("❌ VoiceSelectionStep: Failed to load voices: \(error)")
+                await MainActor.run {
+                    errorMessage = error.localizedDescription
+                    isLoading = false
+                }
+            }
+        }
+    }
+
     private func selectAndPreview(_ voice: ElevenLabsService.Voice) {
+        print("🎤🎤🎤 SELECTING VOICE: \(voice.name) (\(voice.voice_id))")
+        print("🎤🎤🎤 API Key available: \(!appState.elevenLabsKey.isEmpty)")
+        print("🎤🎤🎤 API Key prefix: \(appState.elevenLabsKey.prefix(10))...")
+
+        // Update local state FIRST for immediate UI feedback
+        selectedId = voice.voice_id
+        playingVoiceId = voice.voice_id
+
+        // Then update appState and UserDefaults
         appState.selectedVoiceId = voice.voice_id
         appState.selectedVoiceName = voice.name
-        playingVoiceId = voice.voice_id
+        UserDefaults.standard.set(voice.voice_id, forKey: "selected_voice_id")
+        UserDefaults.standard.set(voice.name, forKey: "selected_voice_name")
+        UserDefaults.standard.synchronize()
+
+        print("🎤🎤🎤 Saved to UserDefaults, now speaking...")
 
         Task {
             do {
                 try await elevenLabsService.speak("Hello! This is how I sound.", apiKey: appState.elevenLabsKey, voiceId: voice.voice_id)
+                print("🎤🎤🎤 Preview COMPLETE!")
             } catch {
-                print("❌ Voice preview failed: \(error)")
+                print("❌❌❌ Voice preview FAILED: \(error)")
+                print("❌❌❌ Error details: \(error.localizedDescription)")
             }
             await MainActor.run {
                 playingVoiceId = nil
             }
         }
+    }
+
+    /// Quick Start with sensible defaults - skips to main app
+    private func quickStart() {
+        // Set defaults
+        if let firstVoice = displayVoices.first {
+            appState.selectedVoiceId = firstVoice.voice_id
+            appState.selectedVoiceName = firstVoice.name
+            UserDefaults.standard.set(firstVoice.voice_id, forKey: "selected_voice_id")
+            UserDefaults.standard.set(firstVoice.name, forKey: "selected_voice_name")
+        }
+
+        // Default personality (Cheerleader - positive energy)
+        appState.selectedPersonality = .cheerleader
+
+        // Default to Simple mode
+        appState.isSimpleMode = true
+
+        // Use default day structure and nagging settings
+        DayStructureService.shared.resetToDefaults()
+        NaggingLevelService.shared.resetToDefaults()
+
+        // Mark setup complete
+        DayStructureService.shared.hasCompletedSetup = true
+        UserDefaults.standard.set(true, forKey: "has_completed_onboarding")
+        UserDefaults.standard.synchronize()
+
+        // Speak welcome and go to main app
+        SpeechService.shared.queueSpeech("Welcome! I'm Sunny, and I'm here to help you have a great day! Let's get started.")
+
+        // Skip to main app - dismiss the onboarding
+        onNext() // This will trigger completion
     }
 }
 
@@ -285,6 +504,16 @@ struct PersonalitySelectionStep: View {
     @EnvironmentObject var appState: AppState
     @StateObject private var elevenLabsService = ElevenLabsService()
     @State private var isPlaying = false
+    @State private var showAllPersonalities = false
+
+    // 5 Core archetypes for Simple mode
+    private var displayedPersonalities: [BotPersonality] {
+        if showAllPersonalities || !appState.isSimpleMode {
+            return Array(BotPersonality.allCases)
+        } else {
+            return BotPersonality.corePersonalities
+        }
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -305,37 +534,65 @@ struct PersonalitySelectionStep: View {
 
             // Personality list
             List {
-                ForEach(BotPersonality.allCases) { personality in
-                    Button {
-                        selectPersonality(personality)
-                    } label: {
-                        HStack(spacing: 12) {
-                            Text(personality.emoji)
-                                .font(.title2)
+                // Core personalities section
+                Section {
+                    ForEach(displayedPersonalities) { personality in
+                        Button {
+                            selectPersonality(personality)
+                        } label: {
+                            HStack(spacing: 12) {
+                                Text(personality.emoji)
+                                    .font(.title2)
 
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text(personality.displayName)
-                                    .font(.headline)
-                                    .foregroundStyle(.primary)
-                                Text(personality.shortDescription)
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                                    .lineLimit(1)
-                            }
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(personality.displayName)
+                                        .font(.headline)
+                                        .foregroundStyle(.primary)
+                                    Text(personality.shortDescription)
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                        .lineLimit(1)
+                                }
 
-                            Spacer()
+                                Spacer()
 
-                            if appState.selectedPersonality == personality {
-                                if isPlaying {
-                                    ProgressView()
-                                } else {
-                                    Image(systemName: "checkmark.circle.fill")
-                                        .foregroundStyle(.green)
-                                        .font(.title2)
+                                if appState.selectedPersonality == personality {
+                                    if isPlaying {
+                                        ProgressView()
+                                    } else {
+                                        Image(systemName: "checkmark.circle.fill")
+                                            .foregroundStyle(.green)
+                                            .font(.title2)
+                                    }
                                 }
                             }
+                            .padding(.vertical, 4)
                         }
-                        .padding(.vertical, 4)
+                    }
+                } header: {
+                    if showAllPersonalities {
+                        Text("All Personalities")
+                    }
+                }
+
+                // Show more button (only in Simple mode when not expanded)
+                if appState.isSimpleMode && !showAllPersonalities {
+                    Section {
+                        Button {
+                            withAnimation {
+                                showAllPersonalities = true
+                            }
+                        } label: {
+                            HStack {
+                                Image(systemName: "ellipsis.circle")
+                                    .foregroundStyle(.blue)
+                                Text("Show 10 more personalities...")
+                                    .foregroundStyle(.blue)
+                                Spacer()
+                                Image(systemName: "chevron.down")
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
                     }
                 }
             }
@@ -343,7 +600,7 @@ struct PersonalitySelectionStep: View {
 
             // Continue button
             Button(action: onNext) {
-                Text("Next: Where to Start")
+                Text("Next: Daily Structure")
                     .font(.headline)
                     .foregroundStyle(.white)
                     .frame(maxWidth: .infinity)
@@ -356,13 +613,16 @@ struct PersonalitySelectionStep: View {
     }
 
     private func selectPersonality(_ personality: BotPersonality) {
+        print("🎭 Selected personality: \(personality.displayName)")
         appState.selectedPersonality = personality
         isPlaying = true
 
         Task {
             let greeting = personality.introGreeting
+            print("🎭 Speaking personality intro: \(greeting.prefix(50))...")
             do {
                 try await elevenLabsService.speak(greeting, apiKey: appState.elevenLabsKey, voiceId: appState.selectedVoiceId)
+                print("🎭 Personality preview complete!")
             } catch {
                 print("❌ Personality preview failed: \(error)")
             }
@@ -381,6 +641,8 @@ struct StartChoiceStep: View {
     @EnvironmentObject var appState: AppState
     @StateObject private var elevenLabsService = ElevenLabsService()
     @State private var selectedMode: AppMode = .simple
+    @State private var showBedtimeChecklist = false
+    @State private var showSettings = false
 
     enum AppMode {
         case simple, pro
@@ -571,6 +833,19 @@ struct StartChoiceStep: View {
                     }
                     .padding(.horizontal)
 
+                    // Bedtime checklist option
+                    Button {
+                        startWithBedtimeChecklist()
+                    } label: {
+                        startOptionRow(
+                            icon: "moon.stars.fill",
+                            color: .indigo,
+                            title: "Bedtime Checklist",
+                            subtitle: "Make sure you're ready for tomorrow"
+                        )
+                    }
+                    .padding(.horizontal)
+
                     // Record option
                     Button {
                         startWithRecord()
@@ -583,11 +858,42 @@ struct StartChoiceStep: View {
                         )
                     }
                     .padding(.horizontal)
+
+                    // Settings option
+                    Button {
+                        showSettings = true
+                    } label: {
+                        startOptionRow(
+                            icon: "gearshape.fill",
+                            color: .gray,
+                            title: "Settings",
+                            subtitle: "Configure app preferences"
+                        )
+                    }
+                    .padding(.horizontal)
                 }
 
                 Spacer(minLength: 40)
             }
         }
+        .onAppear {
+            // Set Simple mode by default since it's pre-selected
+            appState.isSimpleMode = true
+            print("🎯 StartChoiceStep: Simple mode set by default")
+        }
+        .fullScreenCover(isPresented: $showBedtimeChecklist) {
+            SelfCheckView()
+        }
+        .sheet(isPresented: $showSettings) {
+            SettingsView()
+                .environmentObject(appState)
+        }
+    }
+
+    private func startWithBedtimeChecklist() {
+        // Mark onboarding as complete and show bedtime checklist
+        UserDefaults.standard.set(true, forKey: "has_completed_onboarding")
+        showBedtimeChecklist = true
     }
 
     private func startOptionRow(icon: String, color: Color, title: String, subtitle: String) -> some View {
@@ -617,18 +923,26 @@ struct StartChoiceStep: View {
     }
 
     private func startWithMorningCheckIn() {
-        // Navigate to Focus tab - morning checklist button is there
-        speakAndComplete("Let's start your day! Tap the sunrise button for your morning check-in.")
+        // Set trigger so FocusHomeView opens the morning checklist automatically
+        // Don't speak here - the checklist will speak its own greeting
+        appState.triggerMorningChecklist = true
+        completeOnboardingOnly()
         appState.selectedTab = 0
     }
 
     private func startWithMiddayCheckIn() {
-        speakAndComplete("Time for a quick focus reset! Let's check in on your progress.")
+        // Set trigger so FocusHomeView opens the midday check-in
+        // Don't speak here - the checklist will speak its own greeting
+        appState.triggerMiddayChecklist = true
+        completeOnboardingOnly()
         appState.selectedTab = 0
     }
 
     private func startWithEveningCheckIn() {
-        speakAndComplete("Time to reflect! Tap the moon button for your evening check-in.")
+        // Set trigger so FocusHomeView opens the evening check-in automatically
+        // Don't speak here - the checklist will speak its own greeting
+        appState.triggerEveningChecklist = true
+        completeOnboardingOnly()
         appState.selectedTab = 0
     }
 
@@ -663,6 +977,12 @@ struct StartChoiceStep: View {
                 print("❌ Start message failed: \(error)")
             }
         }
+        onComplete()
+    }
+
+    private func completeOnboardingOnly() {
+        // Mark onboarding as complete without speaking (checklist will speak)
+        UserDefaults.standard.set(true, forKey: "has_completed_onboarding")
         onComplete()
     }
 }

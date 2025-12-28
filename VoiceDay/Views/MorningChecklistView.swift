@@ -293,7 +293,7 @@ struct MorningChecklistView: View {
                         if isLoading {
                             ProgressView("Loading calendar...")
                         } else if events.isEmpty {
-                            VStack(spacing: 12) {
+                            VStack(spacing: 20) {
                                 Image(systemName: "calendar.badge.checkmark")
                                     .font(.system(size: 50))
                                     .foregroundStyle(themeColors.accent)
@@ -303,6 +303,36 @@ struct MorningChecklistView: View {
                                 Text("Your day is wide open")
                                     .font(.subheadline)
                                     .foregroundStyle(themeColors.subtext)
+
+                                // Action buttons for empty calendar
+                                VStack(spacing: 12) {
+                                    Button {
+                                        startAddingNew()
+                                    } label: {
+                                        HStack {
+                                            Image(systemName: "plus.circle.fill")
+                                            Text("Add something to my day")
+                                        }
+                                        .font(.headline)
+                                        .foregroundStyle(.white)
+                                        .frame(maxWidth: .infinity)
+                                        .padding(.vertical, 14)
+                                        .background(themeColors.accent)
+                                        .cornerRadius(12)
+                                    }
+
+                                    Button {
+                                        dismiss()
+                                    } label: {
+                                        HStack {
+                                            Image(systemName: "checkmark.circle")
+                                            Text("Continue - I'm good!")
+                                        }
+                                        .font(.subheadline)
+                                        .foregroundStyle(themeColors.accent)
+                                    }
+                                }
+                                .padding(.horizontal)
                             }
                             .padding()
                         } else if isAskingToAddNew {
@@ -733,8 +763,8 @@ struct MorningChecklistView: View {
                     try speechService.startListening()
                     isListeningForResponse = true
 
-                    // Auto-stop after 4 seconds
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
+                    // Auto-stop after 15 seconds (give user time to speak)
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 15) {
                         if isListeningForResponse {
                             stopListeningAndProcessResponse()
                         }
@@ -997,19 +1027,29 @@ struct MorningChecklistView: View {
             if isListening {
                 stopListeningAndProcess()
             } else {
-                do {
-                    try speechService.startListening()
-                    isListening = true
-                    SpeechService.shared.queueSpeech("What would you like to add to your calendar?")
-
-                    // Auto-stop after 5 seconds
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
-                        if isListening {
-                            stopListeningAndProcess()
+                // Speak prompt FIRST, then start listening after speech finishes
+                Task {
+                    do {
+                        // Speak the prompt
+                        let apiKey = KeychainService.load(key: "elevenlabs_api_key") ?? ""
+                        let voiceId = UserDefaults.standard.string(forKey: "selected_voice_id") ?? ""
+                        if !apiKey.isEmpty {
+                            let service = ElevenLabsService()
+                            try await service.speakWithBestVoice("What would you like to add to your calendar?", apiKey: apiKey, selectedVoiceId: voiceId)
                         }
+
+                        // Now start listening
+                        await MainActor.run {
+                            do {
+                                try speechService.startListening()
+                                isListening = true
+                            } catch {
+                                print("Failed to start listening: \(error)")
+                            }
+                        }
+                    } catch {
+                        print("Failed to speak prompt: \(error)")
                     }
-                } catch {
-                    print("Failed to start listening: \(error)")
                 }
             }
         }
@@ -1216,6 +1256,10 @@ struct MorningChecklistView: View {
         @State private var isProcessingNewTask = false
         @State private var newTaskText = ""
 
+        // Task detail view
+        @State private var showTaskDetail = false
+        @State private var taskToView: EKReminder?
+
         private var currentTask: EKReminder? {
             guard currentTaskIndex < reminders.count else { return nil }
             return reminders[currentTaskIndex]
@@ -1383,13 +1427,34 @@ struct MorningChecklistView: View {
                 priorityBadge(for: task)
                     .scaleEffect(1.5)
 
-                // Task title
-                Text(task.title ?? "Untitled")
-                    .font(.title2)
-                    .fontWeight(.bold)
-                    .foregroundStyle(themeColors.text)
-                    .multilineTextAlignment(.center)
+                // Task title - tappable for details
+                Button {
+                    taskToView = task
+                    showTaskDetail = true
+                } label: {
+                    VStack(spacing: 8) {
+                        Text(task.title ?? "Untitled")
+                            .font(.title2)
+                            .fontWeight(.bold)
+                            .foregroundStyle(themeColors.text)
+                            .multilineTextAlignment(.center)
+
+                        // Show notes preview if available
+                        if let notes = task.notes, !notes.isEmpty {
+                            Text(notes)
+                                .font(.subheadline)
+                                .foregroundStyle(themeColors.subtext)
+                                .lineLimit(2)
+                                .multilineTextAlignment(.center)
+                        }
+
+                        // Tap hint
+                        Text("Tap for details")
+                            .font(.caption2)
+                            .foregroundStyle(themeColors.subtext.opacity(0.6))
+                    }
                     .padding(.horizontal)
+                }
 
                 // Due date if any
                 if let dueDate = task.dueDateComponents?.date {
@@ -1448,16 +1513,53 @@ struct MorningChecklistView: View {
                 }
                 .padding(.bottom, 16)
 
-                // Pro mode only - Priority buttons, Scheduling buttons, Navigation buttons
-                if !appState.isSimpleMode {
-                    // Priority buttons
-                    HStack(spacing: 12) {
-                        priorityButton(1, "URGENT", .red, task)
-                        priorityButton(2, "IMPORT", .orange, task)
-                        priorityButton(3, "LATER", .yellow, task)
-                        priorityButton(4, "TMRW", .blue, task)
+                // Priority buttons - show in BOTH Simple and Pro mode
+                HStack(spacing: 12) {
+                    priorityButton(1, "URGENT", .red, task)
+                    priorityButton(2, "IMPORT", .orange, task)
+                    priorityButton(3, "LATER", .yellow, task)
+                    priorityButton(4, "TMRW", .blue, task)
+                }
+                .padding(.horizontal)
+
+                // Navigation buttons - show in BOTH Simple and Pro mode
+                HStack(spacing: 12) {
+                    // Done button - marks task complete and moves on
+                    Button {
+                        markReminderComplete(task)
+                    } label: {
+                        HStack {
+                            Image(systemName: "checkmark")
+                            Text("Done")
+                        }
+                        .font(.headline)
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 14)
+                        .background(Color.green)
+                        .cornerRadius(12)
                     }
-                    .padding(.horizontal)
+
+                    // Next/Skip button
+                    Button {
+                        moveToNextTask()
+                    } label: {
+                        HStack {
+                            Text("Next")
+                            Image(systemName: "chevron.right")
+                        }
+                        .font(.headline)
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 14)
+                        .background(themeColors.accent)
+                        .cornerRadius(12)
+                    }
+                }
+                .padding(.horizontal)
+
+                // Pro mode only - Scheduling buttons, extra navigation
+                if !appState.isSimpleMode {
 
                     // Scheduling quick buttons
                     HStack(spacing: 12) {
@@ -1549,6 +1651,20 @@ struct MorningChecklistView: View {
                 )
                 .presentationDetents([.medium])
             }
+            .sheet(isPresented: $showTaskDetail) {
+                if let task = taskToView {
+                    TaskDetailSheet(
+                        task: task,
+                        calendarService: calendarService,
+                        onUpdate: {
+                            Task {
+                                reminders = await calendarService.fetchReminders(includeCompleted: false)
+                            }
+                        }
+                    )
+                    .presentationDetents([.medium, .large])
+                }
+            }
         }
 
         private func priorityButton(_ number: Int, _ label: String, _ color: Color, _ task: EKReminder) -> some View {
@@ -1619,6 +1735,38 @@ struct MorningChecklistView: View {
             }
         }
 
+        private func markReminderComplete(_ reminder: EKReminder) {
+            Task {
+                do {
+                    // Mark the reminder as complete
+                    try await calendarService.completeReminder(reminder)
+
+                    // Celebrate!
+                    let generator = UINotificationFeedbackGenerator()
+                    generator.notificationOccurred(.success)
+
+                    let celebrations = ["Done!", "Nice work!", "Checked off!", "Completed!", "Great job!"]
+                    SpeechService.shared.queueSpeech(celebrations.randomElement()!)
+
+                    // Refresh the list
+                    reminders = await calendarService.fetchReminders(includeCompleted: false)
+
+                    // Move to next or finish
+                    if currentTaskIndex < reminders.count {
+                        speakCurrentTask()
+                    } else if reminders.isEmpty {
+                        isWalkingThrough = false
+                        SpeechService.shared.queueSpeech("All tasks complete! You're crushing it!")
+                    } else {
+                        currentTaskIndex = max(0, currentTaskIndex - 1)
+                        speakCurrentTask()
+                    }
+                } catch {
+                    print("Error completing reminder: \(error)")
+                }
+            }
+        }
+
         // MARK: - Scheduling Methods
 
         private func scheduleTaskIn(minutes: Int, task: EKReminder) {
@@ -1667,7 +1815,8 @@ struct MorningChecklistView: View {
                 try speechService.startListening()
                 isListeningForResponse = true
 
-                DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
+                // Auto-stop after 15 seconds
+                DispatchQueue.main.asyncAfter(deadline: .now() + 15) {
                     if isListeningForResponse {
                         stopListeningForResponse()
                     }
@@ -1774,18 +1923,29 @@ struct MorningChecklistView: View {
             if isListening {
                 stopListeningAndProcess()
             } else {
-                do {
-                    try speechService.startListening()
-                    isListening = true
-                    SpeechService.shared.queueSpeech("What task do you want to add?")
-
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
-                        if isListening {
-                            stopListeningAndProcess()
+                // Speak prompt FIRST, then start listening after speech finishes
+                Task {
+                    do {
+                        // Speak the prompt
+                        let apiKey = KeychainService.load(key: "elevenlabs_api_key") ?? ""
+                        let voiceId = UserDefaults.standard.string(forKey: "selected_voice_id") ?? ""
+                        if !apiKey.isEmpty {
+                            let service = ElevenLabsService()
+                            try await service.speakWithBestVoice("What task do you want to add?", apiKey: apiKey, selectedVoiceId: voiceId)
                         }
+
+                        // Now start listening
+                        await MainActor.run {
+                            do {
+                                try speechService.startListening()
+                                isListening = true
+                            } catch {
+                                print("Failed to start listening: \(error)")
+                            }
+                        }
+                    } catch {
+                        print("Failed to speak prompt: \(error)")
                     }
-                } catch {
-                    print("Failed to start listening: \(error)")
                 }
             }
         }
@@ -2104,8 +2264,8 @@ struct MorningChecklistView: View {
                 try speechService.startListening()
                 isListeningForNewTask = true
 
-                // Auto-stop after 5 seconds
-                DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+                // Auto-stop after 15 seconds (give user time to speak)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 15) {
                     if isListeningForNewTask {
                         stopListeningForNewTask()
                     }
@@ -2252,6 +2412,217 @@ struct MorningChecklistView: View {
                     .padding(.vertical, 8)
                     .background(Color.themeSecondary)
                     .cornerRadius(8)
+            }
+        }
+    }
+
+    // MARK: - Task Detail Sheet
+
+    struct TaskDetailSheet: View {
+        let task: EKReminder
+        let calendarService: CalendarService
+        let onUpdate: () -> Void
+
+        @ObservedObject private var themeColors = ThemeColors.shared
+        @Environment(\.dismiss) private var dismiss
+        @State private var editedTitle: String = ""
+        @State private var editedNotes: String = ""
+        @State private var editedDueDate: Date = Date()
+        @State private var hasDueDate = false
+        @State private var isEditing = false
+
+        var body: some View {
+            NavigationStack {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 20) {
+                        // Title section
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Task")
+                                .font(.caption)
+                                .foregroundStyle(themeColors.subtext)
+
+                            if isEditing {
+                                TextField("Task title", text: $editedTitle)
+                                    .font(.title2)
+                                    .fontWeight(.bold)
+                                    .textFieldStyle(.roundedBorder)
+                            } else {
+                                Text(task.title ?? "Untitled")
+                                    .font(.title2)
+                                    .fontWeight(.bold)
+                                    .foregroundStyle(themeColors.text)
+                            }
+                        }
+                        .padding(.horizontal)
+
+                        // Notes section
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Notes")
+                                .font(.caption)
+                                .foregroundStyle(themeColors.subtext)
+
+                            if isEditing {
+                                TextEditor(text: $editedNotes)
+                                    .frame(minHeight: 100)
+                                    .padding(8)
+                                    .background(Color.themeSecondary)
+                                    .cornerRadius(8)
+                            } else if let notes = task.notes, !notes.isEmpty {
+                                Text(notes)
+                                    .font(.body)
+                                    .foregroundStyle(themeColors.text)
+                                    .padding()
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .background(Color.themeSecondary)
+                                    .cornerRadius(8)
+                            } else {
+                                Text("No notes")
+                                    .font(.body)
+                                    .foregroundStyle(themeColors.subtext)
+                                    .italic()
+                            }
+                        }
+                        .padding(.horizontal)
+
+                        // Due date section
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Due Date")
+                                .font(.caption)
+                                .foregroundStyle(themeColors.subtext)
+
+                            if isEditing {
+                                Toggle("Has due date", isOn: $hasDueDate)
+                                if hasDueDate {
+                                    DatePicker("Due", selection: $editedDueDate, displayedComponents: [.date, .hourAndMinute])
+                                }
+                            } else if let dueDate = task.dueDateComponents?.date {
+                                HStack {
+                                    Image(systemName: "calendar")
+                                        .foregroundStyle(dueDate < Date() ? .red : themeColors.accent)
+                                    Text(dueDate, style: .date)
+                                    Text("at")
+                                        .foregroundStyle(themeColors.subtext)
+                                    Text(dueDate, style: .time)
+                                }
+                                .font(.body)
+                                .foregroundStyle(dueDate < Date() ? .red : themeColors.text)
+                            } else {
+                                Text("No due date")
+                                    .font(.body)
+                                    .foregroundStyle(themeColors.subtext)
+                                    .italic()
+                            }
+                        }
+                        .padding(.horizontal)
+
+                        // Priority section
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Priority")
+                                .font(.caption)
+                                .foregroundStyle(themeColors.subtext)
+
+                            let (num, color, label) = priorityInfo(for: task)
+                            HStack {
+                                Text("\(num)")
+                                    .font(.headline)
+                                    .foregroundStyle(.white)
+                                    .frame(width: 30, height: 30)
+                                    .background(color)
+                                    .cornerRadius(6)
+                                Text(label)
+                                    .font(.body)
+                                    .foregroundStyle(themeColors.text)
+                            }
+                        }
+                        .padding(.horizontal)
+
+                        // Calendar info
+                        if let calendar = task.calendar {
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("List")
+                                    .font(.caption)
+                                    .foregroundStyle(themeColors.subtext)
+
+                                HStack {
+                                    Circle()
+                                        .fill(Color(cgColor: calendar.cgColor))
+                                        .frame(width: 12, height: 12)
+                                    Text(calendar.title)
+                                        .font(.body)
+                                        .foregroundStyle(themeColors.text)
+                                }
+                            }
+                            .padding(.horizontal)
+                        }
+
+                        Spacer()
+                    }
+                    .padding(.top)
+                }
+                .navigationTitle("Task Details")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .topBarLeading) {
+                        Button("Close") {
+                            dismiss()
+                        }
+                    }
+                    ToolbarItem(placement: .topBarTrailing) {
+                        if isEditing {
+                            Button("Save") {
+                                saveChanges()
+                            }
+                        } else {
+                            Button("Edit") {
+                                startEditing()
+                            }
+                        }
+                    }
+                }
+            }
+            .onAppear {
+                editedTitle = task.title ?? ""
+                editedNotes = task.notes ?? ""
+                if let dueDate = task.dueDateComponents?.date {
+                    editedDueDate = dueDate
+                    hasDueDate = true
+                }
+            }
+        }
+
+        private func priorityInfo(for reminder: EKReminder) -> (Int, Color, String) {
+            switch reminder.priority {
+            case 1...2: return (1, .red, "URGENT")
+            case 3...4: return (2, .orange, "IMPORTANT")
+            case 5...6: return (3, .yellow, "LATER")
+            case 7...9: return (4, .blue, "TOMORROW")
+            default: return (3, .gray, "NONE")
+            }
+        }
+
+        private func startEditing() {
+            editedTitle = task.title ?? ""
+            editedNotes = task.notes ?? ""
+            isEditing = true
+        }
+
+        private func saveChanges() {
+            Task {
+                do {
+                    try await calendarService.updateReminder(
+                        task,
+                        title: editedTitle,
+                        notes: editedNotes.isEmpty ? nil : editedNotes,
+                        dueDate: hasDueDate ? editedDueDate : nil,
+                        priority: task.priority
+                    )
+                    onUpdate()
+                    await MainActor.run {
+                        isEditing = false
+                    }
+                } catch {
+                    print("Error saving task: \(error)")
+                }
             }
         }
     }
@@ -2453,7 +2824,8 @@ struct MorningChecklistView: View {
                 try speechService.startListening()
                 isListening = true
 
-                DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
+                // Auto-stop after 15 seconds
+                DispatchQueue.main.asyncAfter(deadline: .now() + 15) {
                     if isListening {
                         stopListeningAndProcess()
                     }
@@ -2696,7 +3068,8 @@ struct MorningChecklistView: View {
                 try speechService.startListening()
                 isListening = true
 
-                DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
+                // Auto-stop after 15 seconds
+                DispatchQueue.main.asyncAfter(deadline: .now() + 15) {
                     if isListening {
                         stopListeningAndProcess()
                     }

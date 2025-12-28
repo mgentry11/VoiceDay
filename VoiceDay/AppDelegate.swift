@@ -12,9 +12,17 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
         UNUserNotificationCenter.current().delegate = self
         elevenLabsService = ElevenLabsService()
 
-        // NUCLEAR FIX: Clear any stale custom voice ID that might be causing Syn voice
-        // This runs ONCE on startup to fix the persistent Syn voice issue
-        clearStaleCustomVoice()
+        // NUCLEAR FIX: Always clear custom voice to prevent Syn voice taking over
+        // Custom voice cloning feature is disabled - always use ElevenLabs library voices
+        nukeCustomVoice()
+
+        // TESTING: ALWAYS force reset onboarding and voice for testing
+        // TODO: Remove this after onboarding is working
+        UserDefaults.standard.set(false, forKey: "has_completed_onboarding")
+        UserDefaults.standard.removeObject(forKey: "selected_voice_id")
+        UserDefaults.standard.removeObject(forKey: "selected_voice_name")
+        UserDefaults.standard.synchronize()
+        print("🔄 FORCED RESET: Onboarding and voice cleared for testing")
 
         // Configure audio session for speaker output IMMEDIATELY at launch
         configureAudioForSpeaker()
@@ -30,36 +38,56 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
         return true
     }
 
-    /// Clear any stale custom voice ID - fixes Syn voice issue
-    private func clearStaleCustomVoice() {
-        let customVoiceId = UserDefaults.standard.string(forKey: "custom_voice_id")
-        if customVoiceId != nil {
-            print("⚠️ CLEARING STALE CUSTOM VOICE: \(customVoiceId ?? "nil")")
-            UserDefaults.standard.removeObject(forKey: "custom_voice_id")
-            UserDefaults.standard.removeObject(forKey: "custom_voice_name")
+    /// ALWAYS clear custom voice - prevents Syn voice from ever taking over
+    /// Custom voice cloning feature is disabled in favor of ElevenLabs library voices
+    private func nukeCustomVoice() {
+        // Always clear - don't check if exists
+        print("🔥 NUKING ALL CUSTOM VOICE DATA")
 
-            // Also reset onboarding so user can pick fresh voice
-            UserDefaults.standard.set(false, forKey: "has_completed_onboarding")
+        // Clear from UserDefaults FIRST
+        UserDefaults.standard.removeObject(forKey: "custom_voice_id")
+        UserDefaults.standard.removeObject(forKey: "custom_voice_name")
+        UserDefaults.standard.removeObject(forKey: "voice_recordings") // Also clear recordings
+        UserDefaults.standard.synchronize()
 
-            UserDefaults.standard.synchronize()
+        // Force a read to confirm it's cleared
+        let checkId = UserDefaults.standard.string(forKey: "custom_voice_id")
+        let checkName = UserDefaults.standard.string(forKey: "custom_voice_name")
+        print("🔥 After clear - custom_voice_id: \(checkId ?? "nil"), custom_voice_name: \(checkName ?? "nil")")
 
-            // Also clear from VoiceCloningService
-            Task { @MainActor in
-                VoiceCloningService.shared.clearCustomVoice()
-            }
-        }
+        // Now access VoiceCloningService - its init will load nil from UserDefaults
+        // But also force clear its properties just in case
+        let service = VoiceCloningService.shared
+        service.customVoiceId = nil
+        service.customVoiceName = nil
+
+        print("🔥 VoiceCloningService.customVoiceId: \(service.customVoiceId ?? "nil")")
+        print("🔥 Custom voice completely nuked")
     }
 
-    /// Configure audio session to always use speaker - call at app launch and before any speech
+    /// Configure audio session - use earbuds if connected, otherwise speaker
     func configureAudioForSpeaker() {
         do {
             let audioSession = AVAudioSession.sharedInstance()
-            try audioSession.setCategory(.playback, mode: .default, options: [.defaultToSpeaker, .mixWithOthers])
+            try audioSession.setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker, .allowBluetooth, .allowBluetoothA2DP])
             try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
-            try audioSession.overrideOutputAudioPort(.speaker)
-            print("🔊 Audio configured for speaker output")
+
+            // Only force speaker if no external audio device connected
+            let currentRoute = audioSession.currentRoute
+            let hasExternalOutput = currentRoute.outputs.contains {
+                $0.portType == .bluetoothA2DP ||
+                $0.portType == .bluetoothHFP ||
+                $0.portType == .headphones ||
+                $0.portType == .bluetoothLE
+            }
+            if !hasExternalOutput {
+                try audioSession.overrideOutputAudioPort(.speaker)
+                print("🔊 Audio routed to SPEAKER")
+            } else {
+                print("🎧 Audio routed to EARBUDS/HEADPHONES")
+            }
         } catch {
-            print("❌ Failed to configure audio for speaker: \(error)")
+            print("❌ Failed to configure audio: \(error)")
         }
     }
 
@@ -145,41 +173,28 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
         }
     }
 
-    // Speak a message using ElevenLabs or fallback to system voice
+    // Speak a message using ElevenLabs ONLY - NO system voice fallback
     @MainActor
     func speakMessage(_ message: String) async {
-        // Try to get ElevenLabs credentials from UserDefaults/Keychain
         let elevenLabsKey = KeychainService.load(key: "elevenlabs_api_key") ?? ""
         let selectedVoiceId = UserDefaults.standard.string(forKey: "selected_voice_id") ?? ""
 
-        // PRIORITY: Selected voice ALWAYS wins over custom voice
-        // Only use ElevenLabs if we have API key AND a selected voice
-        if !elevenLabsKey.isEmpty && !selectedVoiceId.isEmpty {
-            print("🎤 AppDelegate: Using selected voice: \(selectedVoiceId)")
-            do {
-                try await elevenLabsService?.speakWithBestVoice(message, apiKey: elevenLabsKey, selectedVoiceId: selectedVoiceId)
-            } catch {
-                print("❌ ElevenLabs failed: \(error), falling back to system voice")
-                speakWithSystemVoice(message)
-            }
-        } else if !elevenLabsKey.isEmpty, let customVoiceId = VoiceCloningService.shared.customVoiceId {
-            // Only use custom voice if NO selected voice exists
-            print("🎤 AppDelegate: Using custom voice (no selection): \(customVoiceId)")
-            do {
-                try await elevenLabsService?.speakWithBestVoice(message, apiKey: elevenLabsKey, selectedVoiceId: "")
-            } catch {
-                speakWithSystemVoice(message)
-            }
-        } else {
-            // Use system voice
-            print("🎤 AppDelegate: Using system voice")
-            speakWithSystemVoice(message)
-        }
-    }
+        print("🎤🎤🎤 AppDelegate.speakMessage")
+        print("🎤🎤🎤 API Key: \(elevenLabsKey.prefix(10))...")
+        print("🎤🎤🎤 Voice ID: \(selectedVoiceId.isEmpty ? "NONE - using Rachel" : selectedVoiceId)")
 
-    private func speakWithSystemVoice(_ message: String) {
-        // Use the shared SpeechService queue to prevent overlapping speech
-        SpeechService.shared.queueSpeech(message)
+        guard !elevenLabsKey.isEmpty else {
+            print("❌❌❌ NO API KEY - Cannot speak!")
+            return
+        }
+
+        do {
+            try await elevenLabsService?.speakWithBestVoice(message, apiKey: elevenLabsKey, selectedVoiceId: selectedVoiceId)
+            print("🎤🎤🎤 AppDelegate: Speech complete!")
+        } catch {
+            print("❌❌❌ ElevenLabs FAILED: \(error)")
+            // DO NOT fall back to system voice - that's the "Syn" voice!
+        }
     }
 
     // Handle notification actions

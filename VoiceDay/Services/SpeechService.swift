@@ -28,25 +28,37 @@ class SpeechService: NSObject, ObservableObject {
         synthesizer.delegate = self
     }
 
-    // Check if ElevenLabs is configured - ONLY use if selected voice exists
-    private var hasElevenLabsVoice: Bool {
+    // Check if ElevenLabs is configured - use if API key exists (will use default Rachel if no selection)
+    private var hasElevenLabsKey: Bool {
         let apiKey = KeychainService.load(key: "elevenlabs_api_key") ?? ""
-        let selectedVoiceId = UserDefaults.standard.string(forKey: "selected_voice_id") ?? ""
-        // CHANGED: Only return true if there's a SELECTED voice (ignore custom voice)
-        let hasVoice = !apiKey.isEmpty && !selectedVoiceId.isEmpty
-        print("🎤 Voice check: apiKey=\(!apiKey.isEmpty), selectedVoiceId='\(selectedVoiceId)', hasVoice=\(hasVoice)")
-        return hasVoice
+        let hasKey = !apiKey.isEmpty
+        print("🎤 ElevenLabs check: hasApiKey=\(hasKey)")
+        return hasKey
     }
 
-    /// Ensure audio is routed to speaker before any speech
+    /// Ensure audio is routed correctly - use earbuds if connected, otherwise speaker
     private func ensureSpeakerOutput() {
         do {
             let audioSession = AVAudioSession.sharedInstance()
-            try audioSession.setCategory(.playback, mode: .default, options: [.defaultToSpeaker, .mixWithOthers])
+            try audioSession.setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker, .allowBluetooth, .allowBluetoothA2DP])
             try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
-            try audioSession.overrideOutputAudioPort(.speaker)
+
+            // Only force speaker if no external audio device connected
+            let currentRoute = audioSession.currentRoute
+            let hasExternalOutput = currentRoute.outputs.contains {
+                $0.portType == .bluetoothA2DP ||
+                $0.portType == .bluetoothHFP ||
+                $0.portType == .headphones ||
+                $0.portType == .bluetoothLE
+            }
+            if !hasExternalOutput {
+                try audioSession.overrideOutputAudioPort(.speaker)
+                print("🔊 SpeechService: Audio routed to SPEAKER")
+            } else {
+                print("🎧 SpeechService: Audio routed to EARBUDS")
+            }
         } catch {
-            print("❌ Failed to ensure speaker output: \(error)")
+            print("❌ Failed to configure audio: \(error)")
         }
     }
 
@@ -74,6 +86,8 @@ class SpeechService: NSObject, ObservableObject {
         let audioSession = AVAudioSession.sharedInstance()
         try audioSession.setCategory(.playAndRecord, mode: .measurement, options: [.duckOthers, .defaultToSpeaker, .allowBluetooth])
         try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
+        // FORCE speaker output - never use earpiece
+        try audioSession.overrideOutputAudioPort(.speaker)
 
         recognitionRequest = SFSpeechAudioBufferRecognitionRequest()
         guard let recognitionRequest = recognitionRequest else {
@@ -98,8 +112,15 @@ class SpeechService: NSObject, ObservableObject {
                     self.transcribedText = result.bestTranscription.formattedString
                 }
 
-                if error != nil || (result?.isFinal ?? false) {
-                    self.stopListening()
+                // Only stop on actual errors, NOT when isFinal is true
+                // This allows continuous recording until user presses stop
+                if let error = error {
+                    print("❌ Speech recognition error: \(error.localizedDescription)")
+                    // Only stop for real errors, not end-of-speech detection
+                    let nsError = error as NSError
+                    if nsError.domain != "kAFAssistantErrorDomain" || nsError.code != 1110 {
+                        self.stopListening()
+                    }
                 }
             }
         }
@@ -118,6 +139,35 @@ class SpeechService: NSObject, ObservableObject {
         recognitionTask?.cancel()
         recognitionTask = nil
         isListening = false
+
+        // Reconfigure audio session for speech output after listening stops
+        reconfigureAudioForPlayback()
+    }
+
+    /// Reconfigure audio session for speech playback (after listening)
+    private func reconfigureAudioForPlayback() {
+        do {
+            let audioSession = AVAudioSession.sharedInstance()
+            try audioSession.setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker, .allowBluetooth, .allowBluetoothA2DP])
+            try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
+
+            // Only force speaker if no earbuds connected
+            let currentRoute = audioSession.currentRoute
+            let hasExternalOutput = currentRoute.outputs.contains {
+                $0.portType == .bluetoothA2DP ||
+                $0.portType == .bluetoothHFP ||
+                $0.portType == .headphones ||
+                $0.portType == .bluetoothLE
+            }
+            if !hasExternalOutput {
+                try audioSession.overrideOutputAudioPort(.speaker)
+                print("🔊 SpeechService: Audio reconfigured for SPEAKER")
+            } else {
+                print("🎧 SpeechService: Audio reconfigured for EARBUDS")
+            }
+        } catch {
+            print("❌ Failed to reconfigure audio: \(error)")
+        }
     }
 
     /// Speak text and wait for completion (async)
@@ -152,41 +202,35 @@ class SpeechService: NSObject, ObservableObject {
         }
     }
 
-    /// Speak immediately (internal use)
+    /// Speak immediately (internal use) - ONLY uses ElevenLabs, NO system voice
     private func speakImmediate(_ text: String) async {
         isSpeaking = true
+        defer { isSpeaking = false }
 
         // Force audio to speaker BEFORE any speech
         ensureSpeakerOutput()
 
-        // Try ElevenLabs first if configured
-        if hasElevenLabsVoice {
-            let apiKey = KeychainService.load(key: "elevenlabs_api_key") ?? ""
-            let selectedVoiceId = UserDefaults.standard.string(forKey: "selected_voice_id") ?? ""
+        // ALWAYS use ElevenLabs - NEVER fall back to system voice (that's the "Syn" voice!)
+        let apiKey = KeychainService.load(key: "elevenlabs_api_key") ?? ""
+        let selectedVoiceId = UserDefaults.standard.string(forKey: "selected_voice_id") ?? ""
 
-            do {
-                try await elevenLabsService.speakWithBestVoice(text, apiKey: apiKey, selectedVoiceId: selectedVoiceId)
-                isSpeaking = false
-                return
-            } catch {
-                // Fall through to system voice on error
-                print("ElevenLabs speech failed, falling back to system voice: \(error)")
-            }
+        print("🎤🎤🎤 SpeechService.speakImmediate")
+        print("🎤🎤🎤 API Key: \(apiKey.prefix(10))...")
+        print("🎤🎤🎤 Selected Voice: \(selectedVoiceId.isEmpty ? "NONE - using Rachel" : selectedVoiceId)")
+
+        if apiKey.isEmpty {
+            print("❌❌❌ NO API KEY - Cannot speak!")
+            return
         }
 
-        // Fallback to system voice - use US English (more universal)
-        let utterance = AVSpeechUtterance(string: text)
-        utterance.voice = AVSpeechSynthesisVoice(language: "en-US")
-        utterance.rate = 0.5  // Slightly slower for ADHD clarity
-        utterance.pitchMultiplier = 1.0
-        utterance.volume = 1.0
-
-        await withCheckedContinuation { continuation in
-            self.speakingContinuation = continuation
-            synthesizer.speak(utterance)
+        do {
+            try await elevenLabsService.speakWithBestVoice(text, apiKey: apiKey, selectedVoiceId: selectedVoiceId)
+            print("🎤🎤🎤 SpeechService: Speech complete!")
+        } catch {
+            print("❌❌❌ ElevenLabs FAILED: \(error)")
+            print("❌❌❌ NOT falling back to system voice!")
+            // DO NOT fall back to system voice - that's the "Syn" voice!
         }
-
-        isSpeaking = false
     }
 
     /// Stop all speech and clear queue

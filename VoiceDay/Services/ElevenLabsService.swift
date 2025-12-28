@@ -63,34 +63,29 @@ class ElevenLabsService: NSObject, ObservableObject {
         }
     }
 
-    /// Speak using the best available voice (selected > custom clone > default)
-    /// Priority changed: User's explicit selection now takes priority over custom voice
+    // Default Rachel voice ID - ALWAYS use this if no voice selected
+    static let defaultVoiceId = "21m00Tcm4TlvDq8ikWAM"
+
+    /// Speak using selected voice or default Rachel - NEVER use custom voice or system voice
     func speakWithBestVoice(_ text: String, apiKey: String, selectedVoiceId: String) async throws {
-        let voiceId: String
-
-        // NEW PRIORITY: Selected voice > Custom voice clone > Default
-        // This ensures the user's explicit voice selection is always respected
-        if !selectedVoiceId.isEmpty {
-            voiceId = selectedVoiceId
-            print("🎤 Using SELECTED voice: \(selectedVoiceId)")
-        } else if let customVoice = VoiceCloningService.shared.customVoiceId {
-            voiceId = customVoice
-            print("🎤 Using custom voice clone: \(VoiceCloningService.shared.customVoiceName ?? "Unknown") (\(customVoice))")
-        } else {
-            voiceId = "21m00Tcm4TlvDq8ikWAM" // Default Rachel voice
-            print("🎤 Using DEFAULT voice (Rachel)")
-        }
-
+        // ALWAYS use Rachel if no selection - never fall back to anything else
+        let voiceId = selectedVoiceId.isEmpty ? Self.defaultVoiceId : selectedVoiceId
+        print("🎤🎤🎤 speakWithBestVoice - using voiceId: \(voiceId)")
         try await speak(text, apiKey: apiKey, voiceId: voiceId)
     }
 
     func speak(_ text: String, apiKey: String, voiceId: String) async throws {
         guard !text.isEmpty else { return }
 
+        print("🔊🔊🔊 ElevenLabsService.speak() CALLED")
+        print("🔊🔊🔊 voiceId parameter: '\(voiceId)'")
+        print("🔊🔊🔊 text: '\(text.prefix(50))...'")
+
         isSpeaking = true
         defer { isSpeaking = false }
 
         let url = URL(string: "https://api.elevenlabs.io/v1/text-to-speech/\(voiceId)")!
+        print("🔊🔊🔊 API URL: \(url)")
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue(apiKey, forHTTPHeaderField: "xi-api-key")
@@ -127,10 +122,24 @@ class ElevenLabsService: NSObject, ObservableObject {
         audioPlayer = nil
 
         let audioSession = AVAudioSession.sharedInstance()
-        // Force audio through speaker - use multiple options to ensure it works
-        try audioSession.setCategory(.playback, mode: .default, options: [.defaultToSpeaker, .mixWithOthers])
+        // Use playAndRecord with allowBluetooth for earbuds, defaultToSpeaker as fallback
+        try audioSession.setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker, .allowBluetooth, .allowBluetoothA2DP])
         try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
-        try audioSession.overrideOutputAudioPort(.speaker)
+
+        // Only force speaker if no external audio device (earbuds/headphones) connected
+        let currentRoute = audioSession.currentRoute
+        let hasExternalOutput = currentRoute.outputs.contains {
+            $0.portType == .bluetoothA2DP ||
+            $0.portType == .bluetoothHFP ||
+            $0.portType == .headphones ||
+            $0.portType == .bluetoothLE
+        }
+        if !hasExternalOutput {
+            try audioSession.overrideOutputAudioPort(.speaker)
+            print("🔊 ElevenLabs: Audio routed to SPEAKER (no earbuds)")
+        } else {
+            print("🎧 ElevenLabs: Audio routed to EARBUDS/HEADPHONES")
+        }
 
         audioPlayer = try AVAudioPlayer(data: data)
 

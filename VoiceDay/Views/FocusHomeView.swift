@@ -320,6 +320,26 @@ struct FocusHomeView: View {
             _ = await calendarService.requestReminderAccess()
             await loadReminders()
         }
+        // Respond to onboarding triggers from AppState
+        .onChange(of: appState.triggerMorningChecklist) { (triggered: Bool) in
+            if triggered {
+                showMorningChecklist = true
+                appState.triggerMorningChecklist = false // Reset trigger
+            }
+        }
+        .onChange(of: appState.triggerEveningChecklist) { (triggered: Bool) in
+            if triggered {
+                showEveningCheckIn = true
+                appState.triggerEveningChecklist = false // Reset trigger
+            }
+        }
+        .onChange(of: appState.triggerMiddayChecklist) { (triggered: Bool) in
+            if triggered {
+                // Midday uses morning checklist with energy focus
+                showMorningChecklist = true
+                appState.triggerMiddayChecklist = false // Reset trigger
+            }
+        }
     }
 
     private func estimatedMinutes(for task: EKReminder) -> Int {

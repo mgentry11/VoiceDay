@@ -87,6 +87,11 @@ class MorningChecklistService: ObservableObject {
 
         loadSelfChecks()
         loadTodaysProgress()
+
+        // Auto-add sample checks for new users
+        if selfChecks.isEmpty {
+            addSampleChecks()
+        }
     }
 
     // MARK: - Check Management
