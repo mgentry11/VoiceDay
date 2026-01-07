@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VoiceDay App Screenshots - Automated Capture</title>
+    <style>
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #1a1a1a;
+            --bg-card: #252525;
+            --accent: #22c55e;
+            --accent-light: #4ade80;
+            --text-primary: #ffffff;
+            --text-secondary: #a1a1aa;
+            --border: #333;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent), var(--accent-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .section {
+            margin-bottom: 60px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .section-icon {
+            font-size: 1.5rem;
+        }
+
+        h2 {
+            font-size: 1.4rem;
+            font-weight: 600;
+        }
+
+        .screenshot-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
+        }
+
+        .screenshot-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+
+        .screenshot-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent);
+            box-shadow: 0 10px 40px rgba(34, 197, 94, 0.15);
+        }
+
+        .screenshot-img {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .screenshot-info {
+            padding: 16px;
+        }
+
+        .screenshot-number {
+            display: inline-block;
+            background: var(--accent);
+            color: var(--bg-primary);
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-bottom: 8px;
+        }
+
+        .screenshot-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .screenshot-desc {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--accent);
+            text-decoration: none;
+            font-size: 0.9rem;
+            margin-bottom: 30px;
+            transition: opacity 0.2s;
+        }
+
+        .back-link:hover {
+            opacity: 0.8;
+        }
+
+        .automation-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 20px;
+            margin-left: 10px;
+        }
+
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .lightbox.active {
+            display: flex;
+        }
+
+        .lightbox img {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 12px;
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            font-size: 2rem;
+            color: white;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 1.8rem; }
+            .screenshot-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="voiceday.html" class="back-link">← Back to Screen Matrix</a>
+
+        <header>
+            <h1>VoiceDay Screenshots <span class="automation-badge">Automated</span></h1>
+            <p class="subtitle">Captured via automated UI testing - simulating a complete user day journey</p>
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-number">21</div>
+                    <div class="stat-label">Screenshots</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">5</div>
+                    <div class="stat-label">User Journey Phases</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">5</div>
+                    <div class="stat-label">Main Tabs</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Onboarding Section -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-icon">🎬</span>
+                <h2>Onboarding Flow</h2>
+            </div>
+            <div class="screenshot-grid">
+                <div class="screenshot-card" onclick="openLightbox('screenshots/001_onboarding_01_voice.png')">
+                    <img src="screenshots/001_onboarding_01_voice.png" alt="Voice Selection" class="screenshot-img" loading="lazy">
+                    <div class="screenshot-info">
+                        <span class="screenshot-number">01</span>
+                        <div class="screenshot-title">Voice Selection</div>
+                        <div class="screenshot-desc">Choose your AI voice companion</div>
+                    </div>
+                </div>
+                <div class="screenshot-card" onclick="openLightbox('screenshots/002_onboarding_02_personality.png')">
+                    <img src="screenshots/002_onboarding_02_personality.png" alt="Personality" class="screenshot-img" loading="lazy">
+                    <div class="screenshot-info">
+                        <span class="screenshot-number">02</span>
+                        <div class="screenshot-title">Personality Selection</div>
+                        <div class="screenshot-desc">Pick your preferred interaction style</div>
+                    </div>
+                </div>
+                <div class="screenshot-card" onclick="openLightbox('screenshots/003_onboarding_03_structure.png')">
+                    <img src="screenshots/003_onboarding_03_structure.png" alt="Daily Structure" class="screenshot-img" loading="lazy">
+                    <div class="screenshot-info">
+                        <span class="screenshot-number">03</span>
+                        <div class="screenshot-title">Daily Structure</div>
+                        <div class="screenshot-desc">Configure your check-in schedule</div>
+                    </div>
+                </div>
+                <div class="screenshot-card" onclick="openLightbox('screenshots/004_onboarding_04_features.png')">
+                    <img src="screenshots/004_onboarding_04_features.png" alt="Features" class="screenshot-img" loading="lazy">
+                    <div class="screenshot-info">
+                        <span class="screenshot-number">04</span>
+                        <div class="screenshot-title">Feature Introduction</div>
+                        <div class="screenshot-desc">Learn about app capabilities</div>
+                    </div>
+                </div>
+                <div class="screenshot-card" onclick="openLightbox('screenshots/005_onboarding_05_complete.png')">
+                    <img src="screenshots/005_onboarding_05_complete.png" alt="Complete" class="screenshot-img" loading="lazy">
+                    <div class="screenshot-info">
+                        <span class="screenshot-number">05</span>
+                        <div class="screenshot-title">Onboarding Complete</div>
+                        <div class="screenshot-desc">Ready to start your journey</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Tabs Section -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-icon">📱</span>
+                <h2>Main App Tabs</h2>
+            </div>
+            <div class="screenshot-grid">
+                <div class="screenshot-card" onclick="openLightbox('screenshots/006_tab_0_home.png')">
+                    <img src="screenshots/006_tab_0_home.png" alt="Home Tab" class="screenshot-img" loading="lazy">
+                    <div class="screenshot-info">
+                        <span class="screenshot-number">06</span>
+                        <div class="screenshot-title">Focus Home</div>
+                        <div class="screenshot-desc">Main dashboard and focus tools</div>
+                    </div>
+                </div>
+                <div class="screenshot-card" onclick="openLightbox('screenshots/007_tab_1_recording.png')">
+                    <img src="screenshots/007_tab_1_recording.png" alt="Recording Tab" class="screenshot-img" loading="lazy">
+                    <div class="screenshot-info">
+                        <span class="screenshot-number">07</span>
+                        <div class="screenshot-title">Voice Recording</div>
+                        <div class="screenshot-desc">Capture tasks with your voice</div>
+                    </div>
+                </div>
+                <div class="screenshot-card" onclick="openLightbox('screenshots/008_tab_2_tasks.png')">
+                    <img src="screenshots/008_tab_2_tasks.png" alt="Tasks Tab" class="screenshot-img" loading="lazy">
+                    <div class="screenshot-info">
+                        <span class="screenshot-number">08</span>
+                        <div class="screenshot-title">Tasks List</div>
+                        <div class="screenshot-desc">Manage your to-dos</div>
+                    </div>
+                </div>
+                <div class="screenshot-card" onclick="openLightbox('screenshots/009_tab_3_goals.png')">
+                    <img src="screenshots/009_tab_3_goals.png" alt="Goals Tab" class="screenshot-img" loading="lazy">
+                    <div class="screenshot-info">
+                        <span class="screenshot-number">09</span>
+                        <div class="screenshot-title">Goals</div>
+                        <div class="screenshot-desc">Track your objectives</div>
+                    </div>
+                </div>
+                <div class="screenshot-card" onclick="openLightbox('screenshots/010_tab_4_settings.png')">
+                    <img src="screenshots/010_tab_4_settings.png" alt="Settings Tab" class="screenshot-img" loading="lazy">
+                    <div class="screenshot-info">
+                        <span class="screenshot-number">10</span>
+                        <div class="screenshot-title">Settings</div>
+                        <div class="screenshot-desc">Configure app preferences</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Day Journey Section -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-icon">🌅</span>
+                <h2>Morning Routine</h2>
+            </div>
+            <div class="screenshot-grid">
+                <div class="screenshot-card" onclick="openLightbox('screenshots/011_morning_home.png')">
+                    <img src="screenshots/011_morning_home.png" alt="Morning Home" class="screenshot-img" loading="lazy">
+                    <div class="screenshot-info">
+                        <span class="screenshot-number">11</span>
+                        <div class="screenshot-title">Morning Home</div>
+                        <div class="screenshot-desc">Start of day dashboard</div>
+                    </div>
+                </div>
+                <div class="screenshot-card" onclick="openLightbox('screenshots/012_morning_tasks_empty.png')">
+                    <img src="screenshots/012_morning_tasks_empty.png" alt="Tasks Empty" class="screenshot-img" loading="lazy">
+                    <div class="screenshot-info">
+                        <span class="screenshot-number">12</span>
+                        <div class="screenshot-title">Tasks (Empty)</div>
+                        <div class="screenshot-desc">Before adding morning items</div>
+                    </div>
+                </div>
+                <div class="screenshot-card" onclick="openLightbox('screenshots/013_add_task_modal.png')">
+                    <img src="screenshots/013_add_task_modal.png" alt="Add Task" class="screenshot-img" loading="lazy">
+                    <div class="screenshot-info">
+                        <span class="screenshot-number">13</span>
+                        <div class="screenshot-title">Add Task Modal</div>
+                        <div class="screenshot-desc">Creating a new task</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Midday Section -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-icon">🌞</span>
+                <h2>Midday Check-in</h2>
+            </div>
+            <div class="screenshot-grid">
+                <div class="screenshot-card" onclick="openLightbox('screenshots/014_midday_tasks.png')">
+                    <img src="screenshots/014_midday_tasks.png" alt="Midday Tasks" class="screenshot-img" loading="lazy">
+                    <div class="screenshot-info">
+                        <span class="screenshot-number">14</span>
+                        <div class="screenshot-title">Midday Tasks</div>
+                        <div class="screenshot-desc">Progress at midday</div>
+                    </div>
+                </div>
+                <div class="screenshot-card" onclick="openLightbox('screenshots/015_midday_goals.png')">
+                    <img src="screenshots/015_midday_goals.png" alt="Midday Goals" class="screenshot-img" loading="lazy">
+                    <div class="screenshot-info">
+                        <span class="screenshot-number">15</span>
+                        <div class="screenshot-title">Goals Progress</div>
+                        <div class="screenshot-desc">Tracking objectives</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Evening Section -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-icon">🌙</span>
+                <h2>Evening Wind-down</h2>
+            </div>
+            <div class="screenshot-grid">
+                <div class="screenshot-card" onclick="openLightbox('screenshots/016_evening_home.png')">
+                    <img src="screenshots/016_evening_home.png" alt="Evening Home" class="screenshot-img" loading="lazy">
+                    <div class="screenshot-info">
+                        <span class="screenshot-number">16</span>
+                        <div class="screenshot-title">Evening Home</div>
+                        <div class="screenshot-desc">End of day review</div>
+                    </div>
+                </div>
+                <div class="screenshot-card" onclick="openLightbox('screenshots/017_evening_settings.png')">
+                    <img src="screenshots/017_evening_settings.png" alt="Evening Settings" class="screenshot-img" loading="lazy">
+                    <div class="screenshot-info">
+                        <span class="screenshot-number">17</span>
+                        <div class="screenshot-title">Settings View</div>
+                        <div class="screenshot-desc">App configuration</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Settings Exploration -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-icon">⚙️</span>
+                <h2>Settings Exploration</h2>
+            </div>
+            <div class="screenshot-grid">
+                <div class="screenshot-card" onclick="openLightbox('screenshots/018_settings_scrolled.png')">
+                    <img src="screenshots/018_settings_scrolled.png" alt="Settings Scrolled" class="screenshot-img" loading="lazy">
+                    <div class="screenshot-info">
+                        <span class="screenshot-number">18</span>
+                        <div class="screenshot-title">Settings (Scrolled)</div>
+                        <div class="screenshot-desc">More settings options</div>
+                    </div>
+                </div>
+                <div class="screenshot-card" onclick="openLightbox('screenshots/019_settings_item_1.png')">
+                    <img src="screenshots/019_settings_item_1.png" alt="Settings Item 1" class="screenshot-img" loading="lazy">
+                    <div class="screenshot-info">
+                        <span class="screenshot-number">19</span>
+                        <div class="screenshot-title">Settings Detail 1</div>
+                        <div class="screenshot-desc">First settings section</div>
+                    </div>
+                </div>
+                <div class="screenshot-card" onclick="openLightbox('screenshots/020_settings_item_2.png')">
+                    <img src="screenshots/020_settings_item_2.png" alt="Settings Item 2" class="screenshot-img" loading="lazy">
+                    <div class="screenshot-info">
+                        <span class="screenshot-number">20</span>
+                        <div class="screenshot-title">Settings Detail 2</div>
+                        <div class="screenshot-desc">Second settings section</div>
+                    </div>
+                </div>
+                <div class="screenshot-card" onclick="openLightbox('screenshots/021_settings_item_3.png')">
+                    <img src="screenshots/021_settings_item_3.png" alt="Settings Item 3" class="screenshot-img" loading="lazy">
+                    <div class="screenshot-info">
+                        <span class="screenshot-number">21</span>
+                        <div class="screenshot-title">Settings Detail 3</div>
+                        <div class="screenshot-desc">Third settings section</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Lightbox -->
+    <div class="lightbox" id="lightbox" onclick="closeLightbox()">
+        <span class="lightbox-close">&times;</span>
+        <img id="lightbox-img" src="" alt="Screenshot">
+    </div>
+
+    <script>
+        function openLightbox(src) {
+            document.getElementById('lightbox-img').src = src;
+            document.getElementById('lightbox').classList.add('active');
+        }
+
+        function closeLightbox() {
+            document.getElementById('lightbox').classList.remove('active');
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeLightbox();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,908 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		05EFDE3CDDB4085A5998AAB5 /* AccountabilityTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D553E2AFE192A235E70AB3 /* AccountabilityTracker.swift */; };
+		0ABDEB363414C2CF4DDFE26C /* NagContactsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F98A31C2ED45B2BFFD266626 /* NagContactsService.swift */; };
+		0DAEB3143CB8D1F91EF1364D /* PersonalityService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0F902F13EB08AA09CF886B3 /* PersonalityService.swift */; };
+		0E9B4E824AB0424F83FA8DE3 /* GadflyTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = CACD5B309D454C5F94420EDC /* GadflyTask.swift */; };
+		114FC3F8F70D48E1ABB84B69 /* MomentumView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68D7CFCC18BE4A25B7F8CC72 /* MomentumView.swift */; };
+		1302001B6DD9494D92652567 /* TaskBreakdownView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61E7AFE0F0AF44F9B1E332DC /* TaskBreakdownView.swift */; };
+		13CFCDFE35FE48C6A9EDB8A8 /* LocationsManagerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5764B4B33DC543659ABA7907 /* LocationsManagerView.swift */; };
+		15F9C9FD9B724B73835D85BC /* CheckoutChecklistView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC378AE2B15A475FB3557891 /* CheckoutChecklistView.swift */; };
+		162CC3D24ACCF25168EE798C /* ActiveFocusSessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E6A99CE705776F1084EE3C9 /* ActiveFocusSessionView.swift */; };
+		18A2B8FCC54549A88ED898B5 /* ConfettiView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA97D68E1B414EB986574CF9 /* ConfettiView.swift */; };
+		194511BC70990766A78AB414 /* AsyncTimeout.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3DA168AF2DE44C75C85A3F8 /* AsyncTimeout.swift */; };
+		1AE72DCD6E6D57DE636C126D /* TimesheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E41203D5B3EAAF3D303552D9 /* TimesheetView.swift */; };
+		1AF867A252B5846FB310CDAA /* RefocusPromptView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42CEC0A30FD2C5B95C9A49AE /* RefocusPromptView.swift */; };
+		1FF89E78171A3133DECCA7B6 /* SimpleVoicePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9263F036EEFEDFD62168497 /* SimpleVoicePicker.swift */; };
+		2048781E42F16F9E45499590 /* TimesheetService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7CF793AFAAB7A153D31DFF5 /* TimesheetService.swift */; };
+		20FCD0F0A6F14A2AA46F2B63 /* VoiceRecordingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E17DD2E0C77940F3A09DE27E /* VoiceRecordingView.swift */; };
+		25478C035E810D7D985F739D /* CustomDictionaryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4663B7D03E42FDBB0169E839 /* CustomDictionaryService.swift */; };
+		271CA4F328DA4B5DB24E59F6 /* PresetModeSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1E0B4A664F64046975FB09A /* PresetModeSelector.swift */; };
+		2989136E1FCE4D9380B752AA /* LocationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C2E6BD70E0A4C2980DD4875 /* LocationService.swift */; };
+		2CD31655697A4E60A90EEF5D /* VoiceCloningService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC71E090FAF9442589D5EBD5 /* VoiceCloningService.swift */; };
+		2D0A288025E54F399692ED6E /* CelebrationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70051B27E77149839E770ECA /* CelebrationService.swift */; };
+		2D6A6AAFADD942158F082449 /* NotificationIntelligence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F981A803A534576A7CD8B41 /* NotificationIntelligence.swift */; };
+		318D2D197FD6F0945621C25C /* MorningChecklistService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0AE1DAF0366DB2C401BA8F1 /* MorningChecklistService.swift */; };
+		32F0CF15DB532ABC62168F71 /* PushCelebrationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBBF03F98FA33664C3129529 /* PushCelebrationView.swift */; };
+		3C317897C2612E692B5F71DE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71A79D170A84850C13DB42CB /* AppDelegate.swift */; };
+		4104D284394F632D51A47A4B /* SimpleSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3CB3FCC19AC8C8B237DA530 /* SimpleSettingsView.swift */; };
+		415FE712A7954ADE888808F1 /* FocusHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBB467C10E2E4C07A967D6E4 /* FocusHomeView.swift */; };
+		416E4D41EF5A4779E2EE0A78 /* ConnectionsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A2134D18210FCE429777B0D /* ConnectionsListView.swift */; };
+		498D34DCDD1CFC0A20D550BC /* SessionStateService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72229982C2BFCA667E5E8BAE /* SessionStateService.swift */; };
+		4FA33387FF744B4EBA6E178F /* RewardsSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 564A44DD530F4EFAB835753A /* RewardsSystem.swift */; };
+		4FCB70A58E39FF58878A65DD /* TaskAgingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD024C56FADB4D8652369E1B /* TaskAgingService.swift */; };
+		529FEA83803B4D5EBDF51B64 /* TaskAttackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CED4EF130D54C8F8A99A863 /* TaskAttackView.swift */; };
+		5688EC6D2701F34BE723316F /* OnboardingStepsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D25736180B637B147100E6B /* OnboardingStepsView.swift */; };
+		5742E73DCAAE1528D34F3490 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DC017FC0D140DFD57781A01 /* ContentView.swift */; };
+		5BA0BB1DE1A8413F83667956 /* EnergyCheckInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0DAB193AAD64352AD02BFDE /* EnergyCheckInView.swift */; };
+		5BB1CC2DE1A8513F93667957 /* CheckInQuickSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1DAC294BBD75463BE13CFEF /* CheckInQuickSetupView.swift */; };
+		5C63459BED5CF2CBE32C8164 /* GoalsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34295899772FAC838C2F76AA /* GoalsView.swift */; };
+		5E49729C44524CC39396A81F /* CheckoutChecklistService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70A18A9C2DE041D4BC914056 /* CheckoutChecklistService.swift */; };
+		61331DFCDE9B4FAF85E5BAF9 /* TaskAttackAdvisor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F91CDF0C4424AE08A8022DB /* TaskAttackAdvisor.swift */; };
+		672BD1283162434EB9AFC701 /* BodyDoublingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA7E19462BAE4602B31A28B3 /* BodyDoublingService.swift */; };
+		68811C167BD84D3E9669DAC9 /* PresetModes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70D3DE26AF364F01B3D48AB7 /* PresetModes.swift */; };
+		6D7C89F9D28A4E7B98F50AEA /* ManageCustomCheckInsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6B72198A77E49CAA4E23A6A /* ManageCustomCheckInsView.swift */; };
+		702011DB98CCD4DA9FD22C24 /* QuickFocusSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC4F98E11395886E9FBB2F37 /* QuickFocusSetupView.swift */; };
+		731DE00E876033367834BF1B /* GoalDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A245D9ADE9C23A6F1B2A90F /* GoalDetailView.swift */; };
+		7489FA82887B22B904B4F137 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92DFF40840AA345A928F2CE0 /* NotificationService.swift */; };
+		77551ADBA98A479986D78763 /* SmartScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D02C3BACF2E489CA1980380 /* SmartScheduler.swift */; };
+		78F692100A575048749F7E69 /* MorningIntentionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21D5E2DF26EF9EE993D8AA84 /* MorningIntentionView.swift */; };
+		80824E2E5D99D12FF6F1A351 /* MorningChecklistView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEA0F02FE16B302A7DFDAAC4 /* MorningChecklistView.swift */; };
+		84EA11ECF4364E4F808ABB37 /* MomentumTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BF88B6CCD964C8AAE5E8C5B /* MomentumTracker.swift */; };
+		87716A7E157935A4E6B7CFCD /* NaggingLevelService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E6F436927009861F1227516 /* NaggingLevelService.swift */; };
+		87A5AE2A716ADBC60B159F38 /* MessageLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C4D40CD9121108C5D19FBAC /* MessageLibrary.swift */; };
+		923DD196BB279C525006755A /* WatchConnectivityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD74EA9C654AB00CDE2852 /* WatchConnectivityManager.swift */; };
+		98F28147CDB75BEFE9E40EC8 /* WatchConnectivity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 487612F1121CC1B9CBCFF5DE /* WatchConnectivity.framework */; };
+		9A093C6C4AA7428188644B23 /* TaskCoach.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F32C9B18F944CDD93F66D82 /* TaskCoach.swift */; };
+		A10000000000000000000001 /* GadflyApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000011 /* GadflyApp.swift */; };
+		A10000000000000000000002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000012 /* ContentView.swift */; };
+		A10000000000000000000003 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000013 /* Assets.xcassets */; };
+		A10000000000000000000004 /* ParsedItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000014 /* ParsedItem.swift */; };
+		A10000000000000000000005 /* KeychainService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000015 /* KeychainService.swift */; };
+		A10000000000000000000006 /* SpeechService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000016 /* SpeechService.swift */; };
+		A10000000000000000000007 /* ElevenLabsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000017 /* ElevenLabsService.swift */; };
+		A10000000000000000000008 /* OpenAIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000018 /* OpenAIService.swift */; };
+		A10000000000000000000009 /* CalendarService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000019 /* CalendarService.swift */; };
+		A1000000000000000000000A /* RecordingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000000000000000000001A /* RecordingView.swift */; };
+		A1000000000000000000000B /* TasksListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000000000000000000001B /* TasksListView.swift */; };
+		A1000000000000000000000C /* CalendarListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000000000000000000001C /* CalendarListView.swift */; };
+		A1000000000000000000000D /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000000000000000000001D /* SettingsView.swift */; };
+		A5FBDA7693F6F44537207726 /* UniversalEscapeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31DF3BEC16CCD1282DCF4AC8 /* UniversalEscapeView.swift */; };
+		A6EF62B0871441AF8A00D7EB /* PresetModeSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6806722D89BA4BDA8290177A /* PresetModeSelector.swift */; };
+		A75927D594F222EBE27C0F65 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8FEE1D132B13930DF00F7D8B /* AVFoundation.framework */; };
+		A78908445FDF4BBF8B3C529A /* WatchSpeechService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFD5CF7BD28DF122FC429BE1 /* WatchSpeechService.swift */; };
+		A812B1522E574C0AA0F037CA /* BodyDoublingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD552BEED6BC43C28FA75971 /* BodyDoublingView.swift */; };
+		AB4C59892237441C9BD67574 /* EnergyService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFD918135880410D8499F3E8 /* EnergyService.swift */; };
+		AF0A1AC69880B1A758E36B95 /* ManageSelfChecksView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A95FCFD496FB257A4555FC8C /* ManageSelfChecksView.swift */; };
+		B3A342C1CE3B45DA8220873D /* DurationEstimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46A8E645D94C41C9BA9574C3 /* DurationEstimator.swift */; };
+		B9C70DC9CE654AABAE2931B8 /* SmartSchedulerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47D75E6B489D4D83BE47339D /* SmartSchedulerView.swift */; };
+		BB3A3888AB526B722329E938 /* GadflyWatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEB1A617413E2CE4427EC9E3 /* GadflyWatchApp.swift */; };
+		BB44B46BAA7D4FCAB30AAE94 /* MyRewardsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01D883A51D1844E997BBD698 /* MyRewardsView.swift */; };
+		C3AFBC5131B5933BB047EE63 /* SecureVaultService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10922479F09E9FF9A06A864 /* SecureVaultService.swift */; };
+		C57697D6D17640F89D87DD73 /* MedicationWindowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 390846FC58CA4361A2220297 /* MedicationWindowView.swift */; };
+		CF89F6EDAEAB369EE66F92CB /* RecentlySpokenService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2DB1A789CA173BF5EBD1862 /* RecentlySpokenService.swift */; };
+		D84C62C0A1F82197BE08C028 /* ExpandableActionButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA1DFED340E872A0E095C8F8 /* ExpandableActionButton.swift */; };
+		D9AC1983D00FFD0BB496D085 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 68DBB1AACA9990EEACBC29D2 /* Foundation.framework */; };
+		D9C82A81D1F924CF16195813 /* GoalsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8442A4EAFF69E2E051D27CB7 /* GoalsService.swift */; };
+		DC46D45A584C50AF86F2AB5A /* AgingTaskPromptView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AE4C39AC41E45CD47646830 /* AgingTaskPromptView.swift */; };
+		DC76FA49078D934489B8B26A /* TaskTriageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE4039F2E47F5C0332B0F5CF /* TaskTriageView.swift */; };
+		E2F75D580ADB072E9EF44D22 /* BackgroundAudioManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5873CC7C151DBE1AA81FD9A9 /* BackgroundAudioManager.swift */; };
+		EA4A5525F9A7459C9DA01D2D /* MedicationWindowService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B226EC150E741B6BF3F9F12 /* MedicationWindowService.swift */; };
+		EC09EC19B46175CDA7431805 /* DayStructureService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00895B78B0B7D1D843379B17 /* DayStructureService.swift */; };
+		ECA3B35510265D675250BB50 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C8A600B19B1FE03462F163F0 /* Assets.xcassets */; };
+		ED459FD9B5AC63559E34B7DA /* EveningCheckInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AF0424560603A1C9A32DE58 /* EveningCheckInView.swift */; };
+		F2B32B44258BDF822C3F43C2 /* GoalsSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACAACDC89F8E89F746053732 /* GoalsSystem.swift */; };
+		F4095EC80BC14C7CBD67D290 /* TimeRingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AE07F44E64A4FBC85F0A430 /* TimeRingView.swift */; };
+		FE77D3FA3850468D9181DA40 /* ManagerDashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D5F6C70F6A94FDF845CB37B /* ManagerDashboardView.swift */; };
+		FF1FEC7987DA0DFF7FF8D2E0 /* GadflyAPIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAC058A774BF29F265D90A5E /* GadflyAPIService.swift */; };
+		HYPER001000000000000001 /* HyperfocusModeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = HYPER001000000000000011 /* HyperfocusModeService.swift */; };
+		HYPER002000000000000002 /* SelfCareService.swift in Sources */ = {isa = PBXBuildFile; fileRef = HYPER002000000000000012 /* SelfCareService.swift */; };
+		HYPER003000000000000003 /* HyperfocusButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = HYPER003000000000000013 /* HyperfocusButtonView.swift */; };
+		HYPER004000000000000004 /* HyperfocusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = HYPER004000000000000014 /* HyperfocusView.swift */; };
+		SCHECK01000000000000001 /* SelfCheckService.swift in Sources */ = {isa = PBXBuildFile; fileRef = SCHECK01000000000000011 /* SelfCheckService.swift */; };
+		SCHECK02000000000000002 /* SelfCheckView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SCHECK02000000000000012 /* SelfCheckView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		03BE5CF11AF55561900A2E4D /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		00895B78B0B7D1D843379B17 /* DayStructureService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DayStructureService.swift; sourceTree = "<group>"; };
+		01D883A51D1844E997BBD698 /* MyRewardsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyRewardsView.swift; sourceTree = "<group>"; };
+		1A2054E11A976B47D4ED1352 /* WatchConnectivity.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WatchConnectivity.framework; path = System/Library/Frameworks/WatchConnectivity.framework; sourceTree = SDKROOT; };
+		1E6F436927009861F1227516 /* NaggingLevelService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NaggingLevelService.swift; sourceTree = "<group>"; };
+		21D5E2DF26EF9EE993D8AA84 /* MorningIntentionView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MorningIntentionView.swift; sourceTree = "<group>"; };
+		2A2134D18210FCE429777B0D /* ConnectionsListView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ConnectionsListView.swift; sourceTree = "<group>"; };
+		2D25736180B637B147100E6B /* OnboardingStepsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OnboardingStepsView.swift; sourceTree = "<group>"; };
+		2DC017FC0D140DFD57781A01 /* ContentView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		31DF3BEC16CCD1282DCF4AC8 /* UniversalEscapeView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = UniversalEscapeView.swift; sourceTree = "<group>"; };
+		34295899772FAC838C2F76AA /* GoalsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GoalsView.swift; sourceTree = "<group>"; };
+		390846FC58CA4361A2220297 /* MedicationWindowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MedicationWindowView.swift; sourceTree = "<group>"; };
+		3AE4C39AC41E45CD47646830 /* AgingTaskPromptView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AgingTaskPromptView.swift; sourceTree = "<group>"; };
+		3BF88B6CCD964C8AAE5E8C5B /* MomentumTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MomentumTracker.swift; sourceTree = "<group>"; };
+		3F981A803A534576A7CD8B41 /* NotificationIntelligence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationIntelligence.swift; sourceTree = "<group>"; };
+		42CEC0A30FD2C5B95C9A49AE /* RefocusPromptView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RefocusPromptView.swift; sourceTree = "<group>"; };
+		4663B7D03E42FDBB0169E839 /* CustomDictionaryService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CustomDictionaryService.swift; sourceTree = "<group>"; };
+		46A8E645D94C41C9BA9574C3 /* DurationEstimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DurationEstimator.swift; sourceTree = "<group>"; };
+		47D75E6B489D4D83BE47339D /* SmartSchedulerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartSchedulerView.swift; sourceTree = "<group>"; };
+		487612F1121CC1B9CBCFF5DE /* WatchConnectivity.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WatchConnectivity.framework; path = System/Library/Frameworks/WatchConnectivity.framework; sourceTree = SDKROOT; };
+		4AF0424560603A1C9A32DE58 /* EveningCheckInView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = EveningCheckInView.swift; sourceTree = "<group>"; };
+		4CF2B10B93350D0C003397D6 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		4E6A99CE705776F1084EE3C9 /* ActiveFocusSessionView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ActiveFocusSessionView.swift; sourceTree = "<group>"; };
+		564A44DD530F4EFAB835753A /* RewardsSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardsSystem.swift; sourceTree = "<group>"; };
+		5764B4B33DC543659ABA7907 /* LocationsManagerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationsManagerView.swift; sourceTree = "<group>"; };
+		5873CC7C151DBE1AA81FD9A9 /* BackgroundAudioManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BackgroundAudioManager.swift; sourceTree = "<group>"; };
+		5AE07F44E64A4FBC85F0A430 /* TimeRingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeRingView.swift; sourceTree = "<group>"; };
+		5FDD74EA9C654AB00CDE2852 /* WatchConnectivityManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WatchConnectivityManager.swift; sourceTree = "<group>"; };
+		61E7AFE0F0AF44F9B1E332DC /* TaskBreakdownView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskBreakdownView.swift; sourceTree = "<group>"; };
+		6806722D89BA4BDA8290177A /* PresetModeSelector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresetModeSelector.swift; sourceTree = "<group>"; };
+		68D7CFCC18BE4A25B7F8CC72 /* MomentumView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MomentumView.swift; sourceTree = "<group>"; };
+		68DBB1AACA9990EEACBC29D2 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/WatchOS.platform/Developer/SDKs/WatchOS11.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		6A245D9ADE9C23A6F1B2A90F /* GoalDetailView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GoalDetailView.swift; sourceTree = "<group>"; };
+		6CED4EF130D54C8F8A99A863 /* TaskAttackView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskAttackView.swift; sourceTree = "<group>"; };
+		70051B27E77149839E770ECA /* CelebrationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CelebrationService.swift; sourceTree = "<group>"; };
+		70A18A9C2DE041D4BC914056 /* CheckoutChecklistService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckoutChecklistService.swift; sourceTree = "<group>"; };
+		70D3DE26AF364F01B3D48AB7 /* PresetModes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresetModes.swift; sourceTree = "<group>"; };
+		71A79D170A84850C13DB42CB /* AppDelegate.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		72229982C2BFCA667E5E8BAE /* SessionStateService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SessionStateService.swift; sourceTree = "<group>"; };
+		7C2E6BD70E0A4C2980DD4875 /* LocationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationService.swift; sourceTree = "<group>"; };
+		7D02C3BACF2E489CA1980380 /* SmartScheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartScheduler.swift; sourceTree = "<group>"; };
+		7F91CDF0C4424AE08A8022DB /* TaskAttackAdvisor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskAttackAdvisor.swift; sourceTree = "<group>"; };
+		8442A4EAFF69E2E051D27CB7 /* GoalsService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GoalsService.swift; sourceTree = "<group>"; };
+		87D553E2AFE192A235E70AB3 /* AccountabilityTracker.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountabilityTracker.swift; sourceTree = "<group>"; };
+		8C4D40CD9121108C5D19FBAC /* MessageLibrary.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MessageLibrary.swift; sourceTree = "<group>"; };
+		8D5F6C70F6A94FDF845CB37B /* ManagerDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManagerDashboardView.swift; sourceTree = "<group>"; };
+		8FEE1D132B13930DF00F7D8B /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		92DFF40840AA345A928F2CE0 /* NotificationService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
+		9B226EC150E741B6BF3F9F12 /* MedicationWindowService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MedicationWindowService.swift; sourceTree = "<group>"; };
+		9F32C9B18F944CDD93F66D82 /* TaskCoach.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskCoach.swift; sourceTree = "<group>"; };
+		A10000000000000000000010 /* Gadfly.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Gadfly.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A10000000000000000000011 /* GadflyApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GadflyApp.swift; sourceTree = "<group>"; };
+		A10000000000000000000012 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		A10000000000000000000013 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		A10000000000000000000014 /* ParsedItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParsedItem.swift; sourceTree = "<group>"; };
+		A10000000000000000000015 /* KeychainService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainService.swift; sourceTree = "<group>"; };
+		A10000000000000000000016 /* SpeechService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechService.swift; sourceTree = "<group>"; };
+		A10000000000000000000017 /* ElevenLabsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ElevenLabsService.swift; sourceTree = "<group>"; };
+		A10000000000000000000018 /* OpenAIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenAIService.swift; sourceTree = "<group>"; };
+		A10000000000000000000019 /* CalendarService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarService.swift; sourceTree = "<group>"; };
+		A1000000000000000000001A /* RecordingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingView.swift; sourceTree = "<group>"; };
+		A1000000000000000000001B /* TasksListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TasksListView.swift; sourceTree = "<group>"; };
+		A1000000000000000000001C /* CalendarListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarListView.swift; sourceTree = "<group>"; };
+		A1000000000000000000001D /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		A1000000000000000000001E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A10922479F09E9FF9A06A864 /* SecureVaultService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SecureVaultService.swift; sourceTree = "<group>"; };
+		A1E0B4A664F64046975FB09A /* PresetModeSelector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresetModeSelector.swift; sourceTree = "<group>"; };
+		A95FCFD496FB257A4555FC8C /* ManageSelfChecksView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ManageSelfChecksView.swift; sourceTree = "<group>"; };
+		AC4F98E11395886E9FBB2F37 /* QuickFocusSetupView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = QuickFocusSetupView.swift; sourceTree = "<group>"; };
+		ACAACDC89F8E89F746053732 /* GoalsSystem.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GoalsSystem.swift; sourceTree = "<group>"; };
+		AEA0F02FE16B302A7DFDAAC4 /* MorningChecklistView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MorningChecklistView.swift; sourceTree = "<group>"; };
+		AFD5CF7BD28DF122FC429BE1 /* WatchSpeechService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WatchSpeechService.swift; sourceTree = "<group>"; };
+		BC71E090FAF9442589D5EBD5 /* VoiceCloningService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceCloningService.swift; sourceTree = "<group>"; };
+		C0AE1DAF0366DB2C401BA8F1 /* MorningChecklistService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MorningChecklistService.swift; sourceTree = "<group>"; };
+		C8A600B19B1FE03462F163F0 /* Assets.xcassets */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		C9263F036EEFEDFD62168497 /* SimpleVoicePicker.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SimpleVoicePicker.swift; sourceTree = "<group>"; };
+		CACD5B309D454C5F94420EDC /* GadflyTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GadflyTask.swift; sourceTree = "<group>"; };
+		CBBF03F98FA33664C3129529 /* PushCelebrationView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PushCelebrationView.swift; sourceTree = "<group>"; };
+		CD024C56FADB4D8652369E1B /* TaskAgingService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TaskAgingService.swift; sourceTree = "<group>"; };
+		CFD918135880410D8499F3E8 /* EnergyService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnergyService.swift; sourceTree = "<group>"; };
+		D0F902F13EB08AA09CF886B3 /* PersonalityService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PersonalityService.swift; sourceTree = "<group>"; };
+		D3CB3FCC19AC8C8B237DA530 /* SimpleSettingsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SimpleSettingsView.swift; sourceTree = "<group>"; };
+		D6B72198A77E49CAA4E23A6A /* ManageCustomCheckInsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManageCustomCheckInsView.swift; sourceTree = "<group>"; };
+		D7CF793AFAAB7A153D31DFF5 /* TimesheetService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TimesheetService.swift; sourceTree = "<group>"; };
+		DA7E19462BAE4602B31A28B3 /* BodyDoublingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BodyDoublingService.swift; sourceTree = "<group>"; };
+		DA97D68E1B414EB986574CF9 /* ConfettiView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfettiView.swift; sourceTree = "<group>"; };
+		DE4039F2E47F5C0332B0F5CF /* TaskTriageView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TaskTriageView.swift; sourceTree = "<group>"; };
+		E17DD2E0C77940F3A09DE27E /* VoiceRecordingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceRecordingView.swift; sourceTree = "<group>"; };
+		E3DA168AF2DE44C75C85A3F8 /* AsyncTimeout.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AsyncTimeout.swift; sourceTree = "<group>"; };
+		E41203D5B3EAAF3D303552D9 /* TimesheetView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TimesheetView.swift; sourceTree = "<group>"; };
+		E9B41CEFE144DDF3DA700629 /* Gadfly Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Gadfly Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		EA1DFED340E872A0E095C8F8 /* ExpandableActionButton.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ExpandableActionButton.swift; sourceTree = "<group>"; };
+		EBB467C10E2E4C07A967D6E4 /* FocusHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusHomeView.swift; sourceTree = "<group>"; };
+		EC378AE2B15A475FB3557891 /* CheckoutChecklistView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckoutChecklistView.swift; sourceTree = "<group>"; };
+		F0DAB193AAD64352AD02BFDE /* EnergyCheckInView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnergyCheckInView.swift; sourceTree = "<group>"; };
+		F1DAC294BBD75463BE13CFEF /* CheckInQuickSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckInQuickSetupView.swift; sourceTree = "<group>"; };
+		F1A3284AD314E968BEBD0C49 /* Gadfly Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Gadfly Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		F2DB1A789CA173BF5EBD1862 /* RecentlySpokenService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RecentlySpokenService.swift; sourceTree = "<group>"; };
+		F98A31C2ED45B2BFFD266626 /* NagContactsService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NagContactsService.swift; sourceTree = "<group>"; };
+		FAC058A774BF29F265D90A5E /* GadflyAPIService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GadflyAPIService.swift; sourceTree = "<group>"; };
+		FD552BEED6BC43C28FA75971 /* BodyDoublingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BodyDoublingView.swift; sourceTree = "<group>"; };
+		FEB1A617413E2CE4427EC9E3 /* GadflyWatchApp.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GadflyWatchApp.swift; sourceTree = "<group>"; };
+		HYPER001000000000000011 /* HyperfocusModeService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HyperfocusModeService.swift; sourceTree = "<group>"; };
+		HYPER002000000000000012 /* SelfCareService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelfCareService.swift; sourceTree = "<group>"; };
+		HYPER003000000000000013 /* HyperfocusButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HyperfocusButtonView.swift; sourceTree = "<group>"; };
+		HYPER004000000000000014 /* HyperfocusView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HyperfocusView.swift; sourceTree = "<group>"; };
+		SCHECK01000000000000011 /* SelfCheckService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelfCheckService.swift; sourceTree = "<group>"; };
+		SCHECK02000000000000012 /* SelfCheckView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelfCheckView.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		61CB64EA55480DA0ECBEB798 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D9AC1983D00FFD0BB496D085 /* Foundation.framework in Frameworks */,
+				98F28147CDB75BEFE9E40EC8 /* WatchConnectivity.framework in Frameworks */,
+				A75927D594F222EBE27C0F65 /* AVFoundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A10000000000000000000020 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		0BF171B2B370B4C40F3FD53D /* watchOS */ = {
+			isa = PBXGroup;
+			children = (
+				68DBB1AACA9990EEACBC29D2 /* Foundation.framework */,
+			);
+			name = watchOS;
+			sourceTree = "<group>";
+		};
+		0F4D4C4DB1EF973FA7949953 /* Gadfly Watch App */ = {
+			isa = PBXGroup;
+			children = (
+				FEB1A617413E2CE4427EC9E3 /* GadflyWatchApp.swift */,
+				2DC017FC0D140DFD57781A01 /* ContentView.swift */,
+				5FDD74EA9C654AB00CDE2852 /* WatchConnectivityManager.swift */,
+				AFD5CF7BD28DF122FC429BE1 /* WatchSpeechService.swift */,
+				C8A600B19B1FE03462F163F0 /* Assets.xcassets */,
+			);
+			path = "Gadfly Watch App";
+			sourceTree = "<group>";
+		};
+		A10000000000000000000030 = {
+			isa = PBXGroup;
+			children = (
+				A10000000000000000000031 /* Gadfly */,
+				A10000000000000000000032 /* Products */,
+				EC49FF0FA30AEDFFF10987F9 /* Frameworks */,
+				0F4D4C4DB1EF973FA7949953 /* Gadfly Watch App */,
+			);
+			sourceTree = "<group>";
+		};
+		A10000000000000000000031 /* Gadfly */ = {
+			isa = PBXGroup;
+			children = (
+				A10000000000000000000011 /* GadflyApp.swift */,
+				A10000000000000000000012 /* ContentView.swift */,
+				A10000000000000000000033 /* Models */,
+				A10000000000000000000034 /* Views */,
+				A10000000000000000000035 /* Services */,
+				A10000000000000000000036 /* Utilities */,
+				A10000000000000000000013 /* Assets.xcassets */,
+				A1000000000000000000001E /* Info.plist */,
+				71A79D170A84850C13DB42CB /* AppDelegate.swift */,
+			);
+			path = Gadfly;
+			sourceTree = "<group>";
+		};
+		A10000000000000000000032 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A10000000000000000000010 /* Gadfly.app */,
+				E9B41CEFE144DDF3DA700629 /* Gadfly Watch App.app */,
+				F1A3284AD314E968BEBD0C49 /* Gadfly Watch App.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		A10000000000000000000033 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				564A44DD530F4EFAB835753A /* RewardsSystem.swift */,
+				CACD5B309D454C5F94420EDC /* GadflyTask.swift */,
+				A10000000000000000000014 /* ParsedItem.swift */,
+				ACAACDC89F8E89F746053732 /* GoalsSystem.swift */,
+				70D3DE26AF364F01B3D48AB7 /* PresetModes.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		A10000000000000000000034 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				D6B72198A77E49CAA4E23A6A /* ManageCustomCheckInsView.swift */,
+				8D5F6C70F6A94FDF845CB37B /* ManagerDashboardView.swift */,
+				01D883A51D1844E997BBD698 /* MyRewardsView.swift */,
+				A1E0B4A664F64046975FB09A /* PresetModeSelector.swift */,
+				E17DD2E0C77940F3A09DE27E /* VoiceRecordingView.swift */,
+				5764B4B33DC543659ABA7907 /* LocationsManagerView.swift */,
+				EC378AE2B15A475FB3557891 /* CheckoutChecklistView.swift */,
+				61E7AFE0F0AF44F9B1E332DC /* TaskBreakdownView.swift */,
+				6CED4EF130D54C8F8A99A863 /* TaskAttackView.swift */,
+				A1000000000000000000001A /* RecordingView.swift */,
+				A1000000000000000000001B /* TasksListView.swift */,
+				A1000000000000000000001C /* CalendarListView.swift */,
+				A1000000000000000000001D /* SettingsView.swift */,
+				2A2134D18210FCE429777B0D /* ConnectionsListView.swift */,
+				34295899772FAC838C2F76AA /* GoalsView.swift */,
+				6A245D9ADE9C23A6F1B2A90F /* GoalDetailView.swift */,
+				EBB467C10E2E4C07A967D6E4 /* FocusHomeView.swift */,
+				HYPER004000000000000014 /* HyperfocusView.swift */,
+				SCHECK02000000000000012 /* SelfCheckView.swift */,
+				F0DAB193AAD64352AD02BFDE /* EnergyCheckInView.swift */,
+				F1DAC294BBD75463BE13CFEF /* CheckInQuickSetupView.swift */,
+				6806722D89BA4BDA8290177A /* PresetModeSelector.swift */,
+				390846FC58CA4361A2220297 /* MedicationWindowView.swift */,
+				FD552BEED6BC43C28FA75971 /* BodyDoublingView.swift */,
+				47D75E6B489D4D83BE47339D /* SmartSchedulerView.swift */,
+				C40DD5B004FA438D84428965 /* Components */,
+				AC4F98E11395886E9FBB2F37 /* QuickFocusSetupView.swift */,
+				4E6A99CE705776F1084EE3C9 /* ActiveFocusSessionView.swift */,
+				3AE4C39AC41E45CD47646830 /* AgingTaskPromptView.swift */,
+				42CEC0A30FD2C5B95C9A49AE /* RefocusPromptView.swift */,
+				CBBF03F98FA33664C3129529 /* PushCelebrationView.swift */,
+				21D5E2DF26EF9EE993D8AA84 /* MorningIntentionView.swift */,
+				4AF0424560603A1C9A32DE58 /* EveningCheckInView.swift */,
+				DE4039F2E47F5C0332B0F5CF /* TaskTriageView.swift */,
+				AEA0F02FE16B302A7DFDAAC4 /* MorningChecklistView.swift */,
+				A95FCFD496FB257A4555FC8C /* ManageSelfChecksView.swift */,
+				E41203D5B3EAAF3D303552D9 /* TimesheetView.swift */,
+				2D25736180B637B147100E6B /* OnboardingStepsView.swift */,
+				31DF3BEC16CCD1282DCF4AC8 /* UniversalEscapeView.swift */,
+				D3CB3FCC19AC8C8B237DA530 /* SimpleSettingsView.swift */,
+				C9263F036EEFEDFD62168497 /* SimpleVoicePicker.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		A10000000000000000000035 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				BC71E090FAF9442589D5EBD5 /* VoiceCloningService.swift */,
+				70A18A9C2DE041D4BC914056 /* CheckoutChecklistService.swift */,
+				7C2E6BD70E0A4C2980DD4875 /* LocationService.swift */,
+				9F32C9B18F944CDD93F66D82 /* TaskCoach.swift */,
+				7F91CDF0C4424AE08A8022DB /* TaskAttackAdvisor.swift */,
+				A10000000000000000000016 /* SpeechService.swift */,
+				A10000000000000000000017 /* ElevenLabsService.swift */,
+				A10000000000000000000018 /* OpenAIService.swift */,
+				A10000000000000000000019 /* CalendarService.swift */,
+				92DFF40840AA345A928F2CE0 /* NotificationService.swift */,
+				5873CC7C151DBE1AA81FD9A9 /* BackgroundAudioManager.swift */,
+				A10922479F09E9FF9A06A864 /* SecureVaultService.swift */,
+				F98A31C2ED45B2BFFD266626 /* NagContactsService.swift */,
+				D0F902F13EB08AA09CF886B3 /* PersonalityService.swift */,
+				FAC058A774BF29F265D90A5E /* GadflyAPIService.swift */,
+				8442A4EAFF69E2E051D27CB7 /* GoalsService.swift */,
+				87D553E2AFE192A235E70AB3 /* AccountabilityTracker.swift */,
+				70051B27E77149839E770ECA /* CelebrationService.swift */,
+				3BF88B6CCD964C8AAE5E8C5B /* MomentumTracker.swift */,
+				HYPER001000000000000011 /* HyperfocusModeService.swift */,
+				HYPER002000000000000012 /* SelfCareService.swift */,
+				SCHECK01000000000000011 /* SelfCheckService.swift */,
+				CFD918135880410D8499F3E8 /* EnergyService.swift */,
+				46A8E645D94C41C9BA9574C3 /* DurationEstimator.swift */,
+				3F981A803A534576A7CD8B41 /* NotificationIntelligence.swift */,
+				9B226EC150E741B6BF3F9F12 /* MedicationWindowService.swift */,
+				DA7E19462BAE4602B31A28B3 /* BodyDoublingService.swift */,
+				7D02C3BACF2E489CA1980380 /* SmartScheduler.swift */,
+				CD024C56FADB4D8652369E1B /* TaskAgingService.swift */,
+				8C4D40CD9121108C5D19FBAC /* MessageLibrary.swift */,
+				C0AE1DAF0366DB2C401BA8F1 /* MorningChecklistService.swift */,
+				D7CF793AFAAB7A153D31DFF5 /* TimesheetService.swift */,
+				00895B78B0B7D1D843379B17 /* DayStructureService.swift */,
+				1E6F436927009861F1227516 /* NaggingLevelService.swift */,
+				F2DB1A789CA173BF5EBD1862 /* RecentlySpokenService.swift */,
+				72229982C2BFCA667E5E8BAE /* SessionStateService.swift */,
+				4663B7D03E42FDBB0169E839 /* CustomDictionaryService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		A10000000000000000000036 /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				A10000000000000000000015 /* KeychainService.swift */,
+				E3DA168AF2DE44C75C85A3F8 /* AsyncTimeout.swift */,
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
+		C40DD5B004FA438D84428965 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				DA97D68E1B414EB986574CF9 /* ConfettiView.swift */,
+				68D7CFCC18BE4A25B7F8CC72 /* MomentumView.swift */,
+				5AE07F44E64A4FBC85F0A430 /* TimeRingView.swift */,
+				HYPER003000000000000013 /* HyperfocusButtonView.swift */,
+				EA1DFED340E872A0E095C8F8 /* ExpandableActionButton.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		EC49FF0FA30AEDFFF10987F9 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				0BF171B2B370B4C40F3FD53D /* watchOS */,
+				1A2054E11A976B47D4ED1352 /* WatchConnectivity.framework */,
+				4CF2B10B93350D0C003397D6 /* AVFoundation.framework */,
+				487612F1121CC1B9CBCFF5DE /* WatchConnectivity.framework */,
+				8FEE1D132B13930DF00F7D8B /* AVFoundation.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		50E02FB4B7A54778840581B5 /* Gadfly Watch App */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 8C998EF24132240DD47D7C24 /* Build configuration list for PBXNativeTarget "Gadfly Watch App" */;
+			buildPhases = (
+				BC325724AF76BD64934547C7 /* Sources */,
+				61CB64EA55480DA0ECBEB798 /* Frameworks */,
+				0272D25EF6A39A3EB501470D /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Gadfly Watch App";
+			productName = "Gadfly Watch App";
+			productReference = F1A3284AD314E968BEBD0C49 /* Gadfly Watch App.app */;
+			productType = "com.apple.product-type.application";
+		};
+		A10000000000000000000040 /* Gadfly */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A10000000000000000000060 /* Build configuration list for PBXNativeTarget "Gadfly" */;
+			buildPhases = (
+				A10000000000000000000041 /* Sources */,
+				A10000000000000000000020 /* Frameworks */,
+				A10000000000000000000042 /* Resources */,
+				03BE5CF11AF55561900A2E4D /* Embed Watch Content */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Gadfly;
+			productName = Gadfly;
+			productReference = A10000000000000000000010 /* Gadfly.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A10000000000000000000050 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 2620;
+				TargetAttributes = {
+					A10000000000000000000040 = {
+						CreatedOnToolsVersion = 15.0;
+					};
+				};
+			};
+			buildConfigurationList = A10000000000000000000051 /* Build configuration list for PBXProject "Gadfly" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = A10000000000000000000030;
+			productRefGroup = A10000000000000000000032 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				A10000000000000000000040 /* Gadfly */,
+				50E02FB4B7A54778840581B5 /* Gadfly Watch App */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		0272D25EF6A39A3EB501470D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				ECA3B35510265D675250BB50 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A10000000000000000000042 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A10000000000000000000003 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		A10000000000000000000041 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4FA33387FF744B4EBA6E178F /* RewardsSystem.swift in Sources */,
+				6D7C89F9D28A4E7B98F50AEA /* ManageCustomCheckInsView.swift in Sources */,
+				FE77D3FA3850468D9181DA40 /* ManagerDashboardView.swift in Sources */,
+				BB44B46BAA7D4FCAB30AAE94 /* MyRewardsView.swift in Sources */,
+				271CA4F328DA4B5DB24E59F6 /* PresetModeSelector.swift in Sources */,
+				20FCD0F0A6F14A2AA46F2B63 /* VoiceRecordingView.swift in Sources */,
+				2CD31655697A4E60A90EEF5D /* VoiceCloningService.swift in Sources */,
+				2989136E1FCE4D9380B752AA /* LocationService.swift in Sources */,
+				5E49729C44524CC39396A81F /* CheckoutChecklistService.swift in Sources */,
+				15F9C9FD9B724B73835D85BC /* CheckoutChecklistView.swift in Sources */,
+				13CFCDFE35FE48C6A9EDB8A8 /* LocationsManagerView.swift in Sources */,
+				0E9B4E824AB0424F83FA8DE3 /* GadflyTask.swift in Sources */,
+				61331DFCDE9B4FAF85E5BAF9 /* TaskAttackAdvisor.swift in Sources */,
+				9A093C6C4AA7428188644B23 /* TaskCoach.swift in Sources */,
+				529FEA83803B4D5EBDF51B64 /* TaskAttackView.swift in Sources */,
+				1302001B6DD9494D92652567 /* TaskBreakdownView.swift in Sources */,
+				A10000000000000000000001 /* GadflyApp.swift in Sources */,
+				A10000000000000000000002 /* ContentView.swift in Sources */,
+				A10000000000000000000004 /* ParsedItem.swift in Sources */,
+				A10000000000000000000005 /* KeychainService.swift in Sources */,
+				A10000000000000000000006 /* SpeechService.swift in Sources */,
+				A10000000000000000000007 /* ElevenLabsService.swift in Sources */,
+				A10000000000000000000008 /* OpenAIService.swift in Sources */,
+				A10000000000000000000009 /* CalendarService.swift in Sources */,
+				A1000000000000000000000A /* RecordingView.swift in Sources */,
+				A1000000000000000000000B /* TasksListView.swift in Sources */,
+				A1000000000000000000000C /* CalendarListView.swift in Sources */,
+				A1000000000000000000000D /* SettingsView.swift in Sources */,
+				3C317897C2612E692B5F71DE /* AppDelegate.swift in Sources */,
+				7489FA82887B22B904B4F137 /* NotificationService.swift in Sources */,
+				E2F75D580ADB072E9EF44D22 /* BackgroundAudioManager.swift in Sources */,
+				C3AFBC5131B5933BB047EE63 /* SecureVaultService.swift in Sources */,
+				0ABDEB363414C2CF4DDFE26C /* NagContactsService.swift in Sources */,
+				0DAEB3143CB8D1F91EF1364D /* PersonalityService.swift in Sources */,
+				FF1FEC7987DA0DFF7FF8D2E0 /* GadflyAPIService.swift in Sources */,
+				416E4D41EF5A4779E2EE0A78 /* ConnectionsListView.swift in Sources */,
+				F2B32B44258BDF822C3F43C2 /* GoalsSystem.swift in Sources */,
+				D9C82A81D1F924CF16195813 /* GoalsService.swift in Sources */,
+				05EFDE3CDDB4085A5998AAB5 /* AccountabilityTracker.swift in Sources */,
+				5C63459BED5CF2CBE32C8164 /* GoalsView.swift in Sources */,
+				731DE00E876033367834BF1B /* GoalDetailView.swift in Sources */,
+				2D0A288025E54F399692ED6E /* CelebrationService.swift in Sources */,
+				84EA11ECF4364E4F808ABB37 /* MomentumTracker.swift in Sources */,
+				AB4C59892237441C9BD67574 /* EnergyService.swift in Sources */,
+				B3A342C1CE3B45DA8220873D /* DurationEstimator.swift in Sources */,
+				2D6A6AAFADD942158F082449 /* NotificationIntelligence.swift in Sources */,
+				EA4A5525F9A7459C9DA01D2D /* MedicationWindowService.swift in Sources */,
+				672BD1283162434EB9AFC701 /* BodyDoublingService.swift in Sources */,
+				77551ADBA98A479986D78763 /* SmartScheduler.swift in Sources */,
+				415FE712A7954ADE888808F1 /* FocusHomeView.swift in Sources */,
+				5BA0BB1DE1A8413F83667956 /* EnergyCheckInView.swift in Sources */,
+				5BB1CC2DE1A8513F93667957 /* CheckInQuickSetupView.swift in Sources */,
+				A6EF62B0871441AF8A00D7EB /* PresetModeSelector.swift in Sources */,
+				C57697D6D17640F89D87DD73 /* MedicationWindowView.swift in Sources */,
+				A812B1522E574C0AA0F037CA /* BodyDoublingView.swift in Sources */,
+				B9C70DC9CE654AABAE2931B8 /* SmartSchedulerView.swift in Sources */,
+				68811C167BD84D3E9669DAC9 /* PresetModes.swift in Sources */,
+				18A2B8FCC54549A88ED898B5 /* ConfettiView.swift in Sources */,
+				114FC3F8F70D48E1ABB84B69 /* MomentumView.swift in Sources */,
+				F4095EC80BC14C7CBD67D290 /* TimeRingView.swift in Sources */,
+				HYPER001000000000000001 /* HyperfocusModeService.swift in Sources */,
+				HYPER002000000000000002 /* SelfCareService.swift in Sources */,
+				HYPER003000000000000003 /* HyperfocusButtonView.swift in Sources */,
+				HYPER004000000000000004 /* HyperfocusView.swift in Sources */,
+				SCHECK01000000000000001 /* SelfCheckService.swift in Sources */,
+				SCHECK02000000000000002 /* SelfCheckView.swift in Sources */,
+				702011DB98CCD4DA9FD22C24 /* QuickFocusSetupView.swift in Sources */,
+				162CC3D24ACCF25168EE798C /* ActiveFocusSessionView.swift in Sources */,
+				4FCB70A58E39FF58878A65DD /* TaskAgingService.swift in Sources */,
+				DC46D45A584C50AF86F2AB5A /* AgingTaskPromptView.swift in Sources */,
+				1AF867A252B5846FB310CDAA /* RefocusPromptView.swift in Sources */,
+				32F0CF15DB532ABC62168F71 /* PushCelebrationView.swift in Sources */,
+				78F692100A575048749F7E69 /* MorningIntentionView.swift in Sources */,
+				ED459FD9B5AC63559E34B7DA /* EveningCheckInView.swift in Sources */,
+				DC76FA49078D934489B8B26A /* TaskTriageView.swift in Sources */,
+				87A5AE2A716ADBC60B159F38 /* MessageLibrary.swift in Sources */,
+				318D2D197FD6F0945621C25C /* MorningChecklistService.swift in Sources */,
+				80824E2E5D99D12FF6F1A351 /* MorningChecklistView.swift in Sources */,
+				AF0A1AC69880B1A758E36B95 /* ManageSelfChecksView.swift in Sources */,
+				2048781E42F16F9E45499590 /* TimesheetService.swift in Sources */,
+				1AE72DCD6E6D57DE636C126D /* TimesheetView.swift in Sources */,
+				EC09EC19B46175CDA7431805 /* DayStructureService.swift in Sources */,
+				87716A7E157935A4E6B7CFCD /* NaggingLevelService.swift in Sources */,
+				5688EC6D2701F34BE723316F /* OnboardingStepsView.swift in Sources */,
+				CF89F6EDAEAB369EE66F92CB /* RecentlySpokenService.swift in Sources */,
+				498D34DCDD1CFC0A20D550BC /* SessionStateService.swift in Sources */,
+				A5FBDA7693F6F44537207726 /* UniversalEscapeView.swift in Sources */,
+				4104D284394F632D51A47A4B /* SimpleSettingsView.swift in Sources */,
+				1FF89E78171A3133DECCA7B6 /* SimpleVoicePicker.swift in Sources */,
+				194511BC70990766A78AB414 /* AsyncTimeout.swift in Sources */,
+				D84C62C0A1F82197BE08C028 /* ExpandableActionButton.swift in Sources */,
+				25478C035E810D7D985F739D /* CustomDictionaryService.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BC325724AF76BD64934547C7 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BB3A3888AB526B722329E938 /* GadflyWatchApp.swift in Sources */,
+				5742E73DCAAE1528D34F3490 /* ContentView.swift in Sources */,
+				923DD196BB279C525006755A /* WatchConnectivityManager.swift in Sources */,
+				A78908445FDF4BBF8B3C529A /* WatchSpeechService.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		3158800F61E52ACD12EA5A3F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Gadfly;
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.gadfly.adhd;
+				INFOPLIST_KEY_WKRunsIndependentlyOfCompanionApp = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = com.gadfly.adhd.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				VALIDATE_PRODUCT = YES;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Release;
+		};
+		798134DBFF43A161AB501887 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Gadfly;
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.gadfly.adhd;
+				INFOPLIST_KEY_WKRunsIndependentlyOfCompanionApp = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = com.gadfly.adhd.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Debug;
+		};
+		A10000000000000000000052 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = P96DZPGQGW;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		A10000000000000000000053 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = P96DZPGQGW;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		A10000000000000000000061 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Gadfly/Info.plist;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.gadfly.adhd;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		A10000000000000000000062 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Gadfly/Info.plist;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.gadfly.adhd;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		8C998EF24132240DD47D7C24 /* Build configuration list for PBXNativeTarget "Gadfly Watch App" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3158800F61E52ACD12EA5A3F /* Release */,
+				798134DBFF43A161AB501887 /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A10000000000000000000051 /* Build configuration list for PBXProject "Gadfly" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A10000000000000000000052 /* Debug */,
+				A10000000000000000000053 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A10000000000000000000060 /* Build configuration list for PBXNativeTarget "Gadfly" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A10000000000000000000061 /* Debug */,
+				A10000000000000000000062 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = A10000000000000000000050 /* Project object */;
+}

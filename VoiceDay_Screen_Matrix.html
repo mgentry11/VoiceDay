@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VoiceDay iOS App - Screen Matrix</title>
+    <title>VoiceDay iOS App - Complete Screen Matrix & User Journeys</title>
     <style>
         :root {
             --bg-primary: #0a0a0a;
@@ -31,7 +31,7 @@
         }
 
         .container {
-            max-width: 1400px;
+            max-width: 1600px;
             margin: 0 auto;
         }
 
@@ -216,6 +216,7 @@
         .badge-fullscreen { background: #ef4444; color: white; }
         .badge-component { background: #6b7280; color: white; }
         .badge-onboarding { background: #10b981; color: white; }
+        .badge-new { background: #ec4899; color: white; }
 
         /* Color coding for sections */
         .tab-screens .section-icon { background: linear-gradient(135deg, #3b82f6, #60a5fa); }
@@ -225,6 +226,115 @@
         .routine-screens .section-icon { background: linear-gradient(135deg, #f97316, #fb923c); }
         .settings-screens .section-icon { background: linear-gradient(135deg, #6b7280, #9ca3af); }
         .utility-screens .section-icon { background: linear-gradient(135deg, #06b6d4, #22d3ee); }
+        .voice-screens .section-icon { background: linear-gradient(135deg, #ef4444, #f87171); }
+        .goals-screens .section-icon { background: linear-gradient(135deg, #8b5cf6, #a78bfa); }
+
+        /* User Journey Styles */
+        .journey-section {
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-card));
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 40px;
+            border: 1px solid var(--border);
+        }
+
+        .journey-header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .journey-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+        }
+
+        .journey-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .journey-subtitle {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 40px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, var(--accent), var(--accent-light), #f59e0b, #ef4444, #8b5cf6);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: var(--bg-card);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -33px;
+            top: 24px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--accent);
+            border: 3px solid var(--bg-primary);
+        }
+
+        .timeline-time {
+            font-size: 0.85rem;
+            color: var(--accent);
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .timeline-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .timeline-screens {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .screen-pill {
+            background: var(--bg-secondary);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            border: 1px solid var(--border);
+        }
+
+        .screen-pill.primary {
+            background: linear-gradient(135deg, var(--accent), var(--accent-light));
+            color: black;
+            border: none;
+        }
 
         .architecture-diagram {
             background: var(--bg-card);
@@ -306,38 +416,93 @@
             color: var(--text-secondary);
         }
 
+        .toc {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 40px;
+            border: 1px solid var(--border);
+        }
+
+        .toc h3 {
+            margin-bottom: 20px;
+            color: var(--accent);
+        }
+
+        .toc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .toc-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 15px;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--text-primary);
+            transition: all 0.2s;
+        }
+
+        .toc-item:hover {
+            background: var(--accent);
+            color: black;
+        }
+
         @media (max-width: 768px) {
             h1 { font-size: 2rem; }
             .stats { gap: 20px; }
             .stat-number { font-size: 2rem; }
             .screen-grid { grid-template-columns: 1fr; }
+            .journey-section { padding: 20px; }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>VoiceDay</h1>
-            <p class="subtitle">ADHD-Friendly Task Management iOS App</p>
+            <h1>VoiceDay / Gadfly</h1>
+            <p class="subtitle">Complete Screen Matrix & User Day Journeys</p>
             <div class="stats">
                 <div class="stat">
                     <div class="stat-number">5</div>
                     <div class="stat-label">Main Tabs</div>
                 </div>
                 <div class="stat">
-                    <div class="stat-number">40+</div>
+                    <div class="stat-number">75+</div>
                     <div class="stat-label">Total Screens</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">9</div>
+                    <div class="stat-label">User Journeys</div>
                 </div>
                 <div class="stat">
                     <div class="stat-number">15</div>
                     <div class="stat-label">Bot Personalities</div>
                 </div>
-                <div class="stat">
-                    <div class="stat-number">iOS 17+</div>
-                    <div class="stat-label">Target Platform</div>
-                </div>
             </div>
         </header>
+
+        <!-- Table of Contents -->
+        <div class="toc">
+            <h3>Quick Navigation</h3>
+            <div class="toc-grid">
+                <a href="#flows" class="toc-item">Screen Flow Diagrams</a>
+                <a href="#journeys" class="toc-item">User Day Journeys</a>
+                <a href="#tabs" class="toc-item">Main Tab Views</a>
+                <a href="#onboarding" class="toc-item">Onboarding Flow</a>
+                <a href="#voice" class="toc-item">Voice & Recording</a>
+                <a href="#focus" class="toc-item">Focus & Productivity</a>
+                <a href="#tasks" class="toc-item">Task Management</a>
+                <a href="#goals" class="toc-item">Goals System</a>
+                <a href="#routines" class="toc-item">Daily Routines</a>
+                <a href="#settings" class="toc-item">Settings</a>
+                <a href="#components" class="toc-item">Components</a>
+            </div>
+        </div>
 
         <!-- App Architecture -->
         <div class="architecture-diagram">
@@ -367,21 +532,963 @@
             <div class="flow-diagram">
                 <span class="flow-item">App Launch</span>
                 <span class="flow-arrow">→</span>
-                <span class="flow-item">Onboarding (if needed)</span>
+                <span class="flow-item">Onboarding (if new)</span>
                 <span class="flow-arrow">→</span>
                 <span class="flow-item">Voice Setup</span>
                 <span class="flow-arrow">→</span>
                 <span class="flow-item">Personality Selection</span>
                 <span class="flow-arrow">→</span>
+                <span class="flow-item">Daily Structure</span>
+                <span class="flow-arrow">→</span>
                 <span class="flow-item">Main App</span>
             </div>
         </div>
 
+        <!-- SCREEN FLOW DIAGRAMS -->
+        <section id="flows" class="section">
+            <div class="section-header">
+                <div class="section-icon" style="background: linear-gradient(135deg, #8b5cf6, #a78bfa);">🔀</div>
+                <h2>Screen Flow Diagrams</h2>
+            </div>
+
+            <!-- Tab Navigation Flow -->
+            <div class="flow-container">
+                <h3 class="flow-title">Main Tab Navigation</h3>
+                <div class="flow-grid">
+                    <div class="flow-node tab-node">
+                        <span class="node-icon">🎯</span>
+                        <span class="node-label">Focus</span>
+                        <div class="node-children">
+                            <span class="child-node">HyperfocusView</span>
+                            <span class="child-node">QuickFocusSetupView</span>
+                            <span class="child-node">ActiveFocusSessionView</span>
+                            <span class="child-node">BodyDoublingView</span>
+                        </div>
+                    </div>
+                    <div class="flow-node tab-node">
+                        <span class="node-icon">🎙️</span>
+                        <span class="node-label">Record</span>
+                        <div class="node-children">
+                            <span class="child-node">VoiceRecordingView</span>
+                            <span class="child-node">ArchitectView</span>
+                            <span class="child-node">ParsedItemsCard</span>
+                        </div>
+                    </div>
+                    <div class="flow-node tab-node">
+                        <span class="node-icon">✅</span>
+                        <span class="node-label">Tasks</span>
+                        <div class="node-children">
+                            <span class="child-node">TaskDetailView</span>
+                            <span class="child-node">TaskTriageView</span>
+                            <span class="child-node">TaskAttackView</span>
+                            <span class="child-node">WeeklyTasksView</span>
+                        </div>
+                    </div>
+                    <div class="flow-node tab-node">
+                        <span class="node-icon">🎯</span>
+                        <span class="node-label">Goals</span>
+                        <div class="node-children">
+                            <span class="child-node">GoalDetailView</span>
+                            <span class="child-node">AccountabilityStatsView</span>
+                            <span class="child-node">MilestoneRow</span>
+                        </div>
+                    </div>
+                    <div class="flow-node tab-node">
+                        <span class="node-icon">⚙️</span>
+                        <span class="node-label">Settings</span>
+                        <div class="node-children">
+                            <span class="child-node">VoicePickerView</span>
+                            <span class="child-node">LocationsManagerView</span>
+                            <span class="child-node">ManageSelfChecksView</span>
+                            <span class="child-node">ConnectionsListView</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Task Flow -->
+            <div class="flow-container">
+                <h3 class="flow-title">Task Lifecycle Flow</h3>
+                <div class="horizontal-flow">
+                    <div class="hflow-step">
+                        <div class="hflow-node start">Voice Input</div>
+                        <div class="hflow-label">RecordingView</div>
+                    </div>
+                    <div class="hflow-arrow">→</div>
+                    <div class="hflow-step">
+                        <div class="hflow-node">AI Parse</div>
+                        <div class="hflow-label">ParsedItemsCard</div>
+                    </div>
+                    <div class="hflow-arrow">→</div>
+                    <div class="hflow-step">
+                        <div class="hflow-node">Task List</div>
+                        <div class="hflow-label">TasksListView</div>
+                    </div>
+                    <div class="hflow-arrow">→</div>
+                    <div class="hflow-step">
+                        <div class="hflow-node">Focus</div>
+                        <div class="hflow-label">FocusHomeView</div>
+                    </div>
+                    <div class="hflow-arrow">→</div>
+                    <div class="hflow-step">
+                        <div class="hflow-node">Work</div>
+                        <div class="hflow-label">HyperfocusView</div>
+                    </div>
+                    <div class="hflow-arrow">→</div>
+                    <div class="hflow-step">
+                        <div class="hflow-node end">Complete!</div>
+                        <div class="hflow-label">PushCelebrationView</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Daily Rhythm Flow -->
+            <div class="flow-container">
+                <h3 class="flow-title">Daily Rhythm Flow</h3>
+                <div class="rhythm-flow">
+                    <div class="rhythm-block morning">
+                        <div class="rhythm-time">🌅 Morning</div>
+                        <div class="rhythm-screens">
+                            <span>MorningChecklistView</span>
+                            <span>CalendarReviewSheet</span>
+                            <span>TasksReviewSheet</span>
+                            <span>EnergyCheckInView</span>
+                        </div>
+                    </div>
+                    <div class="rhythm-arrow">↓</div>
+                    <div class="rhythm-block day">
+                        <div class="rhythm-time">☀️ Daytime</div>
+                        <div class="rhythm-screens">
+                            <span>FocusHomeView</span>
+                            <span>RecordingView</span>
+                            <span>TasksListView</span>
+                            <span>HyperfocusView</span>
+                            <span>SelfCheckPromptView</span>
+                        </div>
+                    </div>
+                    <div class="rhythm-arrow">↓</div>
+                    <div class="rhythm-block evening">
+                        <div class="rhythm-time">🌙 Evening</div>
+                        <div class="rhythm-screens">
+                            <span>EveningCheckInView</span>
+                            <span>SelfCheckView</span>
+                            <span>MyRewardsView</span>
+                        </div>
+                    </div>
+                    <div class="rhythm-arrow">↓</div>
+                    <div class="rhythm-block night">
+                        <div class="rhythm-time">🌑 Bedtime</div>
+                        <div class="rhythm-screens">
+                            <span>CheckoutChecklistView</span>
+                            <span>GoodNightView</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stuck/Crisis Flow -->
+            <div class="flow-container">
+                <h3 class="flow-title">Getting Unstuck Flow</h3>
+                <div class="horizontal-flow">
+                    <div class="hflow-step">
+                        <div class="hflow-node crisis">Stuck</div>
+                        <div class="hflow-label">Can't start task</div>
+                    </div>
+                    <div class="hflow-arrow">→</div>
+                    <div class="hflow-step">
+                        <div class="hflow-node">Attack</div>
+                        <div class="hflow-label">TaskAttackView</div>
+                    </div>
+                    <div class="hflow-arrow">→</div>
+                    <div class="hflow-step">
+                        <div class="hflow-node">Break Down</div>
+                        <div class="hflow-label">TaskBreakdownView</div>
+                    </div>
+                    <div class="hflow-arrow">→</div>
+                    <div class="hflow-step">
+                        <div class="hflow-node">Body Double</div>
+                        <div class="hflow-label">BodyDoublingView</div>
+                    </div>
+                    <div class="hflow-arrow">→</div>
+                    <div class="hflow-step">
+                        <div class="hflow-node end">Progress!</div>
+                        <div class="hflow-label">MomentumView</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <style>
+            .flow-container {
+                background: var(--bg-card);
+                border-radius: 16px;
+                padding: 30px;
+                margin-bottom: 30px;
+                border: 1px solid var(--border);
+            }
+            .flow-title {
+                color: var(--accent);
+                margin-bottom: 20px;
+                font-size: 1.2rem;
+            }
+            .flow-grid {
+                display: grid;
+                grid-template-columns: repeat(5, 1fr);
+                gap: 15px;
+            }
+            .flow-node {
+                background: var(--bg-secondary);
+                border-radius: 12px;
+                padding: 20px;
+                text-align: center;
+                border: 1px solid var(--border);
+            }
+            .tab-node { border-top: 3px solid var(--accent); }
+            .node-icon { font-size: 2rem; display: block; margin-bottom: 8px; }
+            .node-label { font-weight: 600; display: block; margin-bottom: 12px; }
+            .node-children { display: flex; flex-direction: column; gap: 6px; }
+            .child-node {
+                font-size: 0.75rem;
+                color: var(--text-secondary);
+                background: var(--bg-primary);
+                padding: 4px 8px;
+                border-radius: 4px;
+            }
+            .horizontal-flow {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            .hflow-step { text-align: center; }
+            .hflow-node {
+                background: var(--bg-secondary);
+                padding: 15px 25px;
+                border-radius: 10px;
+                font-weight: 600;
+                border: 2px solid var(--border);
+            }
+            .hflow-node.start { border-color: var(--accent); background: rgba(34, 197, 94, 0.1); }
+            .hflow-node.end { border-color: #f59e0b; background: rgba(245, 158, 11, 0.1); }
+            .hflow-node.crisis { border-color: #ef4444; background: rgba(239, 68, 68, 0.1); }
+            .hflow-label { font-size: 0.75rem; color: var(--text-secondary); margin-top: 8px; }
+            .hflow-arrow { color: var(--accent); font-size: 1.5rem; }
+            .rhythm-flow {
+                display: flex;
+                flex-direction: column;
+                gap: 15px;
+            }
+            .rhythm-block {
+                background: var(--bg-secondary);
+                border-radius: 12px;
+                padding: 20px;
+                border-left: 4px solid;
+            }
+            .rhythm-block.morning { border-color: #f59e0b; }
+            .rhythm-block.day { border-color: #22c55e; }
+            .rhythm-block.evening { border-color: #8b5cf6; }
+            .rhythm-block.night { border-color: #3b82f6; }
+            .rhythm-time { font-weight: 600; margin-bottom: 10px; }
+            .rhythm-screens {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+            .rhythm-screens span {
+                background: var(--bg-primary);
+                padding: 4px 10px;
+                border-radius: 6px;
+                font-size: 0.8rem;
+                color: var(--text-secondary);
+            }
+            .rhythm-arrow { text-align: center; color: var(--accent); font-size: 1.2rem; }
+            @media (max-width: 768px) {
+                .flow-grid { grid-template-columns: 1fr 1fr; }
+                .horizontal-flow { flex-direction: column; }
+                .hflow-arrow { transform: rotate(90deg); }
+            }
+        </style>
+
+        <!-- USER DAY JOURNEYS -->
+        <section id="journeys" class="section">
+            <div class="section-header">
+                <div class="section-icon" style="background: linear-gradient(135deg, #ec4899, #f472b6);">🗓️</div>
+                <h2>A Day in the Life - User Journeys</h2>
+            </div>
+
+            <!-- ADHD Adult User -->
+            <div class="journey-section">
+                <div class="journey-header">
+                    <div class="journey-avatar" style="background: linear-gradient(135deg, #3b82f6, #60a5fa);">👨‍💻</div>
+                    <div>
+                        <div class="journey-title">Alex - ADHD Professional</div>
+                        <div class="journey-subtitle">Remote worker who needs structure and gentle accountability</div>
+                    </div>
+                </div>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-time">6:30 AM - Wake Up</div>
+                        <div class="timeline-title">Morning Check-in Notification</div>
+                        <p class="card-description">App notification triggers. Alex taps to begin morning routine with Pemberton's guidance.</p>
+                        <div class="timeline-screens">
+                            <span class="screen-pill primary">MorningChecklistView</span>
+                            <span class="screen-pill">CalendarReviewSheet</span>
+                            <span class="screen-pill">TasksReviewSheet</span>
+                            <span class="screen-pill">MorningIntentionView</span>
+                            <span class="screen-pill">EnergyCheckInView</span>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-time">7:00 AM - Planning</div>
+                        <div class="timeline-title">Voice Task Entry</div>
+                        <p class="card-description">"Hey Gadfly, I need to finish the quarterly report, email Sarah, and prepare for the 2pm meeting."</p>
+                        <div class="timeline-screens">
+                            <span class="screen-pill primary">RecordingView</span>
+                            <span class="screen-pill">VoiceStatusBanner</span>
+                            <span class="screen-pill">ParsedItemsCard</span>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-time">9:00 AM - Deep Work</div>
+                        <div class="timeline-title">Hyperfocus Mode Activated</div>
+                        <p class="card-description">Alex enters hyperfocus for the quarterly report. All reminders paused, timer running.</p>
+                        <div class="timeline-screens">
+                            <span class="screen-pill primary">FocusHomeView</span>
+                            <span class="screen-pill">HyperfocusView</span>
+                            <span class="screen-pill">ActiveFocusSessionView</span>
+                            <span class="screen-pill">TimeRingView</span>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-time">10:30 AM - Task Complete</div>
+                        <div class="timeline-title">Celebration & Refocus</div>
+                        <p class="card-description">Report done! Confetti celebration, self-care check (water, stretch), then next task suggested.</p>
+                        <div class="timeline-screens">
+                            <span class="screen-pill primary">PushCelebrationView</span>
+                            <span class="screen-pill">RefocusPromptView</span>
+                            <span class="screen-pill">ConfettiView</span>
+                            <span class="screen-pill">MomentumView</span>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-time">12:00 PM - Lunch Break</div>
+                        <div class="timeline-title">Break Mode</div>
+                        <p class="card-description">"Gadfly, take a break until 1pm" - All notifications paused.</p>
+                        <div class="timeline-screens">
+                            <span class="screen-pill primary">BreakModeSection</span>
+                            <span class="screen-pill">RecordingView</span>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-time">3:00 PM - Struggling</div>
+                        <div class="timeline-title">Task Attack & Breakdown</div>
+                        <p class="card-description">Alex stuck on a big task. Uses "How?" button for attack strategy, then "Split" to break it down.</p>
+                        <div class="timeline-screens">
+                            <span class="screen-pill primary">TaskAttackView</span>
+                            <span class="screen-pill">TaskBreakdownView</span>
+                            <span class="screen-pill">TaskCoachView</span>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-time">5:30 PM - Leaving Office</div>
+                        <div class="timeline-title">Location Checkout</div>
+                        <p class="card-description">Geofence detects leaving work. Checkout checklist ensures laptop, badge, and notes are packed.</p>
+                        <div class="timeline-screens">
+                            <span class="screen-pill primary">CheckoutChecklistView</span>
+                            <span class="screen-pill">LocationsManagerView</span>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-time">9:00 PM - Wind Down</div>
+                        <div class="timeline-title">Evening Check-in & Bedtime</div>
+                        <p class="card-description">Evening reflection on mood, what went well. Then bedtime checklist for keys, wallet, phone.</p>
+                        <div class="timeline-screens">
+                            <span class="screen-pill primary">EveningCheckInView</span>
+                            <span class="screen-pill">SelfCheckView</span>
+                            <span class="screen-pill">SelfCheckPromptView</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- College Student -->
+            <div class="journey-section">
+                <div class="journey-header">
+                    <div class="journey-avatar" style="background: linear-gradient(135deg, #f59e0b, #fbbf24);">👩‍🎓</div>
+                    <div>
+                        <div class="journey-title">Maya - College Student</div>
+                        <div class="journey-subtitle">Balancing classes, studying, and social life with ADHD</div>
+                    </div>
+                </div>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-time">8:00 AM - Class Day</div>
+                        <div class="timeline-title">Quick Morning with Cheerleader</div>
+                        <p class="card-description">Sunny personality gives enthusiastic morning check-in. Reviews today's classes and assignments.</p>
+                        <div class="timeline-screens">
+                            <span class="screen-pill primary">MorningChecklistView</span>
+                            <span class="screen-pill">CalendarListView</span>
+                            <span class="screen-pill">TasksListView</span>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-time">10:00 AM - Between Classes</div>
+                        <div class="timeline-title">Quick Task Capture</div>
+                        <p class="card-description">"Remember to email professor about extension" - Voice captured while walking.</p>
+                        <div class="timeline-screens">
+                            <span class="screen-pill primary">RecordingView</span>
+                            <span class="screen-pill">VoiceRecordingView</span>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-time">2:00 PM - Library Study</div>
+                        <div class="timeline-title">Study Goal Tracking</div>
+                        <p class="card-description">Working on "Pass Organic Chemistry" goal. Checks milestone progress, logs study session.</p>
+                        <div class="timeline-screens">
+                            <span class="screen-pill primary">GoalsView</span>
+                            <span class="screen-pill">GoalDetailView</span>
+                            <span class="screen-pill">AccountabilityStatsView</span>
+                            <span class="screen-pill">TimesheetView</span>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-time">4:00 PM - Gym</div>
+                        <div class="timeline-title">Workout Checkout</div>
+                        <p class="card-description">Leaving gym triggers checkout. "Log workout, refill water bottle, grab bag."</p>
+                        <div class="timeline-screens">
+                            <span class="screen-pill primary">CheckoutChecklistView</span>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-time">8:00 PM - Task Triage</div>
+                        <div class="timeline-title">Overwhelmed - Need to Sort</div>
+                        <p class="card-description">Too many tasks! Uses Task Triage to categorize: Must Do, Want To, Can Wait, Delete.</p>
+                        <div class="timeline-screens">
+                            <span class="screen-pill primary">TaskTriageView</span>
+                            <span class="screen-pill">TasksListView</span>
+                            <span class="screen-pill">WeeklyTasksView</span>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-time">11:00 PM - Bedtime</div>
+                        <div class="timeline-title">Evening Mood Check</div>
+                        <p class="card-description">Checks in with mood (rough day), gets suggestions for tomorrow. Bedtime checklist ensures alarm set.</p>
+                        <div class="timeline-screens">
+                            <span class="screen-pill primary">EveningCheckInView</span>
+                            <span class="screen-pill">SelfCheckView</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Parent with ADHD -->
+            <div class="journey-section">
+                <div class="journey-header">
+                    <div class="journey-avatar" style="background: linear-gradient(135deg, #8b5cf6, #a78bfa);">👨‍👧</div>
+                    <div>
+                        <div class="journey-title">Jordan - Parent with ADHD</div>
+                        <div class="journey-subtitle">Managing family, work, and personal tasks with TiredParent personality</div>
+                    </div>
+                </div>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-time">6:00 AM - Early Morning</div>
+                        <div class="timeline-title">Quick Task Review</div>
+                        <p class="card-description">TiredParent personality: "We made it to another morning. Let's see what we're dealing with today."</p>
+                        <div class="timeline-screens">
+                            <span class="screen-pill primary">FocusHomeView</span>
+                            <span class="screen-pill">TasksListView</span>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-time">7:30 AM - School Drop-off</div>
+                        <div class="timeline-title">Voice Commands While Driving</div>
+                        <p class="card-description">"Remind me to pick up prescriptions at 4pm, and add soccer practice at 5:30 to the calendar."</p>
+                        <div class="timeline-screens">
+                            <span class="screen-pill primary">RecordingView</span>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-time">10:00 AM - Work Focus</div>
+                        <div class="timeline-title">Quick Focus Session</div>
+                        <p class="card-description">25-minute focus session on work report. Timer keeps track, notifications paused.</p>
+                        <div class="timeline-screens">
+                            <span class="screen-pill primary">QuickFocusSetupView</span>
+                            <span class="screen-pill">ActiveFocusSessionView</span>
+                            <span class="screen-pill">HyperfocusView</span>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-time">12:00 PM - Medication Reminder</div>
+                        <div class="timeline-title">Self-Care Nag</div>
+                        <p class="card-description">App reminds about medication window. Logs taking meds in morning checklist item.</p>
+                        <div class="timeline-screens">
+                            <span class="screen-pill primary">MedicationWindowView</span>
+                            <span class="screen-pill">SelfCareDetailView</span>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-time">3:00 PM - Aging Task Alert</div>
+                        <div class="timeline-title">Task Been Sitting Too Long</div>
+                        <p class="card-description">"Schedule dentist appointment" has been idle 5 days. App asks what's blocking it.</p>
+                        <div class="timeline-screens">
+                            <span class="screen-pill primary">AgingTaskPromptView</span>
+                            <span class="screen-pill">TaskAttackView</span>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-time">6:00 PM - Family Time</div>
+                        <div class="timeline-title">Break Mode Until Bedtime</div>
+                        <p class="card-description">"Gadfly, don't nag me until 8pm" - Family dinner and homework time protected.</p>
+                        <div class="timeline-screens">
+                            <span class="screen-pill primary">BreakModeSection</span>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-time">9:30 PM - Rewards Check</div>
+                        <div class="timeline-title">Points & Progress Review</div>
+                        <p class="card-description">Checks daily points, streak progress. Redeems reward for completing weekly goal.</p>
+                        <div class="timeline-screens">
+                            <span class="screen-pill primary">MyRewardsView</span>
+                            <span class="screen-pill">AccountabilityStatsView</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- New User Journey -->
+            <div class="journey-section">
+                <div class="journey-header">
+                    <div class="journey-avatar" style="background: linear-gradient(135deg, #10b981, #34d399);">🆕</div>
+                    <div>
+                        <div class="journey-title">Sam - New User (First Day)</div>
+                        <div class="journey-subtitle">Just downloaded VoiceDay, going through onboarding</div>
+                    </div>
+                </div>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-time">Step 1</div>
+                        <div class="timeline-title">App Launch & Voice Selection</div>
+                        <p class="card-description">Opens app for first time. Selects voice from ElevenLabs options, previews each one.</p>
+                        <div class="timeline-screens">
+                            <span class="screen-pill primary">VoiceSetupView</span>
+                            <span class="screen-pill">VoiceSelectionStep</span>
+                            <span class="screen-pill">VoicePickerView</span>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-time">Step 2</div>
+                        <div class="timeline-title">Personality Selection</div>
+                        <p class="card-description">Chooses from 15 personalities. Previews Pemberton, Cheerleader, Coach. Settles on Coach Max.</p>
+                        <div class="timeline-screens">
+                            <span class="screen-pill primary">PersonalitySelectionStep</span>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-time">Step 3</div>
+                        <div class="timeline-title">Daily Structure Setup</div>
+                        <p class="card-description">Configures morning check-in (7am), midday (12pm), evening (8pm). Customizes checklist items.</p>
+                        <div class="timeline-screens">
+                            <span class="screen-pill primary">DailyStructureStep</span>
+                            <span class="screen-pill">OnboardingStepsView</span>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-time">Step 4</div>
+                        <div class="timeline-title">Nagging Level & Self-Care</div>
+                        <p class="card-description">Chooses "Moderate" nag intensity. Enables water and break reminders.</p>
+                        <div class="timeline-screens">
+                            <span class="screen-pill primary">NaggingLevelStep</span>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-time">Step 5</div>
+                        <div class="timeline-title">First Destination</div>
+                        <p class="card-description">Chooses to start with "Voice Record" to add first tasks. Onboarding complete!</p>
+                        <div class="timeline-screens">
+                            <span class="screen-pill primary">StartChoiceStep</span>
+                            <span class="screen-pill">ContentView</span>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-time">First Task</div>
+                        <div class="timeline-title">Voice Task Entry</div>
+                        <p class="card-description">"I need to buy groceries, call mom, and finish my project by Friday."</p>
+                        <div class="timeline-screens">
+                            <span class="screen-pill primary">RecordingView</span>
+                            <span class="screen-pill">ParsedItemsCard</span>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-time">Explore</div>
+                        <div class="timeline-title">Discovering Features</div>
+                        <p class="card-description">Explores tabs, tries hyperfocus mode, sets up first goal, customizes settings.</p>
+                        <div class="timeline-screens">
+                            <span class="screen-pill">FocusHomeView</span>
+                            <span class="screen-pill">TasksListView</span>
+                            <span class="screen-pill">GoalsView</span>
+                            <span class="screen-pill">SettingsView</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Goal-Focused User -->
+            <div class="journey-section">
+                <div class="journey-header">
+                    <div class="journey-avatar" style="background: linear-gradient(135deg, #ef4444, #f87171);">🎯</div>
+                    <div>
+                        <div class="journey-title">Taylor - Goal-Focused User</div>
+                        <div class="journey-subtitle">Using VoiceDay primarily for long-term goal tracking</div>
+                    </div>
+                </div>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-time">Morning</div>
+                        <div class="timeline-title">Goal Progress Review</div>
+                        <p class="card-description">Reviews progress on 3 active goals. Checks neglect indicators, sees which need attention.</p>
+                        <div class="timeline-screens">
+                            <span class="screen-pill primary">GoalsView</span>
+                            <span class="screen-pill">GoalDetailView</span>
+                            <span class="screen-pill">AccountabilityStatsView</span>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-time">Work Session</div>
+                        <div class="timeline-title">Milestone Work</div>
+                        <p class="card-description">Working on "Learn Spanish" goal. Completes milestone 2: "Complete 30 Duolingo lessons".</p>
+                        <div class="timeline-screens">
+                            <span class="screen-pill primary">GoalDetailView</span>
+                            <span class="screen-pill">MilestoneRow</span>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-time">Voice Update</div>
+                        <div class="timeline-title">Progress Logging</div>
+                        <p class="card-description">"I worked on my fitness goal today - did 30 minutes of cardio."</p>
+                        <div class="timeline-screens">
+                            <span class="screen-pill primary">RecordingView</span>
+                            <span class="screen-pill">GoalsView</span>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-time">Evening</div>
+                        <div class="timeline-title">Weekly Stats Review</div>
+                        <p class="card-description">Checks weekly summary, productivity by hour chart, scheduling suggestions.</p>
+                        <div class="timeline-screens">
+                            <span class="screen-pill primary">AccountabilityStatsView</span>
+                            <span class="screen-pill">SmartSchedulerView</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Weekend/Lazy Day User -->
+            <div class="journey-section">
+                <div class="journey-header">
+                    <div class="journey-avatar" style="background: linear-gradient(135deg, #06b6d4, #22d3ee);">🛋️</div>
+                    <div>
+                        <div class="journey-title">Riley - Weekend/Lazy Day</div>
+                        <div class="journey-subtitle">Saturday vibes - minimal structure, self-compassion mode</div>
+                    </div>
+                </div>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-time">10:00 AM - Late Wake</div>
+                        <div class="timeline-title">Gentle Morning Start</div>
+                        <p class="card-description">App detects weekend. Pemberton: "Good morning, you beautiful disaster. No judgments on the time."</p>
+                        <div class="timeline-screens">
+                            <span class="screen-pill primary">FocusHomeView</span>
+                            <span class="screen-pill">EnergyCheckInView</span>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-time">11:00 AM - Quick Capture</div>
+                        <div class="timeline-title">Low-Effort Task Add</div>
+                        <p class="card-description">"Gadfly, maybe laundry today if I feel like it" - Task added with low priority, no pressure.</p>
+                        <div class="timeline-screens">
+                            <span class="screen-pill primary">RecordingView</span>
+                            <span class="screen-pill">VoiceStatusBanner</span>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-time">2:00 PM - Hyperfocus Trap</div>
+                        <div class="timeline-title">Hobby Rabbit Hole</div>
+                        <p class="card-description">Started organizing bookshelf, now 3 hours deep. App gently checks in: "Still alive in there?"</p>
+                        <div class="timeline-screens">
+                            <span class="screen-pill primary">SelfCheckPromptView</span>
+                            <span class="screen-pill">RefocusPromptView</span>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-time">4:00 PM - Doom Scrolling</div>
+                        <div class="timeline-title">Break Reminder Ignored</div>
+                        <p class="card-description">Third water reminder snoozed. TiredParent: "Look, I'm not mad, just disappointed. And thirsty vicariously."</p>
+                        <div class="timeline-screens">
+                            <span class="screen-pill primary">SelfCareDetailView</span>
+                            <span class="screen-pill">BreakModeSection</span>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-time">6:00 PM - Social Plans</div>
+                        <div class="timeline-title">Leaving House Checklist</div>
+                        <p class="card-description">Going to friend's house. Checkout triggers: "Keys, wallet, phone, snacks, social battery charger."</p>
+                        <div class="timeline-screens">
+                            <span class="screen-pill primary">CheckoutChecklistView</span>
+                            <span class="screen-pill">LocationsManagerView</span>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-time">11:00 PM - Sunday Scaries</div>
+                        <div class="timeline-title">Week Preview Anxiety</div>
+                        <p class="card-description">Looks at Monday's tasks. App helps with "What's the ONE thing you can prep tonight?"</p>
+                        <div class="timeline-screens">
+                            <span class="screen-pill primary">WeeklyTasksView</span>
+                            <span class="screen-pill">TasksListView</span>
+                            <span class="screen-pill">SmartSchedulerView</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Crisis Mode User -->
+            <div class="journey-section">
+                <div class="journey-header">
+                    <div class="journey-avatar" style="background: linear-gradient(135deg, #ef4444, #dc2626);">🚨</div>
+                    <div>
+                        <div class="journey-title">Casey - Crisis Mode Day</div>
+                        <div class="journey-subtitle">Everything is on fire, executive dysfunction maxed out</div>
+                    </div>
+                </div>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-time">7:00 AM - Alarm Ignored</div>
+                        <div class="timeline-title">Rough Start Detected</div>
+                        <p class="card-description">Third alarm dismissed. App switches to crisis protocol: "Just one tiny thing. Can you sit up?"</p>
+                        <div class="timeline-screens">
+                            <span class="screen-pill primary">MorningChecklistView</span>
+                            <span class="screen-pill">EnergyCheckInView</span>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-time">9:00 AM - Paralysis</div>
+                        <div class="timeline-title">Task Overwhelm</div>
+                        <p class="card-description">20 tasks showing. Can't start. Coach Max: "Pick literally anything. I'll celebrate any win."</p>
+                        <div class="timeline-screens">
+                            <span class="screen-pill primary">FocusHomeView</span>
+                            <span class="screen-pill">TaskTriageView</span>
+                            <span class="screen-pill">TaskAttackView</span>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-time">10:00 AM - Shame Spiral</div>
+                        <div class="timeline-title">Aging Tasks Confrontation</div>
+                        <p class="card-description">5 tasks over a week old. App: "These aren't failures, they're just waiting. Want to reschedule or delete?"</p>
+                        <div class="timeline-screens">
+                            <span class="screen-pill primary">AgingTaskPromptView</span>
+                            <span class="screen-pill">PushOptionsSheet</span>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-time">11:30 AM - Tiny Win</div>
+                        <div class="timeline-title">First Task Complete</div>
+                        <p class="card-description">Finally sent that email. FULL celebration mode. Confetti, points, encouraging voice message.</p>
+                        <div class="timeline-screens">
+                            <span class="screen-pill primary">PushCelebrationView</span>
+                            <span class="screen-pill">ConfettiView</span>
+                            <span class="screen-pill">MomentumView</span>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-time">1:00 PM - Body Doubling</div>
+                        <div class="timeline-title">Needing Accountability</div>
+                        <p class="card-description">Can't work alone. Activates body doubling mode - virtual presence feature for company.</p>
+                        <div class="timeline-screens">
+                            <span class="screen-pill primary">BodyDoublingView</span>
+                            <span class="screen-pill">ActiveFocusSessionView</span>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-time">3:00 PM - Meltdown Risk</div>
+                        <div class="timeline-title">Emergency Self-Care</div>
+                        <p class="card-description">App detects no breaks, no water, high stress patterns. Forces break: "Non-negotiable rest time."</p>
+                        <div class="timeline-screens">
+                            <span class="screen-pill primary">SelfCheckView</span>
+                            <span class="screen-pill">SelfCareDetailView</span>
+                            <span class="screen-pill">BreakModeSection</span>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-time">5:00 PM - Task Breakdown</div>
+                        <div class="timeline-title">Can't Face Big Task</div>
+                        <p class="card-description">"Clean apartment" feels impossible. AI breaks into: "Pick up 5 items. Set trash bag by door."</p>
+                        <div class="timeline-screens">
+                            <span class="screen-pill primary">TaskBreakdownView</span>
+                            <span class="screen-pill">TaskCoachView</span>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-time">8:00 PM - Survival Victory</div>
+                        <div class="timeline-title">End of Hard Day</div>
+                        <p class="card-description">Evening check-in: "You made it through a hard day. That counts. Tomorrow is reset."</p>
+                        <div class="timeline-screens">
+                            <span class="screen-pill primary">EveningCheckInView</span>
+                            <span class="screen-pill">MyRewardsView</span>
+                            <span class="screen-pill">AccountabilityStatsView</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Power User / Settings Explorer -->
+            <div class="journey-section">
+                <div class="journey-header">
+                    <div class="journey-avatar" style="background: linear-gradient(135deg, #f59e0b, #d97706);">⚡</div>
+                    <div>
+                        <div class="journey-title">Devon - Power User</div>
+                        <div class="journey-subtitle">Deep dive into settings, vault, and advanced features</div>
+                    </div>
+                </div>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-time">Morning - Setup</div>
+                        <div class="timeline-title">Custom Settings Configuration</div>
+                        <p class="card-description">Tweaks voice settings, changes personality to Sergeant, adjusts nag intensity to Persistent.</p>
+                        <div class="timeline-screens">
+                            <span class="screen-pill primary">SettingsView</span>
+                            <span class="screen-pill">VoicePickerView</span>
+                            <span class="screen-pill">ManageSelfChecksView</span>
+                            <span class="screen-pill">PresetModeSelector</span>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-time">Work - Vault Mode</div>
+                        <div class="timeline-title">Secure Notes & Architect</div>
+                        <p class="card-description">"Gadfly, save to vault: my bank PIN is..." - Uses AES-256 encrypted storage for sensitive info.</p>
+                        <div class="timeline-screens">
+                            <span class="screen-pill primary">RecordingView</span>
+                            <span class="screen-pill">ArchitectView</span>
+                            <span class="screen-pill">VaultCommands</span>
+                            <span class="screen-pill">VoiceRecordingView</span>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-time">Afternoon - Task Edit</div>
+                        <div class="timeline-title">Manual Task Editing</div>
+                        <p class="card-description">Opens task to edit due date, add notes, change priority. Uses full task detail screen.</p>
+                        <div class="timeline-screens">
+                            <span class="screen-pill primary">TaskDetailView</span>
+                            <span class="screen-pill">ReminderDetailView</span>
+                            <span class="screen-pill">TasksListView</span>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-time">Evening - Analytics</div>
+                        <div class="timeline-title">Deep Stats Review</div>
+                        <p class="card-description">Reviews productivity by hour, goal progress rings, streak stats, and weekly patterns.</p>
+                        <div class="timeline-screens">
+                            <span class="screen-pill primary">AccountabilityStatsView</span>
+                            <span class="screen-pill">ProgressRings</span>
+                            <span class="screen-pill">GoalCard</span>
+                            <span class="screen-pill">TimesheetView</span>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-time">Night - Locations</div>
+                        <div class="timeline-title">Geofence Setup</div>
+                        <p class="card-description">Adds new location (gym), creates checkout checklist items, sets up geofence radius.</p>
+                        <div class="timeline-screens">
+                            <span class="screen-pill primary">LocationsManagerView</span>
+                            <span class="screen-pill">CheckoutChecklistView</span>
+                            <span class="screen-pill">SettingsView</span>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-time">Anytime - Help</div>
+                        <div class="timeline-title">Getting Help & Support</div>
+                        <p class="card-description">Opens help section to learn about features, voice commands, and keyboard shortcuts.</p>
+                        <div class="timeline-screens">
+                            <span class="screen-pill primary">HelpView</span>
+                            <span class="screen-pill">SettingsView</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Accountability Partner/Manager View -->
+            <div class="journey-section">
+                <div class="journey-header">
+                    <div class="journey-avatar" style="background: linear-gradient(135deg, #10b981, #059669);">👀</div>
+                    <div>
+                        <div class="journey-title">Morgan - Accountability Partner</div>
+                        <div class="journey-subtitle">Supporting someone with ADHD through the Manager Dashboard</div>
+                    </div>
+                </div>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-time">8:00 AM - Morning Check</div>
+                        <div class="timeline-title">Partner Status Review</div>
+                        <p class="card-description">Opens Manager Dashboard to see if partner started their morning routine. Green checkmarks showing progress.</p>
+                        <div class="timeline-screens">
+                            <span class="screen-pill primary">ManagerDashboardView</span>
+                            <span class="screen-pill">ConnectionsListView</span>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-time">10:00 AM - Send Encouragement</div>
+                        <div class="timeline-title">Quick Support Message</div>
+                        <p class="card-description">Sees partner stuck on a task. Sends encouragement nudge through the app.</p>
+                        <div class="timeline-screens">
+                            <span class="screen-pill primary">ManagerDashboardView</span>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-time">12:00 PM - Celebrate Win</div>
+                        <div class="timeline-title">Task Completion Alert</div>
+                        <p class="card-description">Gets notification: partner completed their dreaded task! Sends celebratory reaction.</p>
+                        <div class="timeline-screens">
+                            <span class="screen-pill primary">ManagerDashboardView</span>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-time">3:00 PM - Concern Alert</div>
+                        <div class="timeline-title">No Activity Warning</div>
+                        <p class="card-description">Dashboard shows partner hasn't checked in for hours. Sends gentle "you okay?" ping.</p>
+                        <div class="timeline-screens">
+                            <span class="screen-pill primary">ManagerDashboardView</span>
+                            <span class="screen-pill">ConnectionsListView</span>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-time">6:00 PM - Weekly Review</div>
+                        <div class="timeline-title">Progress Analytics</div>
+                        <p class="card-description">Reviews weekly patterns: best productive hours, task completion rates, streak progress.</p>
+                        <div class="timeline-screens">
+                            <span class="screen-pill primary">AccountabilityStatsView</span>
+                            <span class="screen-pill">ManagerDashboardView</span>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-time">8:00 PM - Set Tomorrow</div>
+                        <div class="timeline-title">Collaborative Planning</div>
+                        <p class="card-description">Together with partner, reviews tomorrow's tasks and sets realistic expectations.</p>
+                        <div class="timeline-screens">
+                            <span class="screen-pill primary">TasksListView</span>
+                            <span class="screen-pill">SmartSchedulerView</span>
+                            <span class="screen-pill">WeeklyTasksView</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
         <!-- Main Tab Views -->
-        <section class="section tab-screens">
+        <section id="tabs" class="section tab-screens">
             <div class="section-header">
                 <div class="section-icon">📱</div>
-                <h2>Main Tab Views</h2>
+                <h2>Main Tab Views (5 Tabs)</h2>
             </div>
             <div class="screen-grid">
                 <div class="screen-card">
@@ -398,7 +1505,8 @@
                         <span class="feature-tag">Single Task Focus</span>
                         <span class="feature-tag">Voice Commands</span>
                         <span class="feature-tag">Momentum Tracking</span>
-                        <span class="feature-tag">Energy Check-in</span>
+                        <span class="feature-tag">Energy Badge</span>
+                        <span class="feature-tag">Hyperfocus Button</span>
                     </div>
                 </div>
 
@@ -411,12 +1519,13 @@
                             <div class="card-file">RecordingView.swift</div>
                         </div>
                     </div>
-                    <p class="card-description">Voice dictation interface. Converts natural speech into tasks, events, and reminders using Claude AI with personality.</p>
+                    <p class="card-description">Voice dictation interface. Converts natural speech into tasks, events, and reminders using Claude AI with personality. 5 conversation phases.</p>
                     <div class="card-features">
                         <span class="feature-tag">Speech Recognition</span>
                         <span class="feature-tag">AI Processing</span>
                         <span class="feature-tag">Waveform Display</span>
                         <span class="feature-tag">Vault Commands</span>
+                        <span class="feature-tag">Architect Mode</span>
                     </div>
                 </div>
 
@@ -435,6 +1544,7 @@
                         <span class="feature-tag">Swipe Actions</span>
                         <span class="feature-tag">Focus Mode</span>
                         <span class="feature-tag">Push/Reschedule</span>
+                        <span class="feature-tag">Weekly View</span>
                     </div>
                 </div>
 
@@ -451,8 +1561,9 @@
                     <div class="card-features">
                         <span class="feature-tag">Milestones</span>
                         <span class="feature-tag">Progress Rings</span>
-                        <span class="feature-tag">Accountability Stats</span>
+                        <span class="feature-tag">Neglect Tracking</span>
                         <span class="feature-tag">Voice Input</span>
+                        <span class="feature-tag">Accountability Stats</span>
                     </div>
                 </div>
 
@@ -465,22 +1576,23 @@
                             <div class="card-file">SettingsView.swift</div>
                         </div>
                     </div>
-                    <p class="card-description">App configuration including API keys, voice selection, personality, themes, reminder settings, and check-in schedules.</p>
+                    <p class="card-description">App configuration including API keys, voice selection, personality, themes, reminder settings, and check-in schedules. 22+ sections.</p>
                     <div class="card-features">
                         <span class="feature-tag">API Keys</span>
                         <span class="feature-tag">Voice Settings</span>
                         <span class="feature-tag">Themes</span>
-                        <span class="feature-tag">Notifications</span>
+                        <span class="feature-tag">Self-Care</span>
+                        <span class="feature-tag">Simple/Pro Mode</span>
                     </div>
                 </div>
             </div>
         </section>
 
         <!-- Onboarding Flow -->
-        <section class="section onboarding-screens">
+        <section id="onboarding" class="section onboarding-screens">
             <div class="section-header">
                 <div class="section-icon">🚀</div>
-                <h2>Onboarding Flow</h2>
+                <h2>Onboarding Flow (5 Steps)</h2>
             </div>
             <div class="screen-grid">
                 <div class="screen-card">
@@ -523,14 +1635,14 @@
                         <div class="card-icon" style="background: linear-gradient(135deg, #06b6d4, #22d3ee);">📅</div>
                         <div>
                             <div class="card-title">Daily Structure</div>
-                            <div class="card-file">ContentView.swift</div>
+                            <div class="card-file">OnboardingStepsView.swift</div>
                         </div>
                     </div>
-                    <p class="card-description">Configure wake time, work hours, wind-down period. Sets up when reminders and check-ins should happen.</p>
+                    <p class="card-description">Configure morning, midday, evening, and bedtime check-ins. Set times and customize checklist items for each.</p>
                     <div class="card-features">
-                        <span class="feature-tag">Wake Time</span>
-                        <span class="feature-tag">Work Hours</span>
-                        <span class="feature-tag">Wind Down</span>
+                        <span class="feature-tag">4 Check-in Types</span>
+                        <span class="feature-tag">Time Pickers</span>
+                        <span class="feature-tag">Custom Items</span>
                     </div>
                 </div>
 
@@ -540,14 +1652,13 @@
                         <div class="card-icon" style="background: linear-gradient(135deg, #ef4444, #f87171);">🔔</div>
                         <div>
                             <div class="card-title">Nagging Level</div>
-                            <div class="card-file">ContentView.swift</div>
+                            <div class="card-file">OnboardingStepsView.swift</div>
                         </div>
                     </div>
-                    <p class="card-description">Set reminder frequency and escalation. Choose how persistent the app should be about incomplete tasks.</p>
+                    <p class="card-description">Set reminder frequency: Gentle, Moderate, or Persistent. Enable self-care reminders for water, food, breaks, sleep.</p>
                     <div class="card-features">
-                        <span class="feature-tag">Frequency</span>
-                        <span class="feature-tag">Escalation</span>
-                        <span class="feature-tag">Intensity</span>
+                        <span class="feature-tag">3 Intensity Levels</span>
+                        <span class="feature-tag">Self-Care Toggles</span>
                     </div>
                 </div>
 
@@ -560,18 +1671,148 @@
                             <div class="card-file">ContentView.swift</div>
                         </div>
                     </div>
-                    <p class="card-description">Choose where to start: Morning/Evening check-in, Tasks, Focus mode, Voice record, or Bedtime checklist.</p>
+                    <p class="card-description">Choose where to start: Morning/Evening check-in, Tasks, Focus mode, Voice record, Settings, or Bedtime checklist.</p>
                     <div class="card-features">
                         <span class="feature-tag">Simple/Pro Mode</span>
-                        <span class="feature-tag">8 Start Options</span>
-                        <span class="feature-tag">First Run</span>
+                        <span class="feature-tag">9 Start Options</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Voice & Recording Screens -->
+        <section id="voice" class="section voice-screens">
+            <div class="section-header">
+                <div class="section-icon">🎙️</div>
+                <h2>Voice & Recording Screens</h2>
+            </div>
+            <div class="screen-grid">
+                <div class="screen-card">
+                    <span class="badge badge-new">5 States</span>
+                    <div class="card-header">
+                        <div class="card-icon" style="background: linear-gradient(135deg, #ef4444, #f87171);">🎤</div>
+                        <div>
+                            <div class="card-title">Recording States</div>
+                            <div class="card-file">RecordingView.swift</div>
+                        </div>
+                    </div>
+                    <p class="card-description">5 conversation phases: Idle, Listening (red pulse), Processing (spinner), Speaking (TTS), Awaiting Confirmation (save items).</p>
+                    <div class="card-features">
+                        <span class="feature-tag">Idle State</span>
+                        <span class="feature-tag">Listening State</span>
+                        <span class="feature-tag">Processing State</span>
+                        <span class="feature-tag">Speaking State</span>
+                        <span class="feature-tag">Confirmation State</span>
+                    </div>
+                </div>
+
+                <div class="screen-card">
+                    <span class="badge badge-component">Component</span>
+                    <div class="card-header">
+                        <div class="card-icon" style="background: linear-gradient(135deg, #22c55e, #4ade80);">📊</div>
+                        <div>
+                            <div class="card-title">Voice Status Banner</div>
+                            <div class="card-file">RecordingView.swift</div>
+                        </div>
+                    </div>
+                    <p class="card-description">Top overlay showing listening/processing state with live transcription. Red mic when listening, green when done.</p>
+                    <div class="card-features">
+                        <span class="feature-tag">Live Transcription</span>
+                        <span class="feature-tag">State Indicators</span>
+                    </div>
+                </div>
+
+                <div class="screen-card">
+                    <span class="badge badge-sheet">Sheet</span>
+                    <div class="card-header">
+                        <div class="card-icon" style="background: linear-gradient(135deg, #3b82f6, #60a5fa);">✅</div>
+                        <div>
+                            <div class="card-title">Parsed Items Card</div>
+                            <div class="card-file">RecordingView.swift</div>
+                        </div>
+                    </div>
+                    <p class="card-description">Shows extracted tasks, events, reminders after voice processing. Color-coded sections with Save All / Start Over buttons.</p>
+                    <div class="card-features">
+                        <span class="feature-tag">Tasks Section</span>
+                        <span class="feature-tag">Events Section</span>
+                        <span class="feature-tag">Reminders Section</span>
+                    </div>
+                </div>
+
+                <div class="screen-card">
+                    <span class="badge badge-fullscreen">Full Screen</span>
+                    <div class="card-header">
+                        <div class="card-icon" style="background: linear-gradient(135deg, #8b5cf6, #a78bfa);">💡</div>
+                        <div>
+                            <div class="card-title">Architect Mode</div>
+                            <div class="card-file">RecordingView.swift</div>
+                        </div>
+                    </div>
+                    <p class="card-description">Product brainstorming assistant. Converts rambling into structured blueprints with features, roadmap, tech stack, and revenue model.</p>
+                    <div class="card-features">
+                        <span class="feature-tag">Blueprint Generation</span>
+                        <span class="feature-tag">MVP Features</span>
+                        <span class="feature-tag">Tech Stack</span>
+                        <span class="feature-tag">Roadmap</span>
+                    </div>
+                </div>
+
+                <div class="screen-card">
+                    <span class="badge badge-sheet">2 Tabs</span>
+                    <div class="card-header">
+                        <div class="card-icon" style="background: linear-gradient(135deg, #10b981, #34d399);">🎵</div>
+                        <div>
+                            <div class="card-title">Voice Recording View</div>
+                            <div class="card-file">VoiceRecordingView.swift</div>
+                        </div>
+                    </div>
+                    <p class="card-description">Tab 1: Record 10 phrases to clone your voice. Tab 2: Manage custom phrases that mix with bot's messages.</p>
+                    <div class="card-features">
+                        <span class="feature-tag">Voice Cloning</span>
+                        <span class="feature-tag">Custom Phrases</span>
+                        <span class="feature-tag">Recording Progress</span>
+                    </div>
+                </div>
+
+                <div class="screen-card">
+                    <span class="badge badge-sheet">Sheet</span>
+                    <div class="card-header">
+                        <div class="card-icon" style="background: linear-gradient(135deg, #f59e0b, #fbbf24);">🔒</div>
+                        <div>
+                            <div class="card-title">Vault Commands</div>
+                            <div class="card-file">SecureVaultService.swift</div>
+                        </div>
+                    </div>
+                    <p class="card-description">Secure voice-controlled secrets storage. "Put my Netflix password in the vault" - AES-256 encrypted, Keychain stored.</p>
+                    <div class="card-features">
+                        <span class="feature-tag">Store Secret</span>
+                        <span class="feature-tag">Retrieve Secret</span>
+                        <span class="feature-tag">Delete Secret</span>
+                        <span class="feature-tag">List Secrets</span>
+                    </div>
+                </div>
+
+                <div class="screen-card">
+                    <span class="badge badge-sheet">Sheet</span>
+                    <div class="card-header">
+                        <div class="card-icon" style="background: linear-gradient(135deg, #06b6d4, #22d3ee);">🎤</div>
+                        <div>
+                            <div class="card-title">Voice Picker View</div>
+                            <div class="card-file">SettingsView.swift</div>
+                        </div>
+                    </div>
+                    <p class="card-description">Select from ElevenLabs voices. Organized by British (recommended) and Other. Swipe to permanently hide unwanted voices.</p>
+                    <div class="card-features">
+                        <span class="feature-tag">Voice Preview</span>
+                        <span class="feature-tag">Block Voices</span>
+                        <span class="feature-tag">Categories</span>
                     </div>
                 </div>
             </div>
         </section>
 
         <!-- Focus & Productivity -->
-        <section class="section focus-screens">
+        <section id="focus" class="section focus-screens">
             <div class="section-header">
                 <div class="section-icon">🧘</div>
                 <h2>Focus & Productivity Screens</h2>
@@ -586,28 +1827,12 @@
                             <div class="card-file">HyperfocusView.swift</div>
                         </div>
                     </div>
-                    <p class="card-description">Giant button to enter focus mode. Pauses all reminders. Timer with color stages indicating session length. Dark, minimal UI.</p>
+                    <p class="card-description">Giant button to enter focus mode. 5-stage color progression (purple→blue→teal→amber→red). Timer with break warnings at 2+ hours.</p>
                     <div class="card-features">
                         <span class="feature-tag">Giant Button</span>
-                        <span class="feature-tag">Stage Colors</span>
+                        <span class="feature-tag">5 Stage Colors</span>
                         <span class="feature-tag">Pause Reminders</span>
-                    </div>
-                </div>
-
-                <div class="screen-card">
-                    <span class="badge badge-fullscreen">Full Screen</span>
-                    <div class="card-header">
-                        <div class="card-icon" style="background: linear-gradient(135deg, #06b6d4, #22d3ee);">👥</div>
-                        <div>
-                            <div class="card-title">Body Doubling</div>
-                            <div class="card-file">BodyDoublingView.swift</div>
-                        </div>
-                    </div>
-                    <p class="card-description">Virtual co-working presence. Someone "with you" while working. Ambient sounds and periodic check-ins.</p>
-                    <div class="card-features">
-                        <span class="feature-tag">Virtual Presence</span>
-                        <span class="feature-tag">Check-ins</span>
-                        <span class="feature-tag">Ambient Sounds</span>
+                        <span class="feature-tag">Break Warnings</span>
                     </div>
                 </div>
 
@@ -620,10 +1845,11 @@
                             <div class="card-file">ActiveFocusSessionView.swift</div>
                         </div>
                     </div>
-                    <p class="card-description">Running focus session with timer. Shows current task, elapsed time, and completion button. Minimal distractions.</p>
+                    <p class="card-description">Running focus session with timer. Shows task, subtasks (collapsible), companion card with personality, and end button.</p>
                     <div class="card-features">
                         <span class="feature-tag">Timer</span>
-                        <span class="feature-tag">Task Display</span>
+                        <span class="feature-tag">Subtasks</span>
+                        <span class="feature-tag">Companion Card</span>
                         <span class="feature-tag">End Session</span>
                     </div>
                 </div>
@@ -637,11 +1863,28 @@
                             <div class="card-file">QuickFocusSetupView.swift</div>
                         </div>
                     </div>
-                    <p class="card-description">Set duration and success criteria before starting a focus session. Quick 5/15/25/custom minute options.</p>
+                    <p class="card-description">Set duration before starting: 15/25/45/60/90 minutes or no timer. Personality encouragement message.</p>
                     <div class="card-features">
                         <span class="feature-tag">Duration Picker</span>
-                        <span class="feature-tag">Success Definition</span>
                         <span class="feature-tag">Quick Start</span>
+                        <span class="feature-tag">No Timer Option</span>
+                    </div>
+                </div>
+
+                <div class="screen-card">
+                    <span class="badge badge-fullscreen">Full Screen</span>
+                    <div class="card-header">
+                        <div class="card-icon" style="background: linear-gradient(135deg, #06b6d4, #22d3ee);">👥</div>
+                        <div>
+                            <div class="card-title">Body Doubling</div>
+                            <div class="card-file">BodyDoublingView.swift</div>
+                        </div>
+                    </div>
+                    <p class="card-description">Virtual co-working presence. Solo, Sync, or Async modes. Partner avatar with pulse animation, session stats.</p>
+                    <div class="card-features">
+                        <span class="feature-tag">Virtual Presence</span>
+                        <span class="feature-tag">Check-ins</span>
+                        <span class="feature-tag">Session Stats</span>
                     </div>
                 </div>
 
@@ -654,17 +1897,86 @@
                             <div class="card-file">RefocusPromptView.swift</div>
                         </div>
                     </div>
-                    <p class="card-description">Appears when user may have drifted. Gentle reminder to get back on track without judgment.</p>
+                    <p class="card-description">After task completion. Self-care check (every 2-3 tasks), then "What's next?" with suggested task or pick different.</p>
                     <div class="card-features">
-                        <span class="feature-tag">Gentle Reminder</span>
-                        <span class="feature-tag">Non-Judgmental</span>
+                        <span class="feature-tag">Self-Care Check</span>
+                        <span class="feature-tag">Next Task</span>
+                        <span class="feature-tag">Take Break</span>
+                    </div>
+                </div>
+
+                <div class="screen-card">
+                    <span class="badge badge-component">Component</span>
+                    <div class="card-header">
+                        <div class="card-icon" style="background: linear-gradient(135deg, #3b82f6, #60a5fa);">⏱️</div>
+                        <div>
+                            <div class="card-title">Time Ring</div>
+                            <div class="card-file">TimeRingView.swift</div>
+                        </div>
+                    </div>
+                    <p class="card-description">Circular timer showing time until deadline. Color changes: green (comfortable) → yellow → orange → red (urgent) → overdue.</p>
+                    <div class="card-features">
+                        <span class="feature-tag">Progress Ring</span>
+                        <span class="feature-tag">Urgency Colors</span>
+                        <span class="feature-tag">Compact Version</span>
+                    </div>
+                </div>
+
+                <div class="screen-card">
+                    <span class="badge badge-component">Component</span>
+                    <div class="card-header">
+                        <div class="card-icon" style="background: linear-gradient(135deg, #22c55e, #4ade80);">🔥</div>
+                        <div>
+                            <div class="card-title">Momentum View</div>
+                            <div class="card-file">MomentumView.swift</div>
+                        </div>
+                    </div>
+                    <p class="card-description">Shows current momentum/streak. 5 levels: Building, Needs Work, Moderate, Good, Excellent. Level-up animation.</p>
+                    <div class="card-features">
+                        <span class="feature-tag">5 Levels</span>
+                        <span class="feature-tag">Progress Bar</span>
+                        <span class="feature-tag">Level Up Animation</span>
+                    </div>
+                </div>
+
+                <div class="screen-card">
+                    <span class="badge badge-component">Component</span>
+                    <div class="card-header">
+                        <div class="card-icon" style="background: linear-gradient(135deg, #8b5cf6, #a78bfa);">🎚️</div>
+                        <div>
+                            <div class="card-title">Preset Mode Selector</div>
+                            <div class="card-file">PresetModeSelector.swift</div>
+                        </div>
+                    </div>
+                    <p class="card-description">Switch between Focus First (aggressive), Stay On Me (gentle), Gentle Flow (minimal), or Custom mode.</p>
+                    <div class="card-features">
+                        <span class="feature-tag">3 Preset Modes</span>
+                        <span class="feature-tag">Custom Mode</span>
+                        <span class="feature-tag">Detail View</span>
+                    </div>
+                </div>
+
+                <div class="screen-card">
+                    <span class="badge badge-sheet">Sheet</span>
+                    <div class="card-header">
+                        <div class="card-icon" style="background: linear-gradient(135deg, #10b981, #34d399);">⚡</div>
+                        <div>
+                            <div class="card-title">Energy Check-in</div>
+                            <div class="card-file">EnergyCheckInView.swift</div>
+                        </div>
+                    </div>
+                    <p class="card-description">Quick energy level assessment: Low (battery 25%), Medium (50%), High (100%). Adapts task recommendations.</p>
+                    <div class="card-features">
+                        <span class="feature-tag">3 Energy Levels</span>
+                        <span class="feature-tag">Task Adaptation</span>
+                        <span class="feature-tag">Pattern Prediction</span>
                     </div>
                 </div>
             </div>
         </section>
 
         <!-- Task Management -->
-        <section class="section task-screens">
+        <section id="tasks" class="section task-screens">
             <div class="section-header">
                 <div class="section-icon">📋</div>
                 <h2>Task Management Screens</h2>
@@ -679,11 +1991,11 @@
                             <div class="card-file">TaskBreakdownView.swift</div>
                         </div>
                     </div>
-                    <p class="card-description">AI breaks big tasks into smaller, manageable steps. Creates subtasks automatically from a single overwhelming task.</p>
+                    <p class="card-description">AI breaks big tasks into smaller steps. Voice or text input. Shows AI-suggested breakdown with "Use all" or individual add.</p>
                     <div class="card-features">
                         <span class="feature-tag">AI Breakdown</span>
-                        <span class="feature-tag">Subtask Creation</span>
-                        <span class="feature-tag">Step by Step</span>
+                        <span class="feature-tag">Voice Input</span>
+                        <span class="feature-tag">Suggested Steps</span>
                     </div>
                 </div>
 
@@ -696,16 +2008,17 @@
                             <div class="card-file">TaskAttackView.swift</div>
                         </div>
                     </div>
-                    <p class="card-description">Actionable plan for tackling a task. "How?" button from Focus view. Shows first step to take and estimated time.</p>
+                    <p class="card-description">"How do I start?" Shows strategy (Chunk It, Start Tiny, Quick Win), first step, time estimate, energy match, alternative strategies.</p>
                     <div class="card-features">
-                        <span class="feature-tag">Attack Plan</span>
+                        <span class="feature-tag">Attack Strategy</span>
                         <span class="feature-tag">First Step</span>
                         <span class="feature-tag">Time Estimate</span>
+                        <span class="feature-tag">Alternatives</span>
                     </div>
                 </div>
 
                 <div class="screen-card">
-                    <span class="badge badge-sheet">Sheet</span>
+                    <span class="badge badge-fullscreen">Full Screen</span>
                     <div class="card-header">
                         <div class="card-icon" style="background: linear-gradient(135deg, #06b6d4, #22d3ee);">🔀</div>
                         <div>
@@ -713,11 +2026,11 @@
                             <div class="card-file">TaskTriageView.swift</div>
                         </div>
                     </div>
-                    <p class="card-description">Quick priority sorting. Swipe-based interface to categorize tasks as Do Now, Do Later, Delegate, or Delete.</p>
+                    <p class="card-description">Priority sorting for overwhelmed users. 5 categories: Must Do Today, Want To, Avoiding But Must, Can Wait, Delete.</p>
                     <div class="card-features">
-                        <span class="feature-tag">Swipe Sort</span>
-                        <span class="feature-tag">Priority Matrix</span>
-                        <span class="feature-tag">Quick Decisions</span>
+                        <span class="feature-tag">5 Categories</span>
+                        <span class="feature-tag">Per-Task Questions</span>
+                        <span class="feature-tag">Summary View</span>
                     </div>
                 </div>
 
@@ -730,11 +2043,11 @@
                             <div class="card-file">SmartSchedulerView.swift</div>
                         </div>
                     </div>
-                    <p class="card-description">AI-powered scheduling suggestions. Finds optimal times based on energy levels and existing commitments.</p>
+                    <p class="card-description">AI-powered scheduling insights. Productivity by hour chart, power hours, task breakdown by category, scheduling suggestions.</p>
                     <div class="card-features">
-                        <span class="feature-tag">AI Scheduling</span>
-                        <span class="feature-tag">Energy Aware</span>
-                        <span class="feature-tag">Calendar Integration</span>
+                        <span class="feature-tag">Productivity Chart</span>
+                        <span class="feature-tag">Power Hours</span>
+                        <span class="feature-tag">Suggestions</span>
                     </div>
                 </div>
 
@@ -747,10 +2060,12 @@
                             <div class="card-file">AgingTaskPromptView.swift</div>
                         </div>
                     </div>
-                    <p class="card-description">Alerts for neglected tasks. Offers options: Do now, Reschedule, Break down, or Delete.</p>
+                    <p class="card-description">For neglected tasks. Asks "What's getting in the way?" with reasons (no time, too complex, distracted, don't want to). Then offers solutions.</p>
                     <div class="card-features">
-                        <span class="feature-tag">Neglect Alert</span>
-                        <span class="feature-tag">Quick Actions</span>
+                        <span class="feature-tag">Blocker Reasons</span>
+                        <span class="feature-tag">Break Down</span>
+                        <span class="feature-tag">Reschedule</span>
+                        <span class="feature-tag">Delete</span>
                     </div>
                 </div>
 
@@ -763,15 +2078,16 @@
                             <div class="card-file">TimesheetView.swift</div>
                         </div>
                     </div>
-                    <p class="card-description">Track time spent on tasks. Manual or automatic tracking with reporting.</p>
+                    <p class="card-description">Time tracking for tasks. Summary cards (today, week, active). 3 tabs: Today, This Week, By Task. Add manual entries.</p>
                     <div class="card-features">
                         <span class="feature-tag">Time Tracking</span>
-                        <span class="feature-tag">Reports</span>
+                        <span class="feature-tag">Daily/Weekly</span>
+                        <span class="feature-tag">By Task</span>
                     </div>
                 </div>
 
                 <div class="screen-card">
-                    <span class="badge badge-fullscreen">Full Screen</span>
+                    <span class="badge badge-sheet">Sheet</span>
                     <div class="card-header">
                         <div class="card-icon" style="background: linear-gradient(135deg, #8b5cf6, #a78bfa);">📅</div>
                         <div>
@@ -779,17 +2095,164 @@
                             <div class="card-file">TasksListView.swift</div>
                         </div>
                     </div>
-                    <p class="card-description">Calendar-style view showing tasks for each day of the week. Helps with planning and overview.</p>
+                    <p class="card-description">7-day calendar view showing tasks per day. Day headers with counts, scrollable. "No Date Set" section for undated tasks.</p>
                     <div class="card-features">
-                        <span class="feature-tag">Week Overview</span>
-                        <span class="feature-tag">Day Groups</span>
+                        <span class="feature-tag">7-Day View</span>
+                        <span class="feature-tag">Day Counts</span>
+                        <span class="feature-tag">Undated Section</span>
+                    </div>
+                </div>
+
+                <div class="screen-card">
+                    <span class="badge badge-sheet">Sheet</span>
+                    <div class="card-header">
+                        <div class="card-icon" style="background: linear-gradient(135deg, #f59e0b, #fbbf24);">📝</div>
+                        <div>
+                            <div class="card-title">Task Detail / Edit</div>
+                            <div class="card-file">TasksListView.swift</div>
+                        </div>
+                    </div>
+                    <p class="card-description">Edit individual task. Form with title, notes, due date, priority picker. Delete button at bottom.</p>
+                    <div class="card-features">
+                        <span class="feature-tag">Edit Title</span>
+                        <span class="feature-tag">Due Date</span>
+                        <span class="feature-tag">Priority</span>
+                        <span class="feature-tag">Delete</span>
+                    </div>
+                </div>
+
+                <div class="screen-card">
+                    <span class="badge badge-sheet">Sheet</span>
+                    <div class="card-header">
+                        <div class="card-icon" style="background: linear-gradient(135deg, #10b981, #34d399);">🎉</div>
+                        <div>
+                            <div class="card-title">Push Celebration</div>
+                            <div class="card-file">PushCelebrationView.swift</div>
+                        </div>
+                    </div>
+                    <p class="card-description">Celebration when task rescheduled. Shows calendar badge, personality message, task info box with new time.</p>
+                    <div class="card-features">
+                        <span class="feature-tag">Celebration</span>
+                        <span class="feature-tag">New Schedule</span>
+                        <span class="feature-tag">Encouragement</span>
+                    </div>
+                </div>
+
+                <div class="screen-card">
+                    <span class="badge badge-sheet">Sheet</span>
+                    <div class="card-header">
+                        <div class="card-icon" style="background: linear-gradient(135deg, #06b6d4, #22d3ee);">📆</div>
+                        <div>
+                            <div class="card-title">Push Options Sheet</div>
+                            <div class="card-file">TasksListView.swift</div>
+                        </div>
+                    </div>
+                    <p class="card-description">Quick reschedule. Day buttons (Tomorrow, 2 Days, Next Week), time buttons (9am, 12pm, 3pm, 6pm), or custom date picker.</p>
+                    <div class="card-features">
+                        <span class="feature-tag">Quick Days</span>
+                        <span class="feature-tag">Quick Times</span>
+                        <span class="feature-tag">Custom Date</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Goals System -->
+        <section id="goals" class="section goals-screens">
+            <div class="section-header">
+                <div class="section-icon">🎯</div>
+                <h2>Goals System Screens</h2>
+            </div>
+            <div class="screen-grid">
+                <div class="screen-card">
+                    <span class="badge badge-tab">Tab 3</span>
+                    <div class="card-header">
+                        <div class="card-icon" style="background: linear-gradient(135deg, #8b5cf6, #a78bfa);">🎯</div>
+                        <div>
+                            <div class="card-title">Goals Overview</div>
+                            <div class="card-file">GoalsView.swift</div>
+                        </div>
+                    </div>
+                    <p class="card-description">Main goals tab. Progress overview card (ring + 4 stats), Active/Paused/Completed sections with GoalCards. Voice mic in toolbar.</p>
+                    <div class="card-features">
+                        <span class="feature-tag">Progress Ring</span>
+                        <span class="feature-tag">3 Sections</span>
+                        <span class="feature-tag">Voice Commands</span>
+                    </div>
+                </div>
+
+                <div class="screen-card">
+                    <span class="badge badge-sheet">Sheet</span>
+                    <div class="card-header">
+                        <div class="card-icon" style="background: linear-gradient(135deg, #22c55e, #4ade80);">📊</div>
+                        <div>
+                            <div class="card-title">Goal Detail</div>
+                            <div class="card-file">GoalsView.swift</div>
+                        </div>
+                    </div>
+                    <p class="card-description">Individual goal detail. Large progress ring, milestones section with completion buttons, suggested tasks.</p>
+                    <div class="card-features">
+                        <span class="feature-tag">Progress Ring</span>
+                        <span class="feature-tag">Milestones</span>
+                        <span class="feature-tag">Complete Button</span>
+                    </div>
+                </div>
+
+                <div class="screen-card">
+                    <span class="badge badge-component">Component</span>
+                    <div class="card-header">
+                        <div class="card-icon" style="background: linear-gradient(135deg, #f59e0b, #fbbf24);">🏁</div>
+                        <div>
+                            <div class="card-title">Milestone Row</div>
+                            <div class="card-file">GoalsView.swift</div>
+                        </div>
+                    </div>
+                    <p class="card-description">Individual milestone display. Status circle (green check/blue current/gray upcoming), title, estimated days, "Complete" button if current.</p>
+                    <div class="card-features">
+                        <span class="feature-tag">Status Icons</span>
+                        <span class="feature-tag">Time Estimate</span>
+                        <span class="feature-tag">Complete Action</span>
+                    </div>
+                </div>
+
+                <div class="screen-card">
+                    <span class="badge badge-component">Component</span>
+                    <div class="card-header">
+                        <div class="card-icon" style="background: linear-gradient(135deg, #ef4444, #f87171);">📋</div>
+                        <div>
+                            <div class="card-title">Goal Card</div>
+                            <div class="card-file">GoalsView.swift</div>
+                        </div>
+                    </div>
+                    <p class="card-description">Goal summary card. Title + current milestone, progress bar with %, schedule info, neglect/idle badge (orange/red warning).</p>
+                    <div class="card-features">
+                        <span class="feature-tag">Progress Bar</span>
+                        <span class="feature-tag">Status Badge</span>
+                        <span class="feature-tag">Idle Warning</span>
+                    </div>
+                </div>
+
+                <div class="screen-card">
+                    <span class="badge badge-sheet">Sheet</span>
+                    <div class="card-header">
+                        <div class="card-icon" style="background: linear-gradient(135deg, #06b6d4, #22d3ee);">📈</div>
+                        <div>
+                            <div class="card-title">Accountability Stats</div>
+                            <div class="card-file">GoalsView.swift</div>
+                        </div>
+                    </div>
+                    <p class="card-description">Progress analytics. Header (doing well/needs work), Today's stats (time, tasks, goals, focus level), goal progress bars, weekly summary.</p>
+                    <div class="card-features">
+                        <span class="feature-tag">Daily Stats</span>
+                        <span class="feature-tag">Focus Level</span>
+                        <span class="feature-tag">Weekly Summary</span>
                     </div>
                 </div>
             </div>
         </section>
 
         <!-- Daily Routines -->
-        <section class="section routine-screens">
+        <section id="routines" class="section routine-screens">
             <div class="section-header">
                 <div class="section-icon">🌅</div>
                 <h2>Daily Routine Screens</h2>
@@ -804,11 +2267,64 @@
                             <div class="card-file">MorningChecklistView.swift</div>
                         </div>
                     </div>
-                    <p class="card-description">Guided morning routine. Voice-led check-in covering medication, hydration, intention setting, and first task selection.</p>
+                    <p class="card-description">Voice-led morning routine. Intro, one-at-a-time checks (calendar, tasks, goals, medication, custom), action options after each, all-done celebration.</p>
                     <div class="card-features">
                         <span class="feature-tag">Voice Guided</span>
-                        <span class="feature-tag">Medication Reminder</span>
-                        <span class="feature-tag">Intentions</span>
+                        <span class="feature-tag">Calendar Review</span>
+                        <span class="feature-tag">Tasks Review</span>
+                        <span class="feature-tag">Goals Review</span>
+                    </div>
+                </div>
+
+                <div class="screen-card">
+                    <span class="badge badge-sheet">Sheet</span>
+                    <div class="card-header">
+                        <div class="card-icon" style="background: linear-gradient(135deg, #3b82f6, #60a5fa);">📅</div>
+                        <div>
+                            <div class="card-title">Calendar Review Sheet</div>
+                            <div class="card-file">MorningChecklistView.swift</div>
+                        </div>
+                    </div>
+                    <p class="card-description">During morning check-in. Spotlight walk-through of day's events. Voice commands: keep, reschedule (+1hr), delete, skip. Add new events after.</p>
+                    <div class="card-features">
+                        <span class="feature-tag">Event Spotlight</span>
+                        <span class="feature-tag">Voice Commands</span>
+                        <span class="feature-tag">Reschedule</span>
+                        <span class="feature-tag">Add Events</span>
+                    </div>
+                </div>
+
+                <div class="screen-card">
+                    <span class="badge badge-sheet">Sheet</span>
+                    <div class="card-header">
+                        <div class="card-icon" style="background: linear-gradient(135deg, #22c55e, #4ade80);">✅</div>
+                        <div>
+                            <div class="card-title">Tasks Review Sheet</div>
+                            <div class="card-file">MorningChecklistView.swift</div>
+                        </div>
+                    </div>
+                    <p class="card-description">Walk through today's tasks. Priority badges (1-4), set priority by voice, schedule options, add new tasks via voice.</p>
+                    <div class="card-features">
+                        <span class="feature-tag">Priority Setting</span>
+                        <span class="feature-tag">Voice Commands</span>
+                        <span class="feature-tag">Add Tasks</span>
+                    </div>
+                </div>
+
+                <div class="screen-card">
+                    <span class="badge badge-sheet">Sheet</span>
+                    <div class="card-header">
+                        <div class="card-icon" style="background: linear-gradient(135deg, #f59e0b, #fbbf24);">🌄</div>
+                        <div>
+                            <div class="card-title">Morning Intention</div>
+                            <div class="card-file">MorningIntentionView.swift</div>
+                        </div>
+                    </div>
+                    <p class="card-description">"Imagine tonight... What did you accomplish?" Voice recording for daily intention. Personality-specific prompts.</p>
+                    <div class="card-features">
+                        <span class="feature-tag">Voice Recording</span>
+                        <span class="feature-tag">Single Focus</span>
+                        <span class="feature-tag">Intention Setting</span>
                     </div>
                 </div>
 
@@ -821,27 +2337,12 @@
                             <div class="card-file">EveningCheckInView.swift</div>
                         </div>
                     </div>
-                    <p class="card-description">End-of-day reflection. Review what got done, celebrate wins, plan tomorrow's top priority.</p>
+                    <p class="card-description">End-of-day reflection. Intro, mood selection (5 options), factors (if low), suggestions, celebration/support. Shows morning intention if set.</p>
                     <div class="card-features">
-                        <span class="feature-tag">Day Review</span>
+                        <span class="feature-tag">Mood Check</span>
+                        <span class="feature-tag">Factors Analysis</span>
+                        <span class="feature-tag">Suggestions</span>
                         <span class="feature-tag">Celebration</span>
-                        <span class="feature-tag">Tomorrow Planning</span>
-                    </div>
-                </div>
-
-                <div class="screen-card">
-                    <span class="badge badge-sheet">Sheet</span>
-                    <div class="card-header">
-                        <div class="card-icon" style="background: linear-gradient(135deg, #22c55e, #4ade80);">⚡</div>
-                        <div>
-                            <div class="card-title">Energy Check-in</div>
-                            <div class="card-file">EnergyCheckInView.swift</div>
-                        </div>
-                    </div>
-                    <p class="card-description">Quick energy level assessment. Adjusts task recommendations based on current state.</p>
-                    <div class="card-features">
-                        <span class="feature-tag">Energy Slider</span>
-                        <span class="feature-tag">Task Adjustment</span>
                     </div>
                 </div>
 
@@ -850,14 +2351,49 @@
                     <div class="card-header">
                         <div class="card-icon" style="background: linear-gradient(135deg, #8b5cf6, #a78bfa);">✅</div>
                         <div>
-                            <div class="card-title">Self Check</div>
+                            <div class="card-title">Self Check (Bedtime)</div>
                             <div class="card-file">SelfCheckView.swift</div>
                         </div>
                     </div>
-                    <p class="card-description">Bedtime checklist. Ensure essentials are done: phone charging, meds taken, tomorrow's clothes ready.</p>
+                    <p class="card-description">Bedtime checklist. 20+ items (keys, wallet, phone, alarm, meds, etc.). Check or "?" to note location. Progress bar, all-done celebration.</p>
                     <div class="card-features">
-                        <span class="feature-tag">Bedtime Routine</span>
-                        <span class="feature-tag">Customizable Items</span>
+                        <span class="feature-tag">20+ Check Items</span>
+                        <span class="feature-tag">Save Locations</span>
+                        <span class="feature-tag">Progress Bar</span>
+                    </div>
+                </div>
+
+                <div class="screen-card">
+                    <span class="badge badge-sheet">Sheet</span>
+                    <div class="card-header">
+                        <div class="card-icon" style="background: linear-gradient(135deg, #10b981, #34d399);">⏰</div>
+                        <div>
+                            <div class="card-title">Self Check Prompt</div>
+                            <div class="card-file">SelfCheckView.swift</div>
+                        </div>
+                    </div>
+                    <p class="card-description">Appears when all tasks done. "Do it now" or "Remind me in 1/2/3 hours" or "Skip for today".</p>
+                    <div class="card-features">
+                        <span class="feature-tag">Do Now</span>
+                        <span class="feature-tag">Schedule Later</span>
+                        <span class="feature-tag">Skip</span>
+                    </div>
+                </div>
+
+                <div class="screen-card">
+                    <span class="badge badge-fullscreen">Full Screen</span>
+                    <div class="card-header">
+                        <div class="card-icon" style="background: linear-gradient(135deg, #ef4444, #f87171);">🚪</div>
+                        <div>
+                            <div class="card-title">Checkout Checklist</div>
+                            <div class="card-file">CheckoutChecklistView.swift</div>
+                        </div>
+                    </div>
+                    <p class="card-description">Location-triggered when leaving. Intro, item progression (voice-guided), external app links, all-done view with completion count.</p>
+                    <div class="card-features">
+                        <span class="feature-tag">Geofence Trigger</span>
+                        <span class="feature-tag">Voice Guided</span>
+                        <span class="feature-tag">App Links</span>
                     </div>
                 </div>
 
@@ -876,46 +2412,14 @@
                         <span class="feature-tag">Peak Time</span>
                     </div>
                 </div>
-
-                <div class="screen-card">
-                    <span class="badge badge-sheet">Sheet</span>
-                    <div class="card-header">
-                        <div class="card-icon" style="background: linear-gradient(135deg, #f59e0b, #fbbf24);">🌄</div>
-                        <div>
-                            <div class="card-title">Morning Intention</div>
-                            <div class="card-file">MorningIntentionView.swift</div>
-                        </div>
-                    </div>
-                    <p class="card-description">Set the day's main intention. One thing that would make today a success.</p>
-                    <div class="card-features">
-                        <span class="feature-tag">Single Focus</span>
-                        <span class="feature-tag">Intention Setting</span>
-                    </div>
-                </div>
-
-                <div class="screen-card">
-                    <span class="badge badge-fullscreen">Full Screen</span>
-                    <div class="card-header">
-                        <div class="card-icon" style="background: linear-gradient(135deg, #ef4444, #f87171);">🚪</div>
-                        <div>
-                            <div class="card-title">Checkout Checklist</div>
-                            <div class="card-file">CheckoutChecklistView.swift</div>
-                        </div>
-                    </div>
-                    <p class="card-description">Location-triggered checklist when leaving a place. Keys, wallet, phone, etc.</p>
-                    <div class="card-features">
-                        <span class="feature-tag">Geofence Trigger</span>
-                        <span class="feature-tag">Leave Checklist</span>
-                    </div>
-                </div>
             </div>
         </section>
 
         <!-- Settings & Configuration -->
-        <section class="section settings-screens">
+        <section id="settings" class="section settings-screens">
             <div class="section-header">
                 <div class="section-icon">🔧</div>
-                <h2>Settings & Configuration</h2>
+                <h2>Settings & Configuration (22+ Sections)</h2>
             </div>
             <div class="screen-grid">
                 <div class="screen-card">
@@ -927,9 +2431,10 @@
                             <div class="card-file">LocationsManagerView.swift</div>
                         </div>
                     </div>
-                    <p class="card-description">Save important locations for context-aware reminders and checkout checklists.</p>
+                    <p class="card-description">Manage saved locations (gym, work, home, etc.). Add location with GPS, customize checkout checklists per location, toggle monitoring.</p>
                     <div class="card-features">
                         <span class="feature-tag">Save Locations</span>
+                        <span class="feature-tag">Custom Checklists</span>
                         <span class="feature-tag">Geofencing</span>
                     </div>
                 </div>
@@ -943,10 +2448,11 @@
                             <div class="card-file">ManageSelfChecksView.swift</div>
                         </div>
                     </div>
-                    <p class="card-description">Customize bedtime checklist items. Add, remove, reorder routine steps.</p>
+                    <p class="card-description">Configure morning checklist items. Toggle enable, set time, add/edit/delete custom checks. Voice input for new items.</p>
                     <div class="card-features">
                         <span class="feature-tag">Custom Items</span>
                         <span class="feature-tag">Reorder</span>
+                        <span class="feature-tag">Voice Input</span>
                     </div>
                 </div>
 
@@ -959,38 +2465,31 @@
                             <div class="card-file">ConnectionsListView.swift</div>
                         </div>
                     </div>
-                    <p class="card-description">Connected services and calendar accounts. Manage integrations.</p>
+                    <p class="card-description">Family & friends management. Add connections with phone lookup, manage shared tasks, see who has app installed.</p>
                     <div class="card-features">
-                        <span class="feature-tag">Calendar Sync</span>
-                        <span class="feature-tag">Integrations</span>
+                        <span class="feature-tag">Add Connections</span>
+                        <span class="feature-tag">Shared Tasks</span>
+                        <span class="feature-tag">App Detection</span>
                     </div>
                 </div>
 
                 <div class="screen-card">
                     <span class="badge badge-sheet">Sheet</span>
                     <div class="card-header">
-                        <div class="card-icon" style="background: linear-gradient(135deg, #f59e0b, #fbbf24);">📅</div>
+                        <div class="card-icon" style="background: linear-gradient(135deg, #f59e0b, #fbbf24);">👨‍💼</div>
                         <div>
-                            <div class="card-title">Calendar List</div>
-                            <div class="card-file">CalendarListView.swift</div>
+                            <div class="card-title">Manager Dashboard</div>
+                            <div class="card-file">ManagerDashboardView.swift</div>
                         </div>
                     </div>
-                    <p class="card-description">View and manage calendar events. Quick access from Focus view.</p>
+                    <p class="card-description">For parents/managers. 3 tabs: Team Overview (leaderboard, activity), Rewards Config (points, rewards), Pending Redemptions.</p>
                     <div class="card-features">
-                        <span class="feature-tag">Events List</span>
-                        <span class="feature-tag">Quick View</span>
+                        <span class="feature-tag">Team Stats</span>
+                        <span class="feature-tag">Leaderboard</span>
+                        <span class="feature-tag">Rewards System</span>
                     </div>
                 </div>
-            </div>
-        </section>
 
-        <!-- Utility & Misc -->
-        <section class="section utility-screens">
-            <div class="section-header">
-                <div class="section-icon">🛠️</div>
-                <h2>Utility & Special Screens</h2>
-            </div>
-            <div class="screen-grid">
                 <div class="screen-card">
                     <span class="badge badge-sheet">Sheet</span>
                     <div class="card-header">
@@ -1000,146 +2499,76 @@
                             <div class="card-file">MyRewardsView.swift</div>
                         </div>
                     </div>
-                    <p class="card-description">Gamification rewards and achievements. Points for completed tasks, streaks, and milestones.</p>
+                    <p class="card-description">Points and achievements. 3 tabs: Overview (points, streak, challenges), Rewards (redeem), Badges (achievements grid).</p>
                     <div class="card-features">
                         <span class="feature-tag">Points System</span>
-                        <span class="feature-tag">Achievements</span>
                         <span class="feature-tag">Streaks</span>
+                        <span class="feature-tag">Badges</span>
+                        <span class="feature-tag">Redemptions</span>
                     </div>
                 </div>
 
                 <div class="screen-card">
                     <span class="badge badge-sheet">Sheet</span>
                     <div class="card-header">
-                        <div class="card-icon" style="background: linear-gradient(135deg, #8b5cf6, #a78bfa);">🎯</div>
+                        <div class="card-icon" style="background: linear-gradient(135deg, #ef4444, #f87171);">💧</div>
                         <div>
-                            <div class="card-title">Goal Detail</div>
-                            <div class="card-file">GoalDetailView.swift</div>
+                            <div class="card-title">Self-Care Settings</div>
+                            <div class="card-file">SettingsView.swift</div>
                         </div>
                     </div>
-                    <p class="card-description">Detailed view of a single goal. Progress ring, milestone list with completion buttons.</p>
+                    <p class="card-description">Configure hydration, movement, eye rest, hyperfocus breaks, meal reminders. Each with interval picker and enable toggle.</p>
                     <div class="card-features">
-                        <span class="feature-tag">Progress Ring</span>
-                        <span class="feature-tag">Milestones</span>
-                        <span class="feature-tag">Complete Milestone</span>
+                        <span class="feature-tag">Hydration</span>
+                        <span class="feature-tag">Movement</span>
+                        <span class="feature-tag">Eye Rest</span>
+                        <span class="feature-tag">Meals</span>
                     </div>
                 </div>
 
                 <div class="screen-card">
                     <span class="badge badge-sheet">Sheet</span>
                     <div class="card-header">
-                        <div class="card-icon" style="background: linear-gradient(135deg, #06b6d4, #22d3ee);">📊</div>
+                        <div class="card-icon" style="background: linear-gradient(135deg, #06b6d4, #22d3ee);">❓</div>
                         <div>
-                            <div class="card-title">Accountability Stats</div>
-                            <div class="card-file">GoalsView.swift</div>
+                            <div class="card-title">Help View</div>
+                            <div class="card-file">SettingsView.swift</div>
                         </div>
                     </div>
-                    <p class="card-description">Progress statistics. Time in app, tasks completed, focus level, weekly summary.</p>
+                    <p class="card-description">Getting started guide. Sections: Getting Started (4 steps), Sharing Tasks (3 steps), Focus Sessions (4 steps), Pro Tips (3 tips).</p>
                     <div class="card-features">
-                        <span class="feature-tag">Stats</span>
-                        <span class="feature-tag">Charts</span>
-                        <span class="feature-tag">Weekly Summary</span>
+                        <span class="feature-tag">Onboarding Help</span>
+                        <span class="feature-tag">Feature Guides</span>
+                        <span class="feature-tag">Pro Tips</span>
                     </div>
                 </div>
 
                 <div class="screen-card">
-                    <span class="badge badge-modal">Modal</span>
+                    <span class="badge badge-new">Simple/Pro</span>
                     <div class="card-header">
-                        <div class="card-icon" style="background: linear-gradient(135deg, #ef4444, #f87171);">🚨</div>
+                        <div class="card-icon" style="background: linear-gradient(135deg, #10b981, #34d399);">⚡</div>
                         <div>
-                            <div class="card-title">Universal Escape</div>
-                            <div class="card-file">UniversalEscapeView.swift</div>
+                            <div class="card-title">Mode Toggle</div>
+                            <div class="card-file">SettingsView.swift</div>
                         </div>
                     </div>
-                    <p class="card-description">Emergency exit from any screen. Shake gesture or button to get back to safe state.</p>
+                    <p class="card-description">Simple Mode hides advanced settings. Pro Mode shows all 22+ sections including API keys, detailed reminders, connections, rewards.</p>
                     <div class="card-features">
-                        <span class="feature-tag">Shake Gesture</span>
-                        <span class="feature-tag">Safe Exit</span>
-                    </div>
-                </div>
-
-                <div class="screen-card">
-                    <span class="badge badge-modal">Modal</span>
-                    <div class="card-header">
-                        <div class="card-icon" style="background: linear-gradient(135deg, #22c55e, #4ade80);">🎉</div>
-                        <div>
-                            <div class="card-title">Push Celebration</div>
-                            <div class="card-file">PushCelebrationView.swift</div>
-                        </div>
-                    </div>
-                    <p class="card-description">Celebration when task is rescheduled. Positive reinforcement for making decisions.</p>
-                    <div class="card-features">
-                        <span class="feature-tag">Confetti</span>
-                        <span class="feature-tag">Positive Message</span>
-                    </div>
-                </div>
-
-                <div class="screen-card">
-                    <span class="badge badge-sheet">Sheet</span>
-                    <div class="card-header">
-                        <div class="card-icon" style="background: linear-gradient(135deg, #3b82f6, #60a5fa);">👨‍💼</div>
-                        <div>
-                            <div class="card-title">Manager Dashboard</div>
-                            <div class="card-file">ManagerDashboardView.swift</div>
-                        </div>
-                    </div>
-                    <p class="card-description">Overview for parents/managers of ADHD users. See progress without micromanaging.</p>
-                    <div class="card-features">
-                        <span class="feature-tag">Progress View</span>
-                        <span class="feature-tag">Parental View</span>
-                    </div>
-                </div>
-
-                <div class="screen-card">
-                    <span class="badge badge-fullscreen">Full Screen</span>
-                    <div class="card-header">
-                        <div class="card-icon" style="background: linear-gradient(135deg, #f59e0b, #fbbf24);">🏗️</div>
-                        <div>
-                            <div class="card-title">Architect Mode</div>
-                            <div class="card-file">RecordingView.swift</div>
-                        </div>
-                    </div>
-                    <p class="card-description">Product brainstorming assistant. Converts rambling into structured blueprints with features, roadmap, and tech stack.</p>
-                    <div class="card-features">
-                        <span class="feature-tag">Brainstorm</span>
-                        <span class="feature-tag">Blueprint</span>
-                        <span class="feature-tag">Product Planning</span>
+                        <span class="feature-tag">Simple Mode</span>
+                        <span class="feature-tag">Pro Mode</span>
+                        <span class="feature-tag">Voice Feedback</span>
                     </div>
                 </div>
             </div>
         </section>
 
         <!-- Components -->
-        <section class="section">
+        <section id="components" class="section">
             <div class="section-header">
                 <div class="section-icon" style="background: linear-gradient(135deg, #6b7280, #9ca3af);">🧩</div>
                 <h2>Reusable Components</h2>
             </div>
             <div class="screen-grid">
-                <div class="screen-card">
-                    <span class="badge badge-component">Component</span>
-                    <div class="card-header">
-                        <div class="card-icon" style="background: linear-gradient(135deg, #22c55e, #4ade80);">🔥</div>
-                        <div>
-                            <div class="card-title">Momentum View</div>
-                            <div class="card-file">MomentumView.swift</div>
-                        </div>
-                    </div>
-                    <p class="card-description">Shows current momentum/streak. Visual indicator of productivity flow state.</p>
-                </div>
-
-                <div class="screen-card">
-                    <span class="badge badge-component">Component</span>
-                    <div class="card-header">
-                        <div class="card-icon" style="background: linear-gradient(135deg, #3b82f6, #60a5fa);">⏱️</div>
-                        <div>
-                            <div class="card-title">Time Ring</div>
-                            <div class="card-file">TimeRingView.swift</div>
-                        </div>
-                    </div>
-                    <p class="card-description">Circular timer showing time remaining until deadline. Color indicates urgency.</p>
-                </div>
-
                 <div class="screen-card">
                     <span class="badge badge-component">Component</span>
                     <div class="card-header">
@@ -1163,13 +2592,61 @@
                     </div>
                     <p class="card-description">Compact button to enter hyperfocus mode. Shows timer when active.</p>
                 </div>
+
+                <div class="screen-card">
+                    <span class="badge badge-component">Component</span>
+                    <div class="card-header">
+                        <div class="card-icon" style="background: linear-gradient(135deg, #ef4444, #f87171);">📊</div>
+                        <div>
+                            <div class="card-title">Waveform Bars</div>
+                            <div class="card-file">RecordingView.swift</div>
+                        </div>
+                    </div>
+                    <p class="card-description">Animated audio visualization. 20+ bars that respond to microphone input during recording.</p>
+                </div>
+
+                <div class="screen-card">
+                    <span class="badge badge-component">Component</span>
+                    <div class="card-header">
+                        <div class="card-icon" style="background: linear-gradient(135deg, #22c55e, #4ade80);">💬</div>
+                        <div>
+                            <div class="card-title">Message Bubbles</div>
+                            <div class="card-file">RecordingView.swift</div>
+                        </div>
+                    </div>
+                    <p class="card-description">Conversation display. User messages (right, accent), Assistant messages (left, light). Timestamps and avatars.</p>
+                </div>
+
+                <div class="screen-card">
+                    <span class="badge badge-component">Component</span>
+                    <div class="card-header">
+                        <div class="card-icon" style="background: linear-gradient(135deg, #3b82f6, #60a5fa);">🎯</div>
+                        <div>
+                            <div class="card-title">Progress Rings</div>
+                            <div class="card-file">Various</div>
+                        </div>
+                    </div>
+                    <p class="card-description">Circular progress indicators used in goals, focus sessions, and time tracking. Color-coded by progress level.</p>
+                </div>
+
+                <div class="screen-card">
+                    <span class="badge badge-component">Component</span>
+                    <div class="card-header">
+                        <div class="card-icon" style="background: linear-gradient(135deg, #f59e0b, #fbbf24);">⚡</div>
+                        <div>
+                            <div class="card-title">Energy Badge</div>
+                            <div class="card-file">EnergyCheckInView.swift</div>
+                        </div>
+                    </div>
+                    <p class="card-description">Tappable badge showing current energy level. Color-coded: red (low), yellow (medium), green (high).</p>
+                </div>
             </div>
         </section>
 
         <footer>
-            <p>VoiceDay iOS App Screen Matrix</p>
-            <p style="margin-top: 8px;">Generated from source code analysis • SwiftUI • iOS 17+</p>
-            <p style="margin-top: 8px; font-size: 0.8rem;">Bundle ID: com.gadfly.adhd</p>
+            <p>VoiceDay iOS App - Complete Screen Matrix & User Journeys</p>
+            <p style="margin-top: 8px;">75+ Screens | 8 User Journey Types | iOS 17+</p>
+            <p style="margin-top: 8px; font-size: 0.8rem;">Bundle ID: com.gadfly.adhd | Generated by Claude Code Analysis</p>
         </footer>
     </div>
 </body>

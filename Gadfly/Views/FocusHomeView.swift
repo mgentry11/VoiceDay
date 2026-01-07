@@ -1,0 +1,1005 @@
+import SwiftUI
+import EventKit
+
+// MARK: - Focus Home View
+
+/// Simplified home screen showing ONE task at a time
+/// Reduces overwhelm and decision paralysis for ADHD users
+struct FocusHomeView: View {
+    @EnvironmentObject var appState: AppState
+    @ObservedObject private var themeColors = ThemeColors.shared
+    @ObservedObject private var celebrationService = CelebrationService.shared
+    @ObservedObject private var momentumTracker = MomentumTracker.shared
+    @ObservedObject private var energyService = EnergyService.shared
+    @ObservedObject private var modeService = PresetModeService.shared
+    @StateObject private var calendarService = CalendarService()
+    @StateObject private var speechService = SpeechService()
+    @StateObject private var openAIService = OpenAIService()
+
+    @State private var reminders: [EKReminder] = []
+    @State private var isLoading = true
+    @State private var showAllTasks = false
+    @State private var showCelebration = false
+    @State private var showEnergyCheckIn = false
+    @State private var showTimeRing = false
+    @State private var showAttackPlan = false
+    @State private var showCoaching = false
+    @State private var showBreakdown = false
+    @State private var showCalendar = false
+    @State private var showHyperfocus = false
+    @State private var showMorningChecklist = false
+    @State private var showEveningCheckIn = false
+    @State private var showMiddayCheckIn = false
+    @State private var showCustomCheckInSetup = false
+    @State private var showCheckInSettings = false
+    @ObservedObject private var hyperfocusService = HyperfocusModeService.shared
+    @ObservedObject private var morningChecklistService = MorningChecklistService.shared
+
+    // Voice command state
+    @State private var isVoiceActive = false
+    @State private var voiceStatusMessage = ""
+    @State private var isProcessingVoice = false
+
+    // Current task is the highest priority incomplete one
+    private var currentTask: EKReminder? {
+        reminders
+            .filter { !$0.isCompleted }
+            .sorted { r1, r2 in
+                // Sort by priority (1 = high, 0 = none, 9 = low)
+                let p1 = r1.priority == 0 ? 5 : r1.priority
+                let p2 = r2.priority == 0 ? 5 : r2.priority
+                if p1 != p2 { return p1 < p2 }
+
+                // Then by due date
+                let d1 = r1.dueDateComponents?.date ?? .distantFuture
+                let d2 = r2.dueDateComponents?.date ?? .distantFuture
+                return d1 < d2
+            }
+            .first
+    }
+
+    private var remainingCount: Int {
+        reminders.filter { !$0.isCompleted }.count - (currentTask != nil ? 1 : 0)
+    }
+
+    @State private var showOptionsMenu = false
+    
+    var body: some View {
+        VStack(spacing: 12) {
+            if isVoiceActive || isProcessingVoice {
+                VoiceStatusBanner(
+                    isListening: isVoiceActive && !isProcessingVoice,
+                    isProcessing: isProcessingVoice,
+                    message: voiceStatusMessage,
+                    transcription: speechService.transcribedText
+                )
+                .padding(.horizontal)
+            }
+
+            HStack {
+                Button {
+                    toggleVoiceCommand()
+                } label: {
+                    Image(systemName: isVoiceActive ? "mic.fill" : "mic")
+                        .font(.title)
+                        .foregroundStyle(isVoiceActive ? Color.red : themeColors.accent)
+                        .symbolEffect(.pulse, isActive: isVoiceActive)
+                        .frame(width: 56, height: 56)
+                        .background(
+                            Circle()
+                                .fill(themeColors.secondary)
+                        )
+                }
+
+                Spacer()
+                
+                if hyperfocusService.isActive {
+                    HStack(spacing: 4) {
+                        Image(systemName: "lock.fill")
+                        Text(hyperfocusService.timerDisplayString)
+                            .font(.callout.monospacedDigit())
+                    }
+                    .font(.caption)
+                    .foregroundStyle(themeColors.accent)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 6)
+                    .background(Capsule().fill(themeColors.accent.opacity(0.15)))
+                }
+
+                Menu {
+                    Button { showCalendar = true } label: {
+                        Label("Calendar", systemImage: "calendar")
+                    }
+                    Button { showHyperfocus = true } label: {
+                        Label(hyperfocusService.isActive ? "Exit Hyperfocus" : "Hyperfocus Mode", systemImage: "scope")
+                    }
+                    Button { showCheckInSettings = true } label: {
+                        Label("Check-in Settings", systemImage: "clock.fill")
+                    }
+                } label: {
+                    Image(systemName: "line.3.horizontal")
+                        .font(.title2)
+                        .foregroundStyle(themeColors.text)
+                        .frame(width: 48, height: 48)
+                        .background(
+                            Circle()
+                                .fill(themeColors.secondary)
+                        )
+                }
+            }
+            .padding(.horizontal)
+
+            ScrollView {
+                VStack(spacing: 16) {
+                    dailyCheckInsSection
+                    
+                    if isLoading {
+                        ProgressView()
+                            .tint(themeColors.accent)
+                    } else if let task = currentTask {
+                        if let dueDate = task.dueDateComponents?.date, showTimeRing {
+                            TimeRingView(
+                                deadline: dueDate,
+                                taskTitle: task.title ?? "Task",
+                                totalDuration: TimeInterval(estimatedMinutes(for: task) * 60)
+                            )
+                            .frame(width: 180, height: 180)
+                            .onTapGesture { showTimeRing = false }
+                        } else {
+                            focusTaskCard(task)
+                        }
+                    } else {
+                        allDoneView
+                    }
+
+                    if currentTask != nil {
+                        bottomActions
+                    }
+                }
+                .padding(.bottom, 100)
+            }
+        }
+        .background(themeColors.background.ignoresSafeArea())
+        .overlay(alignment: .center) {
+            // Celebration overlay
+            CelebrationOverlay()
+        }
+        .sheet(isPresented: $showAllTasks) {
+            TasksListView()
+        }
+        .sheet(isPresented: $showCalendar) {
+            NavigationStack {
+                CalendarListView()
+                    .navigationTitle("Calendar")
+                    .navigationBarTitleDisplayMode(.inline)
+                    .toolbar {
+                        ToolbarItem(placement: .topBarTrailing) {
+                            Button("Done") { showCalendar = false }
+                        }
+                    }
+            }
+        }
+        .sheet(isPresented: $showEnergyCheckIn) {
+            EnergyCheckInView()
+        }
+        .sheet(isPresented: $showAttackPlan) {
+            if let task = currentTask {
+                TaskAttackSheet(
+                    task: voiceDayTask(from: task),
+                    isPresented: $showAttackPlan,
+                    onStartTask: {
+                        // User is starting the task
+                    },
+                    onBreakDown: {
+                        showAttackPlan = false
+                        showBreakdown = true
+                    }
+                )
+            }
+        }
+        .sheet(isPresented: $showCoaching) {
+            if let task = currentTask {
+                TaskCoachView(
+                    task: voiceDayTask(from: task),
+                    isPresented: $showCoaching,
+                    onComplete: { insights in
+                        // Could save insights to task
+                    }
+                )
+            }
+        }
+        .sheet(isPresented: $showBreakdown) {
+            if let task = currentTask {
+                TaskBreakdownView(
+                    task: voiceDayTask(from: task),
+                    isPresented: $showBreakdown,
+                    onCreateSubtasks: { steps in
+                        // Would create subtasks from steps
+                        print("Creating subtasks: \(steps)")
+                    }
+                )
+            }
+        }
+        .fullScreenCover(isPresented: $showHyperfocus) {
+            NavigationStack {
+                HyperfocusView()
+                    .toolbar {
+                        ToolbarItem(placement: .topBarTrailing) {
+                            Button("Done") {
+                                showHyperfocus = false
+                            }
+                        }
+                    }
+            }
+        }
+        .fullScreenCover(isPresented: $showMorningChecklist) {
+            MorningChecklistView(
+                onComplete: {
+                    morningChecklistService.dismissChecklist()
+                    showMorningChecklist = false
+                },
+                onSkip: {
+                    morningChecklistService.dismissChecklist()
+                    showMorningChecklist = false
+                }
+            )
+        }
+        .fullScreenCover(isPresented: $showEveningCheckIn) {
+            EveningCheckInView(
+                completedTaskCount: reminders.filter { $0.isCompleted }.count,
+                morningIntention: nil,
+                onComplete: {
+                    showEveningCheckIn = false
+                }
+            )
+        }
+        .fullScreenCover(isPresented: $showMiddayCheckIn) {
+            MorningChecklistView(
+                onComplete: {
+                    showMiddayCheckIn = false
+                },
+                onSkip: {
+                    showMiddayCheckIn = false
+                }
+            )
+        }
+        .sheet(isPresented: $showCheckInSettings) {
+            CheckInQuickSetupView()
+        }
+        .sheet(isPresented: $showCustomCheckInSetup) {
+            ManageCustomCheckInsView()
+        }
+        .onAppear {
+            morningChecklistService.checkIfShouldShowChecklist()
+            if morningChecklistService.shouldShowMorningChecklist {
+                showMorningChecklist = true
+            }
+
+            let hour = Calendar.current.component(.hour, from: Date())
+            if hour >= 18 && hour < 22 {
+            }
+
+            energyService.checkIfNeedsCheckIn()
+            if energyService.showCheckInPrompt {
+                showEnergyCheckIn = true
+            }
+            
+            promptCheckInSetupIfNeeded()
+        }
+        .task {
+            _ = await calendarService.requestReminderAccess()
+            await loadReminders()
+        }
+        // Respond to onboarding triggers from AppState
+        .onChange(of: appState.triggerMorningChecklist) { (triggered: Bool) in
+            if triggered {
+                showMorningChecklist = true
+                appState.triggerMorningChecklist = false // Reset trigger
+            }
+        }
+        .onChange(of: appState.triggerEveningChecklist) { (triggered: Bool) in
+            if triggered {
+                showEveningCheckIn = true
+                appState.triggerEveningChecklist = false // Reset trigger
+            }
+        }
+        .onChange(of: appState.triggerMiddayChecklist) { (triggered: Bool) in
+            if triggered {
+                // Midday uses morning checklist with energy focus
+                showMorningChecklist = true
+                appState.triggerMiddayChecklist = false // Reset trigger
+            }
+        }
+    }
+
+    private func estimatedMinutes(for task: EKReminder) -> Int {
+        let estimate = DurationEstimator.shared.estimateDuration(for: task.title ?? "")
+        return estimate.minutes
+    }
+
+    // MARK: - Voice Commands
+
+    private func toggleVoiceCommand() {
+        if isVoiceActive {
+            stopListeningAndProcess()
+        } else {
+            startListening()
+        }
+    }
+
+    private func startListening() {
+        do {
+            try speechService.startListening()
+            isVoiceActive = true
+            voiceStatusMessage = "Listening..."
+        } catch {
+            voiceStatusMessage = "Microphone error"
+            isVoiceActive = false
+        }
+    }
+
+    private func stopListeningAndProcess() {
+        speechService.stopListening()
+        isVoiceActive = false
+
+        let transcription = speechService.transcribedText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !transcription.isEmpty else {
+            voiceStatusMessage = ""
+            return
+        }
+
+        Task {
+            await processVoiceCommand(transcription)
+        }
+    }
+
+    private func processVoiceCommand(_ transcription: String) async {
+        voiceStatusMessage = "Processing..."
+        isProcessingVoice = true
+
+        do {
+            print("🎯 Focus voice command: \(transcription)")
+            let result = try await openAIService.processUserInput(transcription, apiKey: appState.claudeKey, personality: appState.selectedPersonality)
+
+            // Save any items
+            if !result.tasks.isEmpty || !result.events.isEmpty || !result.reminders.isEmpty {
+                let _ = try await calendarService.saveAllItems(from: result)
+                await loadReminders() // Refresh the list
+            }
+
+            voiceStatusMessage = result.summary ?? "Done!"
+
+            // Speak the response
+            if let summary = result.summary {
+                await AppDelegate.shared?.speakMessage(summary)
+            }
+
+            // Clear after delay
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                isProcessingVoice = false
+                voiceStatusMessage = ""
+            }
+
+        } catch {
+            voiceStatusMessage = "Error: \(error.localizedDescription)"
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                isProcessingVoice = false
+                voiceStatusMessage = ""
+            }
+        }
+    }
+
+    // MARK: - Focus Task Card
+
+    private func focusTaskCard(_ task: EKReminder) -> some View {
+        VStack(spacing: 20) {
+            // Priority badge
+            if task.priority > 0 && task.priority <= 4 {
+                Text("HIGH PRIORITY")
+                    .font(.caption.bold())
+                    .foregroundStyle(themeColors.priorityHigh)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(
+                        Capsule()
+                            .fill(themeColors.priorityHigh.opacity(0.15))
+                    )
+            }
+
+            Text(task.title ?? "Untitled Task")
+                .font(.title)
+                .fontWeight(.bold)
+                .foregroundStyle(themeColors.text)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal)
+                .padding(.vertical, 16)
+                .background(
+                    RoundedRectangle(cornerRadius: 16)
+                        .fill(themeColors.secondary.opacity(0.3))
+                        .shadow(color: themeColors.accent.opacity(0.2), radius: 20, x: 0, y: 0)
+                )
+
+            // Time remaining (tap to show ring)
+            if let dueDate = task.dueDateComponents?.date {
+                TimeRemainingView(deadline: dueDate)
+                    .onTapGesture { showTimeRing = true }
+
+                // AI duration estimate hint
+                let estimate = DurationEstimator.shared.estimateDuration(for: task.title ?? "")
+                Text("Estimated: \(estimate.displayString)")
+                    .font(.caption)
+                    .foregroundStyle(themeColors.subtext)
+            }
+
+            // Help buttons - friendly assistance
+            helpButtons
+
+            Button {
+                Task { await completeTask(task) }
+            } label: {
+                HStack(spacing: 16) {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.largeTitle)
+                    Text("Done!")
+                        .font(.title.bold())
+                }
+                .foregroundStyle(.white)
+                .frame(maxWidth: .infinity)
+                .frame(height: 80)
+                .background(
+                    RoundedRectangle(cornerRadius: 24)
+                        .fill(
+                            LinearGradient(
+                                colors: [themeColors.success, themeColors.success.opacity(0.8)],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                        )
+                )
+                .shadow(color: themeColors.success.opacity(0.4), radius: 12, x: 0, y: 6)
+            }
+            .padding(.horizontal, 24)
+            .padding(.top, 12)
+        }
+        .padding()
+    }
+
+    private var allDoneView: some View {
+        VStack(spacing: 16) {
+            Image(systemName: "checkmark.seal.fill")
+                .font(.system(size: 64))
+                .foregroundStyle(themeColors.success)
+
+            Text("All caught up!")
+                .font(.title)
+                .fontWeight(.semibold)
+                .foregroundStyle(themeColors.text)
+
+            Text("No tasks waiting for your attention")
+                .font(.subheadline)
+                .foregroundStyle(themeColors.subtext)
+        }
+    }
+
+    @ObservedObject private var dayStructure = DayStructureService.shared
+    
+    private var hasAnyCheckInsEnabled: Bool {
+        dayStructure.morningCheckInEnabled || 
+        dayStructure.middayCheckInEnabled || 
+        dayStructure.bedtimeCheckInEnabled ||
+        !dayStructure.enabledCustomCheckIns.isEmpty
+    }
+    
+    private var dailyCheckInsSection: some View {
+        VStack(spacing: 12) {
+            if !hasAnyCheckInsEnabled {
+                Button {
+                    showCheckInSettings = true
+                } label: {
+                    HStack(spacing: 16) {
+                        ZStack {
+                            Circle()
+                                .fill(themeColors.accent.opacity(0.15))
+                                .frame(width: 50, height: 50)
+                            Image(systemName: "bell.badge.fill")
+                                .font(.title2)
+                                .foregroundStyle(themeColors.accent)
+                        }
+                        
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Set Up Daily Check-ins")
+                                .font(.headline)
+                                .foregroundStyle(themeColors.text)
+                            Text("Get gentle reminders to stay on track")
+                                .font(.caption)
+                                .foregroundStyle(themeColors.subtext)
+                        }
+                        
+                        Spacer()
+                        
+                        Image(systemName: "chevron.right")
+                            .font(.subheadline)
+                            .foregroundStyle(themeColors.subtext)
+                    }
+                    .padding()
+                    .background(
+                        RoundedRectangle(cornerRadius: 16)
+                            .fill(themeColors.secondary)
+                    )
+                }
+                .padding(.horizontal)
+            } else {
+                HStack {
+                    Text("Check-ins")
+                        .font(.headline)
+                        .foregroundStyle(themeColors.text)
+                    Spacer()
+                    Button {
+                        showCheckInSettings = true
+                    } label: {
+                        Text("Edit")
+                            .font(.subheadline)
+                            .foregroundStyle(themeColors.accent)
+                    }
+                }
+                .padding(.horizontal)
+                
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 12) {
+                        if dayStructure.morningCheckInEnabled {
+                            checkInButton(
+                                title: "Morning",
+                                time: dayStructure.morningCheckInTime,
+                                icon: "sunrise.fill",
+                                color: .orange
+                            ) {
+                                showMorningChecklist = true
+                            }
+                        }
+                        
+                        if dayStructure.middayCheckInEnabled {
+                            checkInButton(
+                                title: "Afternoon",
+                                time: dayStructure.middayCheckInTime,
+                                icon: "sun.max.fill",
+                                color: .yellow
+                            ) {
+                                showMiddayCheckIn = true
+                            }
+                        }
+                        
+                        if dayStructure.bedtimeCheckInEnabled {
+                            checkInButton(
+                                title: "Evening",
+                                time: dayStructure.bedtimeCheckInTime,
+                                icon: "moon.fill",
+                                color: .indigo
+                            ) {
+                                showEveningCheckIn = true
+                            }
+                        }
+                        
+                        ForEach(dayStructure.enabledCustomCheckIns) { custom in
+                            checkInButton(
+                                title: custom.name,
+                                time: custom.time,
+                                icon: custom.icon,
+                                color: custom.color
+                            ) {
+                                showCustomCheckInSetup = true
+                            }
+                        }
+                        
+                        Button {
+                            showCheckInSettings = true
+                        } label: {
+                            VStack(spacing: 6) {
+                                Image(systemName: "plus")
+                                    .font(.title3)
+                                    .foregroundStyle(themeColors.accent)
+                            }
+                            .frame(width: 70, height: 70)
+                            .background(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .strokeBorder(themeColors.accent.opacity(0.4), style: StrokeStyle(lineWidth: 1.5, dash: [6]))
+                            )
+                        }
+                    }
+                    .padding(.horizontal)
+                }
+            }
+        }
+        .padding(.vertical, 8)
+    }
+    
+    private func checkInButton(title: String, time: Date, icon: String, color: Color, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            VStack(spacing: 6) {
+                Image(systemName: icon)
+                    .font(.title2)
+                    .foregroundStyle(color)
+                Text(title)
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(themeColors.text)
+                Text(formatCheckInTime(time))
+                    .font(.caption2)
+                    .foregroundStyle(themeColors.subtext)
+            }
+            .frame(width: 80, height: 80)
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(themeColors.secondary)
+            )
+        }
+    }
+    
+    private func formatCheckInTime(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.timeStyle = .short
+        return formatter.string(from: date)
+    }
+    
+    private func promptCheckInSetupIfNeeded() {
+        let hasPromptedKey = "has_prompted_checkin_setup"
+        guard !UserDefaults.standard.bool(forKey: hasPromptedKey) else { return }
+        
+        let noCheckInsEnabled = !dayStructure.morningCheckInEnabled &&
+                                !dayStructure.middayCheckInEnabled &&
+                                !dayStructure.bedtimeCheckInEnabled
+        
+        if noCheckInsEnabled {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                Task {
+                    await AppDelegate.shared?.speakMessage("Hey! Let's set up your daily check-ins. Tap the plus button to get started.")
+                }
+                UserDefaults.standard.set(true, forKey: hasPromptedKey)
+            }
+        } else {
+            UserDefaults.standard.set(true, forKey: hasPromptedKey)
+        }
+    }
+
+    // MARK: - Help Buttons
+    
+    @State private var showHelpOptions = false
+
+    private var helpButtons: some View {
+        HStack {
+            Spacer()
+            
+            if showHelpOptions {
+                HStack(spacing: 8) {
+                    helpOption(icon: "lightbulb", label: "How?", color: .orange) {
+                        showAttackPlan = true
+                        showHelpOptions = false
+                    }
+                    helpOption(icon: "bubble.left", label: "Think", color: .blue) {
+                        showCoaching = true
+                        showHelpOptions = false
+                    }
+                    helpOption(icon: "square.grid.2x2", label: "Split", color: .purple) {
+                        showBreakdown = true
+                        showHelpOptions = false
+                    }
+                }
+                .transition(.scale.combined(with: .opacity))
+            }
+            
+            Button {
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                    showHelpOptions.toggle()
+                }
+            } label: {
+                HStack(spacing: 4) {
+                    Image(systemName: showHelpOptions ? "xmark" : "questionmark")
+                    if !showHelpOptions {
+                        Text("Need help?")
+                    }
+                }
+                .font(.caption.weight(.medium))
+                .foregroundStyle(showHelpOptions ? .gray : themeColors.accent)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+                .background(
+                    Capsule()
+                        .fill(themeColors.secondary)
+                )
+            }
+            
+            Spacer()
+        }
+        .padding(.top, 8)
+    }
+    
+    private func helpOption(icon: String, label: String, color: Color, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            VStack(spacing: 4) {
+                Image(systemName: icon)
+                    .font(.title3)
+                Text(label)
+                    .font(.caption2)
+            }
+            .foregroundStyle(color)
+            .frame(width: 55, height: 50)
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(color.opacity(0.1))
+            )
+        }
+    }
+
+    // MARK: - Bottom Actions
+    
+    @State private var showMoreActions = false
+
+    private var bottomActions: some View {
+        VStack(spacing: 16) {
+            HStack(spacing: 12) {
+                Button {
+                    skipCurrentTask()
+                } label: {
+                    Text("Skip")
+                        .font(.headline)
+                        .foregroundStyle(themeColors.subtext)
+                        .frame(height: 56)
+                        .frame(maxWidth: .infinity)
+                        .background(RoundedRectangle(cornerRadius: 16).fill(themeColors.secondary))
+                }
+                
+                if remainingCount > 0 {
+                    Button {
+                        pickRandomTask()
+                    } label: {
+                        HStack(spacing: 8) {
+                            Image(systemName: "dice.fill")
+                                .font(.title3)
+                            Text("Random")
+                                .font(.headline)
+                        }
+                        .foregroundStyle(.orange)
+                        .frame(height: 56)
+                        .frame(maxWidth: .infinity)
+                        .background(RoundedRectangle(cornerRadius: 16).fill(Color.orange.opacity(0.15)))
+                    }
+                }
+                
+                Button {
+                    showAllTasks = true
+                } label: {
+                    HStack(spacing: 6) {
+                        Image(systemName: "list.bullet")
+                            .font(.title3)
+                        Text("\(remainingCount)")
+                            .font(.headline)
+                    }
+                    .foregroundStyle(themeColors.accent)
+                    .frame(width: 80, height: 56)
+                    .background(RoundedRectangle(cornerRadius: 16).fill(themeColors.secondary))
+                }
+            }
+            .padding(.horizontal, 20)
+        }
+        .padding(.bottom, 32)
+    }
+    
+    // MARK: - Random Task Selection
+    
+    private func pickRandomTask() {
+        let incompleteTasks = reminders.filter { !$0.isCompleted }
+        guard incompleteTasks.count > 1 else { return }
+        
+        var shuffled = incompleteTasks.shuffled()
+        if let current = currentTask,
+           let firstIndex = shuffled.firstIndex(where: { $0.calendarItemIdentifier == current.calendarItemIdentifier }) {
+            shuffled.remove(at: firstIndex)
+        }
+        
+        if let newTask = shuffled.first,
+           let newIndex = reminders.firstIndex(where: { $0.calendarItemIdentifier == newTask.calendarItemIdentifier }) {
+            var updated = reminders
+            let picked = updated.remove(at: newIndex)
+            updated.insert(picked, at: 0)
+            reminders = updated
+            
+            let messages = [
+                "How about this one?",
+                "Let's try this!",
+                "The dice have spoken!",
+                "Random pick: this task!",
+                "Here's your mission!"
+            ]
+            let message = RecentlySpokenService.shared.getUnspokenAlternative(from: messages)
+            Task {
+                await AppDelegate.shared?.speakMessage(message)
+            }
+        }
+    }
+
+    // MARK: - Actions
+
+    private func loadReminders() async {
+        isLoading = true
+        reminders = await calendarService.fetchReminders(includeCompleted: false)
+        isLoading = false
+    }
+
+    private func completeTask(_ task: EKReminder) async {
+        let taskTitle = task.title ?? "that task"
+        let priority = priorityFrom(ekPriority: task.priority)
+
+        do {
+            try await calendarService.toggleReminderComplete(task)
+            try? await Task.sleep(nanoseconds: 100_000_000)
+
+            // Update momentum
+            momentumTracker.recordTaskCompletion(priority: priority)
+
+            // Calculate celebration level
+            let level = celebrationService.levelFor(priority: priority)
+
+            // Get points from rewards system if active
+            let points = RewardsService.shared.currentTeam != nil ? pointsFor(priority: priority) : 0
+
+            // Celebrate!
+            celebrationService.celebrate(
+                level: level,
+                taskTitle: taskTitle,
+                priority: priority,
+                points: points
+            )
+
+            // Cancel nags
+            NotificationService.shared.cancelAllRemindersForTask(taskId: taskTitle)
+
+            // Reload list
+            await loadReminders()
+
+            // Update badge
+            BackgroundAudioManager.shared.updateAppBadge()
+
+            // Speak celebration
+            await AppDelegate.shared?.speakMessage(celebrationService.celebrationMessage)
+
+        } catch {
+            print("Error completing task: \(error)")
+        }
+    }
+
+    private func skipCurrentTask() {
+        guard let current = currentTask,
+              let index = reminders.firstIndex(where: { $0.calendarItemIdentifier == current.calendarItemIdentifier }) else {
+            return
+        }
+
+        // Move to end of list
+        var updated = reminders
+        let skipped = updated.remove(at: index)
+        updated.append(skipped)
+        reminders = updated
+    }
+
+    private func priorityFrom(ekPriority: Int) -> ItemPriority {
+        switch ekPriority {
+        case 1...4: return .high
+        case 5...6: return .medium
+        default: return .low
+        }
+    }
+
+    private func pointsFor(priority: ItemPriority) -> Int {
+        guard let team = RewardsService.shared.currentTeam else { return 0 }
+        let rules = team.pointRules
+        switch priority {
+        case .high: return rules.pointsPerHighPriority
+        case .medium: return rules.pointsPerMediumPriority
+        case .low: return rules.pointsPerLowPriority
+        }
+    }
+
+    /// Convert EKReminder to GadflyTask for use with coaching/attack views
+    private func voiceDayTask(from reminder: EKReminder) -> GadflyTask {
+        GadflyTask(
+            title: reminder.title ?? "Untitled",
+            dueDate: reminder.dueDateComponents?.date,
+            priority: priorityFrom(ekPriority: reminder.priority)
+        )
+    }
+}
+
+// MARK: - Time Remaining View
+
+/// Visual indicator of time remaining until deadline
+/// Uses color to communicate urgency without causing anxiety
+struct TimeRemainingView: View {
+    let deadline: Date
+    @State private var timeRemaining: TimeInterval = 0
+    @ObservedObject private var themeColors = ThemeColors.shared
+
+    private let timer = Timer.publish(every: 60, on: .main, in: .common).autoconnect()
+
+    var body: some View {
+        HStack(spacing: 8) {
+            Image(systemName: urgencyIcon)
+                .foregroundStyle(urgencyColor)
+
+            Text(timeString)
+                .font(.subheadline.monospacedDigit())
+                .foregroundStyle(urgencyColor)
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 8)
+        .background(
+            Capsule()
+                .fill(urgencyColor.opacity(0.1))
+        )
+        .onAppear { updateTimeRemaining() }
+        .onReceive(timer) { _ in updateTimeRemaining() }
+    }
+
+    private func updateTimeRemaining() {
+        timeRemaining = deadline.timeIntervalSinceNow
+    }
+
+    private var timeString: String {
+        if timeRemaining < 0 {
+            return "Overdue"
+        }
+
+        let hours = Int(timeRemaining) / 3600
+        let minutes = (Int(timeRemaining) % 3600) / 60
+
+        if hours > 24 {
+            let days = hours / 24
+            return "\(days) day\(days == 1 ? "" : "s") left"
+        } else if hours > 0 {
+            return "\(hours)h \(minutes)m left"
+        } else if minutes > 0 {
+            return "\(minutes) min left"
+        } else {
+            return "Due now"
+        }
+    }
+
+    private var urgencyColor: Color {
+        if timeRemaining < 0 {
+            return themeColors.priorityHigh // Overdue
+        } else if timeRemaining < 900 { // < 15 min
+            return themeColors.priorityHigh
+        } else if timeRemaining < 3600 { // < 1 hour
+            return .orange
+        } else if timeRemaining < 14400 { // < 4 hours
+            return .yellow
+        } else {
+            return themeColors.success
+        }
+    }
+
+    private var urgencyIcon: String {
+        if timeRemaining < 0 {
+            return "exclamationmark.circle.fill"
+        } else if timeRemaining < 900 {
+            return "clock.badge.exclamationmark.fill"
+        } else if timeRemaining < 3600 {
+            return "clock.fill"
+        } else {
+            return "clock"
+        }
+    }
+}
+
+// MARK: - Preview
+
+#Preview("Focus Home") {
+    FocusHomeView()
+}
+
+#Preview("Time Remaining") {
+    VStack(spacing: 16) {
+        TimeRemainingView(deadline: Date().addingTimeInterval(300)) // 5 min
+        TimeRemainingView(deadline: Date().addingTimeInterval(1800)) // 30 min
+        TimeRemainingView(deadline: Date().addingTimeInterval(7200)) // 2 hours
+        TimeRemainingView(deadline: Date().addingTimeInterval(86400)) // 1 day
+        TimeRemainingView(deadline: Date().addingTimeInterval(-600)) // Overdue
+    }
+    .padding()
+}
