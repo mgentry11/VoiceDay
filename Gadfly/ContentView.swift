@@ -14,6 +14,11 @@ struct ContentView: View {
     @State private var loadedVoices: [ElevenLabsService.Voice] = []
     @State private var showResumePrompt = false
     @ObservedObject private var sessionService = SessionStateService.shared
+    
+    // Swipe gesture state
+    @State private var dragOffset: CGFloat = 0
+    @State private var isDragging = false
+    private let swipeThreshold: CGFloat = 50
 
     // Check if onboarding should show - show if no voice selected
     private var needsOnboarding: Bool {
@@ -59,6 +64,43 @@ struct ContentView: View {
         }
         .tint(themeColors.accent)
         .id(themeColors.currentTheme.rawValue) // Force rebuild when theme changes
+        // Add swipe gesture for tab navigation
+        .gesture(
+            DragGesture()
+                .onChanged { value in
+                    // Only track horizontal drags
+                    if abs(value.translation.width) > abs(value.translation.height) {
+                        isDragging = true
+                        dragOffset = value.translation.width
+                    }
+                }
+                .onEnded { value in
+                    guard isDragging else { return }
+                    
+                    let horizontalMovement = value.translation.width
+                    
+                    // Swipe threshold must be met
+                    if abs(horizontalMovement) > swipeThreshold {
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            if horizontalMovement > 0 {
+                                // Swipe right - go to previous tab
+                                if appState.selectedTab > 0 {
+                                    appState.selectedTab -= 1
+                                }
+                            } else {
+                                // Swipe left - go to next tab
+                                if appState.selectedTab < 3 {
+                                    appState.selectedTab += 1
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Reset drag state
+                    isDragging = false
+                    dragOffset = 0
+                }
+        )
         .onAppear {
             print("🚀 ContentView onAppear - voiceId: '\(appState.selectedVoiceId)'")
             if !appState.hasValidClaudeKey {
@@ -261,7 +303,7 @@ struct VoiceSetupView: View {
         switch currentStep {
         case 0: return "Voice"
         case 1: return "Personality"
-        case 2: return "Daily Structure"
+        case 2: return "Daily Structures"
         case 3: return "Reminders"
         case 4: return "Get Started"
         default: return ""
