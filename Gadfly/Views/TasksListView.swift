@@ -312,7 +312,7 @@ struct TasksListView: View {
             }
 
             // Celebration overlay
-            CelebrationOverlay()
+            // CelebrationOverlay() - temporarily disabled
         }
     }
 

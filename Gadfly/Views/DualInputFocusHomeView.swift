@@ -4,6 +4,7 @@ import EventKit
 struct DualInputFocusHomeView: View {
     @EnvironmentObject var appState: AppState
     @StateObject private var calendarService = CalendarService()
+    @StateObject private var speechService = SpeechService.shared
     
     @State private var reminders: [EKReminder] = []
     @State private var isLoading = true
@@ -28,14 +29,19 @@ struct DualInputFocusHomeView: View {
                 
                 // 90pt voice button + 60pt text button
                 HStack(spacing: 20) {
-                    Button { showVoiceInput = true } label: {
+                    Button { 
+                        speechService.queueSpeech("What would you like to focus on?")
+                        showVoiceInput = true 
+                    } label: {
                         Circle()
                             .fill(LinearGradient(colors: [Color.red, Color.orange], startPoint: .top, endPoint: .bottom))
                             .frame(width: 90, height: 90)
                             .overlay(Image(systemName: "mic.fill").font(.system(size: 36)).foregroundColor(.white))
                     }
                     
-                    Button { showTextInput = true } label: {
+                    Button { 
+                        showTextInput = true 
+                    } label: {
                         Circle()
                             .fill(Color.blue)
                             .frame(width: 60, height: 60)
@@ -70,16 +76,21 @@ struct DualInputFocusHomeView: View {
         }
         .onAppear { loadReminders() }
         .sheet(isPresented: $showVoiceInput) {
-            SimpleInput { text in
-                Task { await addTask(text) }
+            SimpleInputView(onConfirm: { text in
+                Task { 
+                    await addTask(text)
+                    speechService.queueSpeech("Got it. \(text) is now your focus.")
+                }
                 showVoiceInput = false
-            }
+            })
         }
         .sheet(isPresented: $showTextInput) {
-            SimpleInput { text in
-                Task { await addTask(text) }
+            SimpleInputView(onConfirm: { text in
+                Task { 
+                    await addTask(text)
+                }
                 showTextInput = false
-            }
+            })
         }
     }
     
@@ -99,15 +110,18 @@ struct DualInputFocusHomeView: View {
         await MainActor.run {
             reminders.removeAll { $0.calendarItemIdentifier == task.calendarItemIdentifier }
         }
+        // Voice confirmation with ElevenLabs
+        speechService.queueSpeech("Nice work! \(task.title) is complete.")
     }
     
     private func addTask(_ text: String) async {
-        // Simple version - just reload
+        // TODO: Use OpenAI parsing to create proper reminder
+        // For now, just reload to show the task was acknowledged
         await loadReminders()
     }
 }
 
-struct SimpleInput: View {
+struct SimpleInputView: View {
     let onConfirm: (String) -> Void
     @State private var text = ""
     @Environment(\.dismiss) private var dismiss

@@ -137,18 +137,17 @@ struct FocusHomeView: View {
                         ProgressView()
                             .tint(themeColors.accent)
                     } else if let task = currentTask {
-                        // TimeRingView temporarily disabled
-                        // if let dueDate = task.dueDateComponents?.date, showTimeRing {
-                        //     TimeRingView(
-                        //         deadline: dueDate,
-                        //         taskTitle: task.title ?? "Task",
-                        //         totalDuration: TimeInterval(estimatedMinutes(for: task) * 60)
-                        //     )
-                        //     .frame(width: 180, height: 180)
-                        //     .onTapGesture { showTimeRing = false }
-                        // } else {
+                        if let dueDate = task.dueDateComponents?.date, showTimeRing {
+                            // TimeRingView(
+                                deadline: dueDate,
+                                taskTitle: task.title ?? "Task",
+                                totalDuration: TimeInterval(estimatedMinutes(for: task) * 60)
+                            )
+                            .frame(width: 180, height: 180)
+                            .onTapGesture { showTimeRing = false }
+                        } else {
                             focusTaskCard(task)
-                        // }
+                        }
                     } else {
                         allDoneView
                     }
@@ -161,10 +160,10 @@ struct FocusHomeView: View {
             }
         }
         .background(themeColors.background.ignoresSafeArea())
-        // CelebrationOverlay temporarily disabled
-        // .overlay(alignment: .center) {
-        //     CelebrationOverlay()
-        // }
+        .overlay(alignment: .center) {
+            // Celebration overlay
+            CelebrationOverlay()
+        }
         .sheet(isPresented: $showAllTasks) {
             TasksListView()
         }

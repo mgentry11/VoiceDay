@@ -29,6 +29,7 @@
 		2CD31655697A4E60A90EEF5D /* VoiceCloningService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC71E090FAF9442589D5EBD5 /* VoiceCloningService.swift */; };
 		2D0A288025E54F399692ED6E /* CelebrationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70051B27E77149839E770ECA /* CelebrationService.swift */; };
 		2D6A6AAFADD942158F082449 /* NotificationIntelligence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F981A803A534576A7CD8B41 /* NotificationIntelligence.swift */; };
+		2D81A656EE899836CC27CD93 /* MomentumCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E0842C2EAD31E5C5C2B8403 /* MomentumCard.swift */; };
 		318D2D197FD6F0945621C25C /* MorningChecklistService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0AE1DAF0366DB2C401BA8F1 /* MorningChecklistService.swift */; };
 		32F0CF15DB532ABC62168F71 /* PushCelebrationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBBF03F98FA33664C3129529 /* PushCelebrationView.swift */; };
 		3C317897C2612E692B5F71DE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71A79D170A84850C13DB42CB /* AppDelegate.swift */; };
@@ -165,6 +166,7 @@
 		72229982C2BFCA667E5E8BAE /* SessionStateService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SessionStateService.swift; sourceTree = "<group>"; };
 		7C2E6BD70E0A4C2980DD4875 /* LocationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationService.swift; sourceTree = "<group>"; };
 		7D02C3BACF2E489CA1980380 /* SmartScheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartScheduler.swift; sourceTree = "<group>"; };
+		7E0842C2EAD31E5C5C2B8403 /* MomentumCard.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MomentumCard.swift; sourceTree = "<group>"; };
 		7F91CDF0C4424AE08A8022DB /* TaskAttackAdvisor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskAttackAdvisor.swift; sourceTree = "<group>"; };
 		8442A4EAFF69E2E051D27CB7 /* GoalsService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GoalsService.swift; sourceTree = "<group>"; };
 		87D553E2AFE192A235E70AB3 /* AccountabilityTracker.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountabilityTracker.swift; sourceTree = "<group>"; };
@@ -434,6 +436,7 @@
 				5AE07F44E64A4FBC85F0A430 /* TimeRingView.swift */,
 				HYPER003000000000000013 /* HyperfocusButtonView.swift */,
 				EA1DFED340E872A0E095C8F8 /* ExpandableActionButton.swift */,
+				7E0842C2EAD31E5C5C2B8403 /* MomentumCard.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -639,6 +642,7 @@
 				D84C62C0A1F82197BE08C028 /* ExpandableActionButton.swift in Sources */,
 				25478C035E810D7D985F739D /* CustomDictionaryService.swift in Sources */,
 				CD08962BCEDBD62F86677CBF /* DualInputFocusHomeView.swift in Sources */,
+				2D81A656EE899836CC27CD93 /* MomentumCard.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

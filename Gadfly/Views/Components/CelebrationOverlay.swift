@@ -1,5 +1,7 @@
+
 import SwiftUI
-struct MomentumView: View {
+
+struct CelebrationOverlay: View {
     var body: some View {
         EmptyView()
     }
