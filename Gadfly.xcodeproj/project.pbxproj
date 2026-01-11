@@ -87,6 +87,7 @@
 		BB44B46BAA7D4FCAB30AAE94 /* MyRewardsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01D883A51D1844E997BBD698 /* MyRewardsView.swift */; };
 		C3AFBC5131B5933BB047EE63 /* SecureVaultService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10922479F09E9FF9A06A864 /* SecureVaultService.swift */; };
 		C57697D6D17640F89D87DD73 /* MedicationWindowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 390846FC58CA4361A2220297 /* MedicationWindowView.swift */; };
+		CD08962BCEDBD62F86677CBF /* DualInputFocusHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6F09BBFCB482AE9DAB6226B /* DualInputFocusHomeView.swift */; };
 		CF89F6EDAEAB369EE66F92CB /* RecentlySpokenService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2DB1A789CA173BF5EBD1862 /* RecentlySpokenService.swift */; };
 		D84C62C0A1F82197BE08C028 /* ExpandableActionButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA1DFED340E872A0E095C8F8 /* ExpandableActionButton.swift */; };
 		D9AC1983D00FFD0BB496D085 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 68DBB1AACA9990EEACBC29D2 /* Foundation.framework */; };
@@ -218,9 +219,10 @@
 		EBB467C10E2E4C07A967D6E4 /* FocusHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusHomeView.swift; sourceTree = "<group>"; };
 		EC378AE2B15A475FB3557891 /* CheckoutChecklistView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckoutChecklistView.swift; sourceTree = "<group>"; };
 		F0DAB193AAD64352AD02BFDE /* EnergyCheckInView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnergyCheckInView.swift; sourceTree = "<group>"; };
-		F1DAC294BBD75463BE13CFEF /* CheckInQuickSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckInQuickSetupView.swift; sourceTree = "<group>"; };
 		F1A3284AD314E968BEBD0C49 /* Gadfly Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Gadfly Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		F1DAC294BBD75463BE13CFEF /* CheckInQuickSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckInQuickSetupView.swift; sourceTree = "<group>"; };
 		F2DB1A789CA173BF5EBD1862 /* RecentlySpokenService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RecentlySpokenService.swift; sourceTree = "<group>"; };
+		F6F09BBFCB482AE9DAB6226B /* DualInputFocusHomeView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DualInputFocusHomeView.swift; sourceTree = "<group>"; };
 		F98A31C2ED45B2BFFD266626 /* NagContactsService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NagContactsService.swift; sourceTree = "<group>"; };
 		FAC058A774BF29F265D90A5E /* GadflyAPIService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GadflyAPIService.swift; sourceTree = "<group>"; };
 		FD552BEED6BC43C28FA75971 /* BodyDoublingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BodyDoublingView.swift; sourceTree = "<group>"; };
@@ -366,6 +368,7 @@
 				31DF3BEC16CCD1282DCF4AC8 /* UniversalEscapeView.swift */,
 				D3CB3FCC19AC8C8B237DA530 /* SimpleSettingsView.swift */,
 				C9263F036EEFEDFD62168497 /* SimpleVoicePicker.swift */,
+				F6F09BBFCB482AE9DAB6226B /* DualInputFocusHomeView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -635,6 +638,7 @@
 				194511BC70990766A78AB414 /* AsyncTimeout.swift in Sources */,
 				D84C62C0A1F82197BE08C028 /* ExpandableActionButton.swift in Sources */,
 				25478C035E810D7D985F739D /* CustomDictionaryService.swift in Sources */,
+				CD08962BCEDBD62F86677CBF /* DualInputFocusHomeView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

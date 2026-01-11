@@ -38,7 +38,7 @@ struct ContentView: View {
     var body: some View {
         TabView(selection: $appState.selectedTab) {
             // Focus tab - ADHD-friendly simplified view (primary entry point)
-            FocusHomeView()
+            DualInputFocusHomeView()
                 .tabItem {
                     Label("Focus", systemImage: "scope")
                 }
